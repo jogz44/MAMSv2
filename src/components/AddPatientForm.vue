@@ -1694,6 +1694,7 @@ const submitForm = async (shouldPrint, patientId = null, updatePatientInfo = fal
   formData.append('client_middlename', clientMiddleNameValue.value || '')
   formData.append('client_suffix', clientSuffixValue.value || '')
   formData.append('relationship', relationshipValue.value || '')
+  formData.append('performed_by', issuedByValue.value)
 
   if (patientId) {
     formData.append('patient_id', patientId)

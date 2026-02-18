@@ -1,5 +1,6 @@
 <template>
   <div class="settings-container">
+    <ActivityLog />
     <EligibilitySettings />
     <AccountManagement />
     <DropdownOptions />
@@ -10,13 +11,13 @@
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
+import ActivityLog from 'src/components/ActivityLog.vue'
 import EligibilitySettings from 'src/components/EligibilitySettings.vue'
 import AccountManagement from 'src/components/AccountManagement.vue'
 import DropdownOptions from 'src/components/DropdownOptions.vue'
 
 const router = useRouter()
 
-// ADMIN ONLY PROTECTION
 const data = JSON.parse(localStorage.getItem('user') || '{}')
 const role = data?.ROLE || ''
 
@@ -26,7 +27,3 @@ onMounted(() => {
   }
 })
 </script>
-
-<style scoped>
-
-</style>

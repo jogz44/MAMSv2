@@ -173,10 +173,9 @@
                   </q-input>
                 </div>
                 <div class="edit-item">
-                  <label class="edit-label">Issued By: <span v-if="isAdmin" class="required">*</span></label>
-                  <q-input v-model="editData.issuedBy" dense outlined class="edit-input" :disable="!isAdmin"
-                    :error="validationErrors.issuedBy" error-message="Issued By is required"
-                    :hint="!isAdmin ? 'Cannot be edited!' : ''" :persistent-hint="!isAdmin" />
+                  <label class="edit-label">Issued By:</label>
+                  <q-input v-model="editData.issuedBy" dense outlined class="edit-input" :disable="true"
+                    hint="Cannot be edited!" :persistent-hint="true" />
                 </div>
 
                 <!-- MEDICINE & LABORATORY: Only show Issued Amount -->
@@ -254,6 +253,7 @@
           <!-- VIEW MODE BUTTONS -->
           <template v-if="!editMode">
             <q-btn label="CLOSE" icon="close" unelevated class="dialog-goback-btn" @click="closeDialog" />
+            <q-btn label="DELETE" icon="delete" unelevated class="dialog-delete-btn" @click="showDeleteDialog = true" />
             <q-btn label="EDIT" icon="edit" unelevated class="dialog-edit-btn" @click="enterEditMode" />
             <q-btn label="PRINT PDF" icon="print" unelevated class="dialog-print-btn" @click="generatePDF"
               :loading="pdfLoading" />
@@ -288,7 +288,9 @@
               <q-icon name="account_balance_wallet" color="orange" />
             </template>
             <div>
-              <div class="text-weight-bold text-red">Projected Balance: ₱{{ formatCurrency(budgetData.projectedBalance) }}</div>
+              <div class="text-weight-bold text-red">Projected Balance: ₱{{ formatCurrency(budgetData.projectedBalance)
+                }}
+              </div>
             </div>
           </q-banner>
         </q-card-section>
@@ -299,6 +301,25 @@
           <q-btn label="CANCEL" icon="close" unelevated class="dialog-goback-btn" @click="cancelInsufficientFunds" />
           <q-btn label="PROCEED ANYWAY" icon="check" unelevated class="dialog-cancel-btn"
             @click="proceedWithInsufficientFunds" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- DELETE CONFIRMATION DIALOG -->
+    <q-dialog v-model="showDeleteDialog">
+      <q-card style="min-width: 350px">
+        <q-card-section>
+          <div class="text-h6">Delete Patient Record?</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          Are you sure you want to delete this patient record? This action cannot be undone.
+        </q-card-section>
+
+        <q-card-actions align="right" class="q-px-md q-pb-md">
+          <q-btn unelevated icon="close" label="NO" class="dialog-goback-btn" v-close-popup />
+          <q-btn unelevated icon="check" label="YES" class="dialog-delete-confirm-btn" @click="handleDelete"
+            :loading="deleteLoading" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -342,7 +363,8 @@
 
     <!-- SAVE CONFIRMATION DIALOG -->
     <q-dialog v-model="showSaveConfirmDialog" persistent>
-      <q-card style="min-width: 600px; max-width: 700px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden;">
+      <q-card
+        style="min-width: 600px; max-width: 700px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden;">
 
         <!-- HEADER - pinned -->
         <q-card-section class="bg-orange-6 text-white q-pa-md" style="flex-shrink: 0;">
@@ -391,7 +413,8 @@
                 <strong>Client Name:</strong>
                 <span v-if="selectedRecord?.rawData?.client_lastname">
                   {{ selectedRecord.rawData.client_lastname }}, {{ selectedRecord.rawData.client_firstname }}
-                  <span v-if="selectedRecord.rawData.client_middlename"> {{ selectedRecord.rawData.client_middlename }}</span>
+                  <span v-if="selectedRecord.rawData.client_middlename"> {{ selectedRecord.rawData.client_middlename
+                    }}</span>
                   <span v-if="selectedRecord.rawData.client_suffix"> {{ selectedRecord.rawData.client_suffix }}</span>
                 </span>
                 <span v-else>N/A</span>
@@ -425,7 +448,8 @@
                 <strong>Issued By:</strong> {{ editData.issuedBy }}
               </div>
               <div class="info-item" v-if="editData.category === 'HOSPITAL'">
-                <strong>Hospital Bill:</strong> {{ editData.hospitalBill ? '₱' + formatCurrency(editData.hospitalBill) : 'N/A' }}
+                <strong>Hospital Bill:</strong> {{ editData.hospitalBill ? '₱' + formatCurrency(editData.hospitalBill) :
+                'N/A' }}
               </div>
               <div class="info-item" :class="{ 'info-item-full': editData.category !== 'HOSPITAL' }">
                 <strong>Issued Amount:</strong> ₱{{ formatCurrency(editData.issuedAmount) }}
@@ -480,7 +504,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { api } from 'src/boot/axios'
 
 const axios = api
@@ -489,6 +513,10 @@ import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
 import { toWords } from 'number-to-words'
 import { useQuasar } from 'quasar'
+
+const router = useRouter()
+const showDeleteDialog = ref(false)
+const deleteLoading = ref(false)
 
 dayjs.extend(isSameOrAfter)
 
@@ -537,6 +565,32 @@ const updateIssuedAmount = (value) => {
 
 const updateHospitalBill = (value) => {
   editData.value.hospitalBill = parseCurrency(value)
+}
+
+const handleDelete = async () => {
+  deleteLoading.value = true
+  try {
+    await axios.post(`/api/patient-details/delete/${selectedRecord.value.uuid}`, {
+      performed_by: userData.USERNAME 
+    })
+    $q.notify({
+      type: 'positive',
+      message: 'Patient record deleted successfully',
+      position: 'top'
+    })
+    showDeleteDialog.value = false
+    showDetailsDialog.value = false
+    router.push('/patient-records')
+  } catch (error) {
+    console.error("Failed to delete patient:", error)
+    $q.notify({
+      type: 'negative',
+      message: 'Failed to delete patient record',
+      position: 'top'
+    })
+  } finally {
+    deleteLoading.value = false
+  }
 }
 
 const rows = ref([])
@@ -606,7 +660,6 @@ const hasChanges = computed(() => {
     selectedRecord.value.category !== editData.value.category ||
     selectedRecord.value.partner !== editData.value.partner ||
     (isAdmin.value && selectedRecord.value.issuedDate !== editData.value.issuedDate) ||
-    (isAdmin.value && selectedRecord.value.issuedBy !== editData.value.issuedBy) ||
     selectedRecord.value.issuedAmount !== editData.value.issuedAmount ||
     (editData.value.category === 'HOSPITAL' && selectedRecord.value.hospitalBill !== editData.value.hospitalBill) ||
     clientInfoChanged.value
@@ -692,10 +745,6 @@ const validateForm = () => {
   }
   if (!editData.value.partner) {
     validationErrors.value.partner = true
-    isValid = false
-  }
-  if (isAdmin.value && (!editData.value.issuedBy || editData.value.issuedBy.trim() === '')) {
-    validationErrors.value.issuedBy = true
     isValid = false
   }
   if (isAdmin.value && !editData.value.issuedDate) {
@@ -949,6 +998,8 @@ const confirmSave = async () => {
     formData.append('client_middlename', editData.value.clientMiddleName || '')
     formData.append('client_suffix', editData.value.clientSuffix || '')
     formData.append('relationship', editData.value.relationship || '')
+    formData.append('performed_by', userData.USERNAME)
+
 
     await axios.post('/api/patient-details/update', formData)
 
@@ -1374,4 +1425,24 @@ onMounted(async () => {
   color: #388e3c;
   font-weight: 600;
 }
+<<<<<<< HEAD
 </style>
+=======
+
+.dialog-delete-btn {
+  background: #ff3b3b !important;
+  color: white !important;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 4px;
+}
+
+.dialog-delete-confirm-btn {
+  background: #ff3b3b !important;
+  color: white !important;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 4px;
+}
+</style>
+>>>>>>> fc30ada65a48f771420f26fe3fa9712bcc9ada6d
