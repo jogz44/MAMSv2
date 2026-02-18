@@ -173,11 +173,10 @@
                   </q-input>
                 </div>
                 <div class="edit-item">
-                  <label class="edit-label">Issued By: <span v-if="isAdmin" class="required">*</span></label>
-                  <q-input v-model="editData.issuedBy" dense outlined class="edit-input" :disable="!isAdmin"
-                    :error="validationErrors.issuedBy" error-message="Issued By is required"
-                    :hint="!isAdmin ? 'Cannot be edited!' : ''" :persistent-hint="!isAdmin" />
-                </div>
+  <label class="edit-label">Issued By:</label>
+  <q-input v-model="editData.issuedBy" dense outlined class="edit-input" :disable="true"
+    hint="Cannot be edited!" :persistent-hint="true" />
+</div>
 
                 <!-- MEDICINE & LABORATORY: Only show Issued Amount -->
                 <div v-if="editData.category === 'MEDICINE' || editData.category === 'LABORATORY'" class="edit-item">
@@ -606,7 +605,6 @@ const hasChanges = computed(() => {
     selectedRecord.value.category !== editData.value.category ||
     selectedRecord.value.partner !== editData.value.partner ||
     (isAdmin.value && selectedRecord.value.issuedDate !== editData.value.issuedDate) ||
-    (isAdmin.value && selectedRecord.value.issuedBy !== editData.value.issuedBy) ||
     selectedRecord.value.issuedAmount !== editData.value.issuedAmount ||
     (editData.value.category === 'HOSPITAL' && selectedRecord.value.hospitalBill !== editData.value.hospitalBill) ||
     clientInfoChanged.value
@@ -692,10 +690,6 @@ const validateForm = () => {
   }
   if (!editData.value.partner) {
     validationErrors.value.partner = true
-    isValid = false
-  }
-  if (isAdmin.value && (!editData.value.issuedBy || editData.value.issuedBy.trim() === '')) {
-    validationErrors.value.issuedBy = true
     isValid = false
   }
   if (isAdmin.value && !editData.value.issuedDate) {
