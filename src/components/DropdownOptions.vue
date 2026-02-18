@@ -13,23 +13,21 @@
           <div class="fieldset-header">
             <div class="fieldset-title">Preference Options</div>
             <div class="actions">
-              <q-btn label="ADD OPTION" icon="add" class="action-btn add-btn" dense @click="openAddDialog('preference')" />
+              <q-btn label="ADD OPTION" icon="add" class="action-btn add-btn" dense
+                @click="openAddDialog('preference')" />
             </div>
           </div>
 
           <div class="table-wrapper">
-            <q-table 
-              :rows="preferenceRows" 
-              :columns="optionColumns" 
-              row-key="id"
-              :rows-per-page-options="[0]"
-              :loading="loadingPreferences"
-              hide-pagination
-              flat
-            >
-              <template #body-cell-action="props">
-                <q-td :props="props">
-                  <q-btn icon="delete" label="DELETE" color="red" size="sm" unelevated @click="openDeleteDialog('preference', props.row)" />
+            <q-table :rows="preferenceRows" :columns="optionColumns" row-key="id" :rows-per-page-options="[0]"
+              :loading="loadingPreferences" hide-pagination flat>
+              <template #body-cell-is_active="props">
+                <q-td :props="props" class="text-center">
+                  <q-toggle :model-value="!!props.row.is_active" color="green"
+                    @update:model-value="openToggleDialog('preference', props.row)" />
+                  <span :class="props.row.is_active ? 'status-active' : 'status-inactive'">
+                    {{ props.row.is_active ? 'Active' : 'Inactive' }}
+                  </span>
                 </q-td>
               </template>
             </q-table>
@@ -48,29 +46,20 @@
           <!-- Category Filter -->
           <div class="category-filter">
             <label class="filter-label">Filter by Category:</label>
-            <q-select 
-              v-model="selectedPartnerCategory" 
-              :options="categoryOptions" 
-              dense 
-              outlined 
-              class="filter-select"
-              placeholder="Select category"
-            />
+            <q-select v-model="selectedPartnerCategory" :options="categoryOptions" dense outlined class="filter-select"
+              placeholder="Select category" />
           </div>
 
           <div class="table-wrapper">
-            <q-table 
-              :rows="filteredPartnerRows" 
-              :columns="partnerColumnsSimplified" 
-              row-key="id"
-              :rows-per-page-options="[0]"
-              :loading="loadingPartners"
-              hide-pagination
-              flat
-            >
-              <template #body-cell-action="props">
-                <q-td :props="props">
-                  <q-btn icon="delete" label="DELETE" color="red" size="sm" unelevated @click="openDeleteDialog('partner', props.row)" />
+            <q-table :rows="filteredPartnerRows" :columns="partnerColumnsSimplified" row-key="id"
+              :rows-per-page-options="[0]" :loading="loadingPartners" hide-pagination flat>
+              <template #body-cell-is_active="props">
+                <q-td :props="props" class="text-center">
+                  <q-toggle :model-value="!!props.row.is_active" color="green"
+                    @update:model-value="openToggleDialog('partner', props.row)" />
+                  <span :class="props.row.is_active ? 'status-active' : 'status-inactive'">
+                    {{ props.row.is_active ? 'Active' : 'Inactive' }}
+                  </span>
                 </q-td>
               </template>
             </q-table>
@@ -87,18 +76,15 @@
           </div>
 
           <div class="table-wrapper">
-            <q-table 
-              :rows="sectorRows" 
-              :columns="optionColumns" 
-              row-key="id"
-              :rows-per-page-options="[0]"
-              :loading="loadingSectors"
-              hide-pagination
-              flat
-            >
-              <template #body-cell-action="props">
-                <q-td :props="props">
-                  <q-btn icon="delete" label="DELETE" color="red" size="sm" unelevated @click="openDeleteDialog('sector', props.row)" />
+            <q-table :rows="sectorRows" :columns="optionColumns" row-key="id" :rows-per-page-options="[0]"
+              :loading="loadingSectors" hide-pagination flat>
+              <template #body-cell-is_active="props">
+                <q-td :props="props" class="text-center">
+                  <q-toggle :model-value="!!props.row.is_active" color="green"
+                    @update:model-value="openToggleDialog('sector', props.row)" />
+                  <span :class="props.row.is_active ? 'status-active' : 'status-inactive'">
+                    {{ props.row.is_active ? 'Active' : 'Inactive' }}
+                  </span>
                 </q-td>
               </template>
             </q-table>
@@ -106,134 +92,131 @@
         </div>
       </div>
 
-    <!-- ===================== ADD DIALOG ===================== -->
-    <q-dialog v-model="addDialogVisible" persistent>
-      <q-card style="min-width: 420px;">
-        <q-card-section class="bg-green-7 text-white">
-          <div class="text-h6">
-            <q-icon name="add_circle" size="sm" class="q-mr-sm" />
-            Add {{ dialogLabel }} Option
-          </div>
-        </q-card-section>
+      <!-- ===================== ADD DIALOG ===================== -->
+      <q-dialog v-model="addDialogVisible" persistent>
+        <q-card style="min-width: 420px;">
+          <q-card-section class="bg-green-7 text-white">
+            <div class="text-h6">
+              <q-icon name="add_circle" size="sm" class="q-mr-sm" />
+              Add {{ dialogLabel }} Option
+            </div>
+          </q-card-section>
 
-        <q-card-section>
-          <div class="text-subtitle1 q-mb-md">
-            Enter the new option you want to add to the <strong>{{ dialogLabel }}</strong> dropdown.
-          </div>
-
-          <q-form ref="addForm">
-            <!-- Partner has category sub-select -->
-            <div v-if="activeTable === 'partner'" class="field q-mb-md">
-              <label>Category <span class="required">*</span></label>
-              <q-select
-                v-model="newOptionCategory"
-                :options="categoryOptions"
-                outlined dense
-                :rules="[val => !!val || 'This field is required']"
-              />
+          <q-card-section>
+            <div class="text-subtitle1 q-mb-md">
+              Enter the new option you want to add to the <strong>{{ dialogLabel }}</strong> dropdown.
             </div>
 
-            <div class="field">
-              <label>Option Name <span class="required">*</span></label>
-              <q-input
-                v-model="newOptionValue"
-                outlined dense
-                placeholder="Enter option name"
-                :rules="[val => !!val || 'This field is required', val => val.trim().length > 0 || 'Cannot be blank']"
-                @keyup.enter="confirmAdd"
-              />
+            <q-form ref="addForm">
+              <!-- Partner has category sub-select -->
+              <div v-if="activeTable === 'partner'" class="field q-mb-md">
+                <label>Category <span class="required">*</span></label>
+                <q-select v-model="newOptionCategory" :options="categoryOptions" outlined dense
+                  :rules="[val => !!val || 'This field is required']" />
+              </div>
+
+              <div class="field">
+                <label>Option Name <span class="required">*</span></label>
+                <q-input v-model="newOptionValue" outlined dense placeholder="Enter option name"
+                  :rules="[val => !!val || 'This field is required', val => val.trim().length > 0 || 'Cannot be blank']"
+                  @keyup.enter="confirmAdd" />
+              </div>
+            </q-form>
+          </q-card-section>
+
+          <q-separator />
+
+          <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md">
+            <q-btn label="CANCEL" icon="close" unelevated class="dialog-goback-btn" @click="closeAddDialog" />
+            <q-btn label="ADD" icon="check" unelevated class="dialog-cancel-btn" @click="confirmAdd" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+
+      <!-- ===================== CONFIRM ADD DIALOG ===================== -->
+      <q-dialog v-model="confirmAddDialogVisible" persistent>
+        <q-card style="min-width: 380px;">
+          <q-card-section class="bg-blue-6 text-white">
+            <div class="text-h6">
+              <q-icon name="info" size="sm" class="q-mr-sm" />
+              Confirm Add Option
             </div>
-          </q-form>
-        </q-card-section>
+          </q-card-section>
 
-        <q-separator />
-
-        <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md">
-          <q-btn label="CANCEL" icon="close" unelevated class="dialog-goback-btn" @click="closeAddDialog" />
-          <q-btn label="ADD" icon="check" unelevated class="dialog-cancel-btn" @click="confirmAdd" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-    <!-- ===================== CONFIRM ADD DIALOG ===================== -->
-    <q-dialog v-model="confirmAddDialogVisible" persistent>
-      <q-card style="min-width: 380px;">
-        <q-card-section class="bg-blue-6 text-white">
-          <div class="text-h6">
-            <q-icon name="info" size="sm" class="q-mr-sm" />
-            Confirm Add Option
-          </div>
-        </q-card-section>
-
-        <q-card-section>
-          <div class="text-subtitle1 q-mb-md">
-            Are you sure you want to add this option?
-          </div>
-          <div class="info-box">
-            <div class="info-item">
-              <strong>Table:</strong> {{ dialogLabel }}
+          <q-card-section>
+            <div class="text-subtitle1 q-mb-md">
+              Are you sure you want to add this option?
             </div>
-            <div v-if="activeTable === 'partner'" class="info-item">
-              <strong>Category:</strong> {{ newOptionCategory }}
+            <div class="info-box">
+              <div class="info-item">
+                <strong>Table:</strong> {{ dialogLabel }}
+              </div>
+              <div v-if="activeTable === 'partner'" class="info-item">
+                <strong>Category:</strong> {{ newOptionCategory }}
+              </div>
+              <div class="info-item">
+                <strong>Option:</strong> {{ newOptionValue }}
+              </div>
             </div>
-            <div class="info-item">
-              <strong>Option:</strong> {{ newOptionValue }}
+          </q-card-section>
+
+          <q-separator />
+
+          <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md">
+            <q-btn label="NO" icon="close" unelevated class="dialog-goback-btn"
+              @click="confirmAddDialogVisible = false" />
+            <q-btn label="YES" icon="check" unelevated class="dialog-cancel-btn" @click="doAdd" :loading="addLoading" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+
+      <!-- ===================== TOGGLE CONFIRM DIALOG ===================== -->
+      <q-dialog v-model="toggleDialogVisible" persistent>
+        <q-card style="min-width: 380px;">
+          <q-card-section :class="optionToToggle && optionToToggle.is_active ? 'bg-orange-7' : 'bg-green-7'"
+            class="text-white">
+            <div class="text-h6">
+              <q-icon :name="optionToToggle && optionToToggle.is_active ? 'block' : 'check_circle'" size="sm"
+                class="q-mr-sm" />
+              {{ optionToToggle && optionToToggle.is_active ? 'Deactivate' : 'Activate' }} Option?
             </div>
-          </div>
-        </q-card-section>
+          </q-card-section>
 
-        <q-separator />
-
-        <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md">
-          <q-btn label="NO" icon="close" unelevated class="dialog-goback-btn" @click="confirmAddDialogVisible = false" />
-          <q-btn label="YES" icon="check" unelevated class="dialog-cancel-btn" @click="doAdd" :loading="addLoading" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-    <!-- ===================== DELETE DIALOG ===================== -->
-    <q-dialog v-model="deleteDialogVisible" persistent>
-      <q-card style="min-width: 380px;">
-        <q-card-section class="bg-red-6 text-white">
-          <div class="text-h6">
-            <q-icon name="warning" size="sm" class="q-mr-sm" />
-            Delete Option?
-          </div>
-        </q-card-section>
-
-        <q-card-section class="q-pt-md">
-          <div class="text-subtitle1 q-mb-md">
-            Are you sure you want to delete this option?
-          </div>
-
-          <div class="info-box" v-if="optionToDelete">
-            <div class="info-item">
-              <strong>Table:</strong> {{ dialogLabel }}
+          <q-card-section class="q-pt-md">
+            <div class="text-subtitle1 q-mb-md">
+              Are you sure you want to <strong>{{ optionToToggle && optionToToggle.is_active ? 'deactivate' : 'activate'
+                }}</strong> this option?
             </div>
-            <div v-if="activeTable === 'partner'" class="info-item">
-              <strong>Category:</strong> {{ optionToDelete.category }}
+
+            <div class="info-box" v-if="optionToToggle">
+              <div class="info-item">
+                <strong>Table:</strong> {{ dialogLabel }}
+              </div>
+              <div v-if="activeTable === 'partner'" class="info-item">
+                <strong>Category:</strong> {{ optionToToggle.category }}
+              </div>
+              <div class="info-item">
+                <strong>Option:</strong> {{ optionToToggle.preference || optionToToggle.partner || optionToToggle.sector
+                }}
+              </div>
+              <div class="info-item">
+                <strong>Current Status:</strong>
+                <span :class="optionToToggle.is_active ? 'status-active' : 'status-inactive'">
+                  {{ optionToToggle.is_active ? 'Active' : 'Inactive' }}
+                </span>
+              </div>
             </div>
-            <div class="info-item">
-              <strong>Option:</strong> {{ optionToDelete.preference || optionToDelete.partner || optionToDelete.sector }}
-            </div>
-          </div>
+          </q-card-section>
 
-          <q-banner class="bg-red-1 text-red-9 q-mt-md">
-            <template v-slot:avatar>
-              <q-icon name="warning" color="red" />
-            </template>
-            This action cannot be undone.
-          </q-banner>
-        </q-card-section>
+          <q-separator />
 
-        <q-separator />
-
-        <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md">
-          <q-btn unelevated icon="close" label="NO" class="dialog-goback-btn" @click="deleteDialogVisible = false" />
-          <q-btn unelevated icon="check" label="YES" class="dialog-cancel-btn" @click="doDelete" :loading="deleteLoading" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+          <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md">
+            <q-btn unelevated icon="close" label="NO" class="dialog-goback-btn" @click="toggleDialogVisible = false" />
+            <q-btn unelevated icon="check" label="YES" class="dialog-cancel-btn" @click="doToggle"
+              :loading="toggleLoading" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
     </div>
   </div>
 </template>
@@ -249,13 +232,12 @@ const $q = useQuasar()
 // ===================== DATA =====================
 
 const categoryOptions = ['MEDICINE', 'LABORATORY', 'HOSPITAL']
-const selectedPartnerCategory = ref('MEDICINE') // Default to MEDICINE
+const selectedPartnerCategory = ref('MEDICINE')
 
 const preferenceRows = ref([])
 const partnerRows = ref([])
 const sectorRows = ref([])
 
-// Loading states
 const loadingPreferences = ref(false)
 const loadingPartners = ref(false)
 const loadingSectors = ref(false)
@@ -264,28 +246,18 @@ const loadingSectors = ref(false)
 
 const optionColumns = [
   { name: 'value', label: 'Option', field: row => row.preference || row.sector, align: 'left', sortable: true },
-  { name: 'action', label: 'Action', field: 'action', align: 'center' },
+  { name: 'is_active', label: 'Status', field: 'is_active', align: 'center' },
 ]
 
-const partnerColumns = [
-  { name: 'category', label: 'Category', field: 'category', align: 'center', sortable: true },
-  { name: 'value', label: 'Partner Name', field: 'value', align: 'left', sortable: true },
-  { name: 'action', label: 'Action', field: 'action', align: 'center' },
-]
-
-// Simplified partner columns without category
 const partnerColumnsSimplified = [
   { name: 'value', label: 'Partner Name', field: 'partner', align: 'left', sortable: true },
-  { name: 'action', label: 'Action', field: 'action', align: 'center' },
+  { name: 'is_active', label: 'Status', field: 'is_active', align: 'center' },
 ]
 
 // ===================== COMPUTED =====================
 
-// Filter partner rows based on selected category
 const filteredPartnerRows = computed(() => {
-  if (!selectedPartnerCategory.value) {
-    return partnerRows.value
-  }
+  if (!selectedPartnerCategory.value) return partnerRows.value
   return partnerRows.value.filter(row => row.category === selectedPartnerCategory.value)
 })
 
@@ -298,11 +270,11 @@ const newOptionCategory = ref(null)
 
 const addDialogVisible = ref(false)
 const confirmAddDialogVisible = ref(false)
-const deleteDialogVisible = ref(false)
+const toggleDialogVisible = ref(false)
 const addLoading = ref(false)
-const deleteLoading = ref(false)
+const toggleLoading = ref(false)
 
-const optionToDelete = ref(null)
+const optionToToggle = ref(null)
 
 const tableLabels = {
   preference: 'Preference',
@@ -314,54 +286,13 @@ const dialogLabel = ref('')
 
 // ===================== API FUNCTIONS =====================
 
-const fetchAllOptions = async () => {
-  try {
-    loadingPreferences.value = true
-    loadingPartners.value = true
-    loadingSectors.value = true
-    
-    const response = await axios.get('/api/all')
-    
-    console.log('Response received:', response)
-    console.log('Response data:', response.data)
-    
-    preferenceRows.value = response.data.preferences || []
-    partnerRows.value = response.data.partners || []
-    sectorRows.value = response.data.sectors || []
-
-    console.log('Preferences:', preferenceRows.value)
-    console.log('Partners:', partnerRows.value)
-    console.log('Sectors:', sectorRows.value)
-
-  } catch (error) {
-    console.error('Error fetching options:', error)
-    console.error('Error response:', error.response)
-    console.error('Error data:', error.response?.data)
-    console.error('Error status:', error.response?.status)
-    $q.notify({
-      type: 'negative',
-      message: error.response?.data?.message || error.response?.data?.error || 'Failed to load dropdown options',
-      position: 'top'
-    })
-  } finally {
-    loadingPreferences.value = false
-    loadingPartners.value = false
-    loadingSectors.value = false
-  }
-}
-
 const fetchPreferences = async () => {
   try {
     loadingPreferences.value = true
-    const response = await axios.get('/api/preferences')
+    const response = await axios.get('/api/preferences/all')
     preferenceRows.value = response.data || []
   } catch (error) {
-    console.error('Error fetching preferences:', error)
-    $q.notify({
-      type: 'negative',
-      message: 'Failed to load preferences',
-      position: 'top'
-    })
+    $q.notify({ type: 'negative', message: 'Failed to load preferences', position: 'top' })
   } finally {
     loadingPreferences.value = false
   }
@@ -370,15 +301,10 @@ const fetchPreferences = async () => {
 const fetchPartners = async () => {
   try {
     loadingPartners.value = true
-    const response = await axios.get('/api/partners')
+    const response = await axios.get('/api/partners/all')
     partnerRows.value = response.data || []
   } catch (error) {
-    console.error('Error fetching partners:', error)
-    $q.notify({
-      type: 'negative',
-      message: 'Failed to load partners',
-      position: 'top'
-    })
+    $q.notify({ type: 'negative', message: 'Failed to load partners', position: 'top' })
   } finally {
     loadingPartners.value = false
   }
@@ -387,15 +313,10 @@ const fetchPartners = async () => {
 const fetchSectors = async () => {
   try {
     loadingSectors.value = true
-    const response = await axios.get('/api/sectors')
+    const response = await axios.get('/api/sectors/all')
     sectorRows.value = response.data || []
   } catch (error) {
-    console.error('Error fetching sectors:', error)
-    $q.notify({
-      type: 'negative',
-      message: 'Failed to load sectors',
-      position: 'top'
-    })
+    $q.notify({ type: 'negative', message: 'Failed to load sectors', position: 'top' })
   } finally {
     loadingSectors.value = false
   }
@@ -407,7 +328,6 @@ const openAddDialog = (table) => {
   activeTable.value = table
   dialogLabel.value = tableLabels[table]
   newOptionValue.value = ''
-  // Pre-select the current category filter for partner
   newOptionCategory.value = table === 'partner' ? selectedPartnerCategory.value : null
   addDialogVisible.value = true
 }
@@ -427,7 +347,6 @@ const confirmAdd = async () => {
 
 const doAdd = async () => {
   addLoading.value = true
-
   try {
     let endpoint = ''
     let payload = {}
@@ -437,10 +356,7 @@ const doAdd = async () => {
       payload = { value: newOptionValue.value.trim() }
     } else if (activeTable.value === 'partner') {
       endpoint = '/api/partners'
-      payload = {
-        category: newOptionCategory.value,
-        value: newOptionValue.value.trim()
-      }
+      payload = { category: newOptionCategory.value, value: newOptionValue.value.trim() }
     } else if (activeTable.value === 'sector') {
       endpoint = '/api/sectors'
       payload = { value: newOptionValue.value.trim() }
@@ -448,96 +364,67 @@ const doAdd = async () => {
 
     const response = await axios.post(endpoint, payload)
 
-    // Refresh the specific table data
-    if (activeTable.value === 'preference') {
-      await fetchPreferences()
-    } else if (activeTable.value === 'partner') {
-      await fetchPartners()
-    } else if (activeTable.value === 'sector') {
-      await fetchSectors()
-    }
+    if (activeTable.value === 'preference') await fetchPreferences()
+    else if (activeTable.value === 'partner') await fetchPartners()
+    else if (activeTable.value === 'sector') await fetchSectors()
 
     confirmAddDialogVisible.value = false
     newOptionValue.value = ''
     newOptionCategory.value = null
 
-    $q.notify({
-      type: 'positive',
-      message: response.data.message || 'Option added successfully',
-      position: 'top'
-    })
+    $q.notify({ type: 'positive', message: response.data.message || 'Option added successfully', position: 'top' })
   } catch (error) {
-    console.error('Error adding option:', error)
-    const errorMessage = error.response?.data?.error || 'Failed to add option'
-    $q.notify({
-      type: 'negative',
-      message: errorMessage,
-      position: 'top'
-    })
+    $q.notify({ type: 'negative', message: error.response?.data?.error || 'Failed to add option', position: 'top' })
   } finally {
     addLoading.value = false
   }
 }
 
-// ===================== DELETE =====================
+// ===================== TOGGLE =====================
 
-const openDeleteDialog = (table, row) => {
+const openToggleDialog = (table, row) => {
   activeTable.value = table
   dialogLabel.value = tableLabels[table]
-  optionToDelete.value = row
-  deleteDialogVisible.value = true
+  optionToToggle.value = row
+  toggleDialogVisible.value = true
 }
 
-const doDelete = async () => {
-  deleteLoading.value = true
-
+const doToggle = async () => {
+  toggleLoading.value = true
   try {
     let endpoint = ''
 
     if (activeTable.value === 'preference') {
-      endpoint = `/api/preferences/${optionToDelete.value.id}`
+      endpoint = `/api/preferences/${optionToToggle.value.id}/toggle`
     } else if (activeTable.value === 'partner') {
-      endpoint = `/api/partners/${optionToDelete.value.id}`
+      endpoint = `/api/partners/${optionToToggle.value.id}/toggle`
     } else if (activeTable.value === 'sector') {
-      endpoint = `/api/sectors/${optionToDelete.value.id}`
+      endpoint = `/api/sectors/${optionToToggle.value.id}/toggle`
     }
 
-    const response = await axios.delete(endpoint)
+    const response = await axios.post(endpoint)
 
-    // Refresh the specific table data
-    if (activeTable.value === 'preference') {
-      await fetchPreferences()
-    } else if (activeTable.value === 'partner') {
-      await fetchPartners()
-    } else if (activeTable.value === 'sector') {
-      await fetchSectors()
-    }
+    if (activeTable.value === 'preference') await fetchPreferences()
+    else if (activeTable.value === 'partner') await fetchPartners()
+    else if (activeTable.value === 'sector') await fetchSectors()
 
-    deleteDialogVisible.value = false
-    optionToDelete.value = null
+    toggleDialogVisible.value = false
+    optionToToggle.value = null
 
-    $q.notify({
-      type: 'positive',
-      message: response.data.message || 'Option deleted successfully',
-      position: 'top'
-    })
+    $q.notify({ type: 'positive', message: response.data.message || 'Status updated successfully', position: 'top' })
   } catch (error) {
-    console.error('Error deleting option:', error)
-    const errorMessage = error.response?.data?.error || 'Failed to delete option'
-    $q.notify({
-      type: 'negative',
-      message: errorMessage,
-      position: 'top'
-    })
+    $q.notify({ type: 'negative', message: error.response?.data?.error || 'Failed to update status', position: 'top' })
   } finally {
-    deleteLoading.value = false
+    toggleLoading.value = false
   }
 }
 
 // ===================== LIFECYCLE =====================
 
 onMounted(() => {
-  fetchAllOptions()
+  fetchPreferences()
+  fetchPartners()
+  fetchSectors()
 })
 </script>
 
@@ -550,7 +437,6 @@ onMounted(() => {
   padding: 30px;
 }
 
-/* PARENT CONTAINER */
 .parent-header {
   display: flex;
   align-items: center;
@@ -577,7 +463,6 @@ onMounted(() => {
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12);
 }
 
-/* ROW LAYOUT FOR TABLES */
 .tables-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -592,7 +477,6 @@ onMounted(() => {
   padding: 25px 30px 35px;
 }
 
-/* TITLE */
 .fieldset-title {
   font-size: 20px;
   font-weight: 700;
@@ -624,7 +508,6 @@ onMounted(() => {
   align-items: center;
 }
 
-/* BUTTON BASE */
 .action-btn {
   font-weight: 600;
   font-size: 12px;
@@ -638,6 +521,23 @@ onMounted(() => {
   color: white;
   font-weight: bold;
   border-radius: 5%;
+}
+
+/* =========================
+   STATUS LABELS
+========================= */
+.status-active {
+  color: #1f8f2e;
+  font-weight: 600;
+  font-size: 13px;
+  margin-left: 4px;
+}
+
+.status-inactive {
+  color: #b0b0b0;
+  font-weight: 600;
+  font-size: 13px;
+  margin-left: 4px;
 }
 
 /* =========================
@@ -732,13 +632,8 @@ onMounted(() => {
   border-radius: 4px;
 }
 
-.dialog-cancel-btn .q-icon,
-.dialog-goback-btn .q-icon {
-  margin-right: 6px;
-}
-
 /* =========================
-   INFO BOX (inside dialogs)
+   INFO BOX
 ========================= */
 .info-box {
   background: #f5f5f5;
@@ -763,7 +658,7 @@ onMounted(() => {
 }
 
 /* =========================
-   FORM FIELDS (inside dialogs)
+   FORM FIELDS
 ========================= */
 .field label {
   font-weight: 600;

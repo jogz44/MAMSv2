@@ -98,7 +98,12 @@
                 No sectors available
               </div>
               <q-checkbox v-for="sector in allSectors" :key="sector.id" :val="sector.id" v-model="selectedSectorIds"
-                :label="sector.sector" dense :disable="!edit" @update:model-value="checkForChanges" />
+                :label="sector.sector" dense :disable="!edit || !sector.is_active"
+                @update:model-value="checkForChanges">
+                <q-tooltip v-if="!sector.is_active" :delay="300" class="text-body2">
+                  This sector is deactivated and cannot be changed
+                </q-tooltip>
+              </q-checkbox>
             </div>
           </div>
 
@@ -186,9 +191,9 @@
           Are you sure you want to save these changes?
         </q-card-section>
 
-        <q-card-actions align="right" class="q-px-md q-pb-md">
-          <q-btn label="NO" icon="close" unelevated class="dialog-goback-btn" v-close-popup />
-          <q-btn label="YES" icon="check" unelevated class="dialog-cancel-btn" @click="confirmSave"
+        <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md">
+          <q-btn label="CANCEL" icon="close" unelevated class="dialog-goback-btn" @click="cancelPatientEdit" />
+          <q-btn label="UPDATE" icon="check" unelevated class="dialog-cancel-btn" @click="confirmSave"
             :loading="editActionLoading" />
         </q-card-actions>
       </q-card>
@@ -238,6 +243,12 @@
               <div class="info-item">
                 <strong>Phone:</strong> {{ formatPhoneNumber(originalPatientData.phone_number) }}
               </div>
+              <div class="info-item info-item-full">
+                <strong>Sectors:</strong>
+                {{(originalPatientData.sector_ids || []).length
+                  ? allSectors.filter(s => (originalPatientData.sector_ids || []).includes(s.id)).map(s =>
+                    s.sector).join(',') : 'None'}}
+              </div>
             </div>
           </div>
 
@@ -269,6 +280,11 @@
               </div>
               <div class="info-item">
                 <strong>Phone:</strong> {{ formatPhoneNumber(phoneNumberValue) }}
+              </div>
+              <div class="info-item info-item-full">
+                <strong>Sectors:</strong>
+                {{selectedSectorIds.length
+                  ? allSectors.filter(s => selectedSectorIds.includes(s.id)).map(s => s.sector).join(', ') : 'None'}}
               </div>
             </div>
           </div>
@@ -470,21 +486,16 @@ const editActionLoading = ref(false)
 const hasPatientChanges = ref(false)
 const hasTransactionChanges = ref(false)
 
-
-// Add this function to fetch dropdown options
 const fetchDropdownOptions = async () => {
   try {
     const res = await axios.get('/api/all')
     dynamicPartners.value = res.data.partners
     dynamicPreferences.value = res.data.preferences
-    allSectors.value = res.data.sectors
+    const sectorsRes = await axios.get('/api/sectors/all')
+    allSectors.value = sectorsRes.data
   } catch (err) {
     console.error('Failed to fetch dropdown options', err)
-    $q.notify({
-      type: 'negative',
-      message: 'Failed to load dropdown options',
-      position: 'top'
-    })
+    $q.notify({ type: 'negative', message: 'Failed to load dropdown options', position: 'top' })
   }
 }
 
@@ -843,11 +854,6 @@ const confirmSave = async () => {
       hasTransactionChanges.value = false
       await getPatientDetails(glNum.value)
     }
-    $q.notify({
-      type: 'positive',
-      message: 'Changes saved successfully',
-      position: 'top'
-    })
   } catch (error) {
     console.error('Save failed:', error)
     $q.notify({

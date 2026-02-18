@@ -760,18 +760,20 @@ const filteredRows = computed(() => {
   return filtered
 })
 
-// Fetch dropdown options from backend
 const fetchDropdownOptions = async () => {
   try {
-    const res = await axios.get('/api/all')
-    allPartners.value = res.data.partners
-    allPreferences.value = res.data.preferences
-    allSectors.value = res.data.sectors
+    const [partnersRes, preferencesRes, sectorsRes] = await Promise.all([
+      axios.get('/api/partners/all'),
+      axios.get('/api/preferences/all'),
+      axios.get('/api/sectors/all')
+    ])
+    allPartners.value = partnersRes.data
+    allPreferences.value = preferencesRes.data
+    allSectors.value = sectorsRes.data
   } catch (err) {
     console.error('Failed to fetch dropdown options:', err)
   }
 }
-
 // Fetch patients with optional date filter
 const fetchPatients = async (dateFilter = null) => {
   loading.value = true
