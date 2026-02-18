@@ -1,15 +1,7 @@
 <template>
   <div class="activity-log q-mb-lg">
-    <q-table
-      :rows="filteredLogs"
-      :columns="columns"
-      row-key="id"
-      :loading="loading"
-      :pagination="pagination"
-      flat
-      bordered
-      @row-click="openLogDetails"
-    >
+    <q-table :rows="filteredLogs" :columns="columns" row-key="id" :loading="loading" :pagination="pagination" flat
+      bordered @row-click="openLogDetails">
 
       <!-- TOP BAR -->
       <template #top>
@@ -20,31 +12,16 @@
           <q-space />
 
           <!-- SEARCH -->
-          <q-input
-            v-model="searchText"
-            dense
-            outlined
-            placeholder="Search..."
-            style="min-width: 200px"
-            clearable
-            @update:model-value="onSearchChange"
-          >
+          <q-input v-model="searchText" dense outlined placeholder="Search..." style="min-width: 200px" clearable
+            @update:model-value="onSearchChange">
             <template #prepend>
               <q-icon name="search" color="white" />
             </template>
           </q-input>
 
           <!-- ACTION FILTER -->
-          <q-select
-            v-model="filterAction"
-            :options="actionFilterOptions"
-            dense
-            outlined
-            emit-value
-            map-options
-            style="min-width: 220px"
-            @update:model-value="fetchLogs"
-          />
+          <q-select v-model="filterAction" :options="actionFilterOptions" dense outlined emit-value map-options
+            style="min-width: 220px" @update:model-value="fetchLogs" />
 
           <!-- REFRESH -->
           <q-btn icon="refresh" label="Refresh" flat dense color="white" @click="fetchLogs" />
@@ -54,11 +31,8 @@
       <!-- ACTION BADGE -->
       <template #body-cell-action="props">
         <q-td align="center">
-          <q-badge
-            :color="getActionColor(props.row.action)"
-            :label="props.row.action"
-            class="text-weight-bold q-pa-xs action-badge"
-          />
+          <q-badge :color="getActionColor(props.row.action)" :label="props.row.action"
+            class="text-weight-bold q-pa-xs action-badge" />
         </q-td>
       </template>
 
@@ -73,11 +47,8 @@
       <template #body-cell-changes="props">
         <q-td align="left">
           <span class="changes-text">{{ props.row.changes || '—' }}</span>
-          <q-tooltip
-            v-if="props.row.changes && props.row.changes.length > 60"
-            max-width="420px"
-            class="text-body2 q-pa-sm"
-          >
+          <q-tooltip v-if="props.row.changes && props.row.changes.length > 60" max-width="420px"
+            class="text-body2 q-pa-sm">
             {{ props.row.changes }}
           </q-tooltip>
         </q-td>
@@ -136,11 +107,8 @@
                 <div class="field-block">
                   <div class="field-label">Action:</div>
                   <div>
-                    <q-badge
-                      :color="getActionColor(selectedLog.action)"
-                      :label="selectedLog.action"
-                      class="text-weight-bold"
-                    />
+                    <q-badge :color="getActionColor(selectedLog.action)" :label="selectedLog.action"
+                      class="text-weight-bold" />
                   </div>
                 </div>
 

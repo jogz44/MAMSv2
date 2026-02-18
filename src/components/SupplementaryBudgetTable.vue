@@ -183,6 +183,8 @@ import { ref, onMounted, computed } from 'vue'
 import { useQuasar } from 'quasar'
 import { api } from 'src/boot/axios'
 
+const userData = JSON.parse(localStorage.getItem('user') || '{}')
+
 const axios = api
 
 const $q = useQuasar()
@@ -463,7 +465,8 @@ const confirmTransfer = async () => {
       date_added: new Date().toISOString().split('T')[0],
       medicine_supplementary_bonus: fromAmount + toAmount,
       laboratory_supplementary_bonus: labFrom + labTo,
-      hospital_supplementary_bonus: hospFrom + hospTo
+      hospital_supplementary_bonus: hospFrom + hospTo,
+      performed_by: userData.USERNAME
     })
 
     $q.notify({
@@ -620,6 +623,7 @@ const confirmAddBudget = async () => {
     formData.append('medicine_supplementary_bonus', medicineSupplementaryBudget.value)
     formData.append('laboratory_supplementary_bonus', laboratorySupplementaryBudget.value)
     formData.append('hospital_supplementary_bonus', hospitalSupplementaryBudget.value)
+    formData.append('performed_by', userData.USERNAME)
 
     await axios.post('/api/add-supplementary-bonus', formData)
 
