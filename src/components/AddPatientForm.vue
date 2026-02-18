@@ -327,17 +327,13 @@
         </div>
 
         <div class="actions">
-          <q-btn class="btn-cancel" label="CLOSE" @click="showCancelDialog = true" dense>
-            <q-icon name="close" class="centered-icon" />
-          </q-btn>
+          <q-btn class="btn-cancel" icon="close" label="CLOSE" @click="showCancelDialog = true" dense />
           <q-btn class="btn-save" icon="save" label="SAVE" @click="handleSaveClick" dense />
           <q-btn class="btn-print" icon="print" label="SAVE AND PRINT" @click="handleSaveAndPrintClick" dense />
         </div>
       </q-form>
 
-      <!-- ==================== DIALOGS ==================== -->
-
-      <!-- INSUFFICIENT FUNDS DIALOG -->
+      <!-- INSUFFICIENT FUNDS -->
       <q-dialog v-model="showInsufficientFundsDialog" persistent>
         <q-card style="min-width: 500px;">
           <q-card-section class="bg-orange-6 text-white">
@@ -354,13 +350,13 @@
           <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md">
             <q-btn label="CANCEL" icon="close" unelevated class="dialog-goback-btn" @click="cancelInsufficientFunds" />
             <q-btn label="PROCEED ANYWAY" icon="check" unelevated class="dialog-cancel-btn"
-              @click="proceedWithInsufficientFunds" :loading="areYouSureLoading" />
+              @click="proceedWithInsufficientFunds" />
           </q-card-actions>
         </q-card>
       </q-dialog>
 
-      <!-- FINAL CONFIRMATION DIALOG — existing browser patient (details comparison) -->
-      <q-dialog v-model="showFinalConfirmDialog" persistent>
+      <!--CONFIRM DETAILS-->
+      <q-dialog v-model="showConfirmDetailsDialog" persistent>
         <q-card style="min-width: 700px; max-width: 800px;">
           <q-card-section class="bg-blue-6 text-white">
             <div class="text-h6"><q-icon name="info" size="sm" class="q-mr-sm" />Confirm Patient Information</div>
@@ -368,6 +364,7 @@
           <q-card-section>
             <div class="text-subtitle1 q-mb-md">Please review the patient information before proceeding.</div>
 
+            <!-- Existing patient WITH edits: show side-by-side comparison -->
             <div v-if="selectedBrowserPatient && browserPatientEdited">
               <q-banner class="bg-orange-1 text-orange-9 q-mb-md">
                 <template v-slot:avatar><q-icon name="warning" color="orange" /></template>
@@ -417,25 +414,33 @@
               </q-banner>
             </div>
 
-            <div v-else-if="selectedBrowserPatient && !browserPatientEdited">
+            <!-- New patient OR existing patient with NO edits: plain details -->
+            <div v-else>
               <div class="patient-info-box">
-                <div class="text-subtitle2 text-weight-bold q-mb-sm">Patient Information:</div>
+                <div class="text-subtitle2 text-weight-bold q-mb-sm text-blue-8">
+                  <q-icon name="person" size="sm" class="q-mr-xs" />Patient Information:
+                </div>
                 <div class="info-grid">
-                  <div class="info-item">
-                    <strong>Name:</strong> {{ selectedBrowserPatient.lastname }}, {{ selectedBrowserPatient.firstname }}
-                    <span v-if="selectedBrowserPatient.middlename"> {{ selectedBrowserPatient.middlename }}</span>
-                    <span v-if="selectedBrowserPatient.suffix"> {{ selectedBrowserPatient.suffix }}</span>
+                  <div class="info-item info-item-full">
+                    <strong>Name:</strong> {{ lastNameValue }}, {{ firstNameValue }}
+                    <span v-if="middleNameValue"> {{ middleNameValue }}</span>
+                    <span v-if="suffixValue"> {{ suffixValue }}</span>
                   </div>
-                  <div class="info-item"><strong>Patient ID:</strong> {{ selectedBrowserPatient.patient_id }}</div>
-                  <div class="info-item"><strong>Birthdate:</strong> {{ selectedBrowserPatient.birthdate ? formatDate(selectedBrowserPatient.birthdate) : 'N/A' }}</div>
-                  <div class="info-item"><strong>Sex:</strong> {{ selectedBrowserPatient.sex || 'N/A' }}</div>
-                  <div class="info-item"><strong>Preference:</strong> {{ selectedBrowserPatient.preference || 'N/A' }}</div>
-                  <div class="info-item info-item-full"><strong>Address:</strong> {{ formatAddress(selectedBrowserPatient) }}</div>
+                  <div class="info-item" v-if="selectedBrowserPatient"><strong>Patient ID:</strong> {{ selectedBrowserPatient.patient_id }}</div>
+                  <div class="info-item"><strong>Birthdate:</strong> {{ birthdateValue || 'N/A' }}</div>
+                  <div class="info-item"><strong>Age:</strong> {{ calculateAgeFromBirthdate(birthdateValue) }}</div>
+                  <div class="info-item"><strong>Sex:</strong> {{ sexValue || 'N/A' }}</div>
+                  <div class="info-item"><strong>Preference:</strong> {{ preferenceValue || 'N/A' }}</div>
+                  <div class="info-item"><strong>Sector:</strong> {{ sectorValue }}</div>
+                  <div class="info-item info-item-full">
+                    <strong>Address:</strong> {{ houseAddressValue }}, {{ barangayValue }}, {{ cityValue }}, {{ provinceValue }}
+                  </div>
                   <div class="info-item"><strong>Phone Number:</strong> {{ formatPhoneNumber(phoneNumberValue) }}</div>
                 </div>
               </div>
             </div>
 
+            <!-- Transaction details (always shown) -->
             <div class="patient-info-box q-mt-md">
               <div class="text-subtitle2 text-weight-bold q-mb-sm text-green-8">
                 <q-icon name="receipt" size="sm" class="q-mr-xs" />Transaction Details:
@@ -448,6 +453,7 @@
               </div>
             </div>
 
+            <!-- Client info (always shown) -->
             <div v-if="!isChecked" class="patient-info-box q-mt-md">
               <div class="text-subtitle2 text-weight-bold q-mb-sm text-purple-8">
                 <q-icon name="person_outline" size="sm" class="q-mr-xs" />Client Information:
@@ -472,126 +478,25 @@
           </q-card-section>
           <q-separator />
           <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md dialog-actions-sticky">
-            <q-btn label="CANCEL" icon="close" unelevated class="dialog-goback-btn" @click="cancelFinalConfirm" />
-            <q-btn :label="browserPatientEdited ? 'UPDATE' : 'PROCEED'" icon="check" unelevated
-              class="dialog-cancel-btn" @click="proceedWithFinalConfirm" />
+            <q-btn label="CANCEL" icon="close" unelevated class="dialog-goback-btn" @click="cancelConfirmDetails" />
+            <q-btn label="PROCEED" icon="check" unelevated class="dialog-cancel-btn" @click="proceedConfirmDetails" />
           </q-card-actions>
         </q-card>
       </q-dialog>
 
-      <!--
-        SAVE CHANGES DIALOG — existing browser patient, Step 2 (THE LAST DIALOG)
-        Appears after "Confirm Patient Information" dialog
-      -->
-      <q-dialog v-model="showSaveChangesDialog" persistent>
-        <q-card style="min-width: 350px">
-          <q-card-section class="bg-green-7 text-white">
-            <div class="text-h6"><q-icon name="save" size="sm" class="q-mr-sm" />Save Changes?</div>
-          </q-card-section>
-          <q-card-section class="q-pt-md">
-            Are you sure you want to save these changes?
-          </q-card-section>
-          <q-separator />
-          <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md">
-            <q-btn label="CANCEL" icon="close" unelevated class="dialog-goback-btn" @click="cancelSaveChanges" />
-            <q-btn label="UPDATE" icon="check" unelevated class="dialog-cancel-btn" @click="confirmSaveChanges" :loading="areYouSureLoading" />
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
-
-      <!--
-        ARE YOU SURE DIALOG
-        NEW PATIENT — Step 1 of 2: shows all details for review
-        Click PROCEED → opens "Save Record?" (step 2, the last dialog)
-      -->
-      <q-dialog v-model="showAreYouSureDialog" persistent>
-        <q-card style="min-width: 700px; max-width: 800px;">
-          <q-card-section class="bg-blue-6 text-white">
-            <div class="text-h6"><q-icon name="info" size="sm" class="q-mr-sm" />Confirm Patient Information</div>
-          </q-card-section>
-          <q-card-section>
-            <div class="text-subtitle1 q-mb-md">Please review the patient information before proceeding.</div>
-
-            <div class="patient-info-box">
-              <div class="text-subtitle2 text-weight-bold q-mb-sm text-blue-8">
-                <q-icon name="person" size="sm" class="q-mr-xs" />Patient Information:
-              </div>
-              <div class="info-grid">
-                <div class="info-item info-item-full">
-                  <strong>Name:</strong> {{ lastNameValue }}, {{ firstNameValue }}
-                  <span v-if="middleNameValue"> {{ middleNameValue }}</span>
-                  <span v-if="suffixValue"> {{ suffixValue }}</span>
-                </div>
-                <div class="info-item"><strong>Birthdate:</strong> {{ birthdateValue || 'N/A' }}</div>
-                <div class="info-item"><strong>Age:</strong> {{ calculateAgeFromBirthdate(birthdateValue) }}</div>
-                <div class="info-item"><strong>Sex:</strong> {{ sexValue || 'N/A' }}</div>
-                <div class="info-item"><strong>Preference:</strong> {{ preferenceValue || 'N/A' }}</div>
-                <div class="info-item"><strong>Sector:</strong> {{ sectorValue }}</div>
-                <div class="info-item info-item-full">
-                  <strong>Address:</strong> {{ houseAddressValue }}, {{ barangayValue }}, {{ cityValue }}, {{ provinceValue }}
-                </div>
-                <div class="info-item"><strong>Phone Number:</strong> {{ formatPhoneNumber(phoneNumberValue) }}</div>
-              </div>
-            </div>
-
-            <div class="patient-info-box q-mt-md">
-              <div class="text-subtitle2 text-weight-bold q-mb-sm text-green-8">
-                <q-icon name="receipt" size="sm" class="q-mr-xs" />Transaction Details:
-              </div>
-              <div class="info-grid">
-                <div class="info-item"><strong>Category:</strong> {{ categoryValue }}</div>
-                <div class="info-item"><strong>Partner:</strong> {{ partnerValue }}</div>
-                <div class="info-item" v-if="categoryValue === 'HOSPITAL'"><strong>Hospital Bill:</strong> ₱{{ formatCurrency(hospitalBillValue) }}</div>
-                <div class="info-item"><strong>Issued Amount:</strong> ₱{{ formatCurrency(issuedAmountValue) }}</div>
-              </div>
-            </div>
-
-            <div v-if="!isChecked" class="patient-info-box q-mt-md">
-              <div class="text-subtitle2 text-weight-bold q-mb-sm text-purple-8">
-                <q-icon name="person_outline" size="sm" class="q-mr-xs" />Client Information:
-              </div>
-              <div class="info-grid">
-                <div class="info-item info-item-full">
-                  <strong>Client Name:</strong> {{ clientLastNameValue }}, {{ clientFirstNameValue }}
-                  <span v-if="clientMiddleNameValue"> {{ clientMiddleNameValue }}</span>
-                  <span v-if="clientSuffixValue"> {{ clientSuffixValue }}</span>
-                </div>
-                <div class="info-item info-item-full"><strong>Relationship to Patient:</strong> {{ relationshipValue }}</div>
-              </div>
-            </div>
-            <div v-else class="patient-info-box q-mt-md">
-              <div class="text-subtitle2 text-weight-bold q-mb-sm text-purple-8">
-                <q-icon name="person_outline" size="sm" class="q-mr-xs" />Client Information:
-              </div>
-              <div class="info-grid">
-                <div class="info-item info-item-full"><strong>Client:</strong> Same as patient</div>
-              </div>
-            </div>
-          </q-card-section>
-          <q-separator />
-          <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md dialog-actions-sticky">
-            <q-btn label="CANCEL" icon="close" unelevated class="dialog-goback-btn" @click="showAreYouSureDialog = false" />
-            <q-btn label="PROCEED" icon="check" unelevated class="dialog-cancel-btn" @click="confirmAreYouSure" />
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
-
-      <!--
-        SAVE RECORD DIALOG
-        NEW PATIENT — Step 2 of 2: simple final confirmation (THE LAST DIALOG)
-        Click SAVE → runs budget check → submits
-      -->
+      <!--FINAL SAVE CONFIRMATION -->
       <q-dialog v-model="showFinalSaveDialog" persistent>
         <q-card style="min-width: 350px">
-          <q-card-section class="bg-green-7 text-white">
-            <div class="text-h6"><q-icon name="save" size="sm" class="q-mr-sm" />Save Record?</div>
-          </q-card-section>
-          <q-card-section class="q-pt-md">
-            Are you sure you want to save this patient record? This action cannot be undone.
-          </q-card-section>
+          <q-card-section>
+          <div class="text-h6">Save Changes?</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          Are you sure you want to save these changes?
+        </q-card-section>
           <q-separator />
           <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md">
-            <q-btn label="CANCEL" icon="close" unelevated class="dialog-goback-btn" @click="cancelFinalSave" />
+            <q-btn label="CANCEL" icon="close" unelevated class="dialog-goback-btn" @click="showFinalSaveDialog = false; pendingAction = null" />
             <q-btn label="SAVE" icon="check" unelevated class="dialog-cancel-btn" @click="confirmFinalSave" :loading="areYouSureLoading" />
           </q-card-actions>
         </q-card>
@@ -799,21 +704,14 @@ const usedBrowserPatient = ref(false)
 const browserPatientEdited = ref(false)
 
 // ── DIALOG REFS ──
-// Existing browser patient flow:
-//   1. Budget check (silent)
-//   2. showFinalConfirmDialog  — details comparison
-//   3. showSaveChangesDialog   — "Save Changes?" (THE LAST for existing patient)
-// New patient flow:
-//   1. showAreYouSureDialog    — Step 1: details review
-//   2. showFinalSaveDialog     — Step 2: "Save Record?" (THE LAST for new patient)
-//      (budget check runs inside confirmFinalSave)
-// Shared:
-//   showInsufficientFundsDialog — shown after budget check fails (either path)
-const showFinalConfirmDialog = ref(false)
-const showSaveChangesDialog = ref(false)
-const showAreYouSureDialog = ref(false)
-const showFinalSaveDialog = ref(false)
+// Unified 3-step flow for BOTH new and existing patients:
+//   Step 1 (silent): runBudgetCheck()
+//   Step 1b (if fails): showInsufficientFundsDialog → cancel OR proceed anyway → Step 2
+//   Step 2: showConfirmDetailsDialog — review all details → cancel OR proceed → Step 3
+//   Step 3: showFinalSaveDialog — "Save Changes?" → cancel OR SAVE → doSubmit()
 const showInsufficientFundsDialog = ref(false)
+const showConfirmDetailsDialog = ref(false)
+const showFinalSaveDialog = ref(false)
 const showEligibilityWarning = ref(false)
 const showCancelDialog = ref(false)
 const showExistingDialog = ref(false)
@@ -1034,39 +932,10 @@ const checkForPatientEdits = () => {
     JSON.stringify([...selectedSectorIds.value].sort()) !== JSON.stringify([...(originalBrowserPatient.value.sector_ids || [])].sort())
 }
 
-// ── DIALOG FLOW ──
+// ── UNIFIED 3-STEP DIALOG FLOW ──
 
-// ── EXISTING BROWSER PATIENT FLOW ──
-// Step 0 (silent): budget check inside checkExistingPatients
-// Step 1: showFinalConfirmDialog — details comparison
-const cancelFinalConfirm = () => { showFinalConfirmDialog.value = false; pendingAction.value = null }
-const proceedWithFinalConfirm = () => {
-  showFinalConfirmDialog.value = false
-  showSaveChangesDialog.value = true
-}
-
-// Step 2 (last): showSaveChangesDialog — "Save Changes?"
-const cancelSaveChanges = () => { showSaveChangesDialog.value = false; pendingAction.value = null }
-const confirmSaveChanges = async () => {
-  showSaveChangesDialog.value = false
-  areYouSureLoading.value = true
-  try { await doSubmit() } catch (error) {
-    $q.notify({ type: 'negative', message: 'Failed to save patient record', position: 'top' })
-  } finally { areYouSureLoading.value = false }
-}
-
-// ── NEW PATIENT FLOW ──
-// Step 1: showAreYouSureDialog — details review
-const confirmAreYouSure = () => {
-  showAreYouSureDialog.value = false
-  showFinalSaveDialog.value = true
-}
-
-// Step 2 (last): showFinalSaveDialog — "Save Record?" → budget check → submit
-const cancelFinalSave = () => { showFinalSaveDialog.value = false; pendingAction.value = null }
-const confirmFinalSave = async () => {
-  showFinalSaveDialog.value = false
-  areYouSureLoading.value = true
+// Step 1 (silent): budget check — called by checkExistingPatients and proceedWithAction
+const runBudgetCheck = async () => {
   try {
     const res = await axios.post('/api/validate-transfer', {
       year: new Date().getFullYear(),
@@ -1075,29 +944,39 @@ const confirmFinalSave = async () => {
     })
     if (!res.data.success) {
       projectedBalance.value = res.data.breakdown.remaining
-      showInsufficientFundsDialog.value = true
-      areYouSureLoading.value = false
-      return
+      showInsufficientFundsDialog.value = true   // → Step 1b
+    } else {
+      showConfirmDetailsDialog.value = true       // → Step 2
     }
-    await doSubmit()
   } catch (error) {
-    $q.notify({ type: 'negative', message: 'Failed to save patient record', position: 'top' })
-  } finally {
-    areYouSureLoading.value = false
+    $q.notify({ type: 'negative', message: 'Failed to check budget', position: 'top' })
   }
 }
 
-// ── INSUFFICIENT FUNDS ──
+// Step 1b: Insufficient funds
 const cancelInsufficientFunds = () => { showInsufficientFundsDialog.value = false; pendingAction.value = null }
-const proceedWithInsufficientFunds = async () => {
+const proceedWithInsufficientFunds = () => {
   showInsufficientFundsDialog.value = false
+  showConfirmDetailsDialog.value = true           // → Step 2
+}
+
+// Step 2: Confirm details
+const cancelConfirmDetails = () => { showConfirmDetailsDialog.value = false; pendingAction.value = null }
+const proceedConfirmDetails = () => {
+  showConfirmDetailsDialog.value = false
+  showFinalSaveDialog.value = true                // → Step 3
+}
+
+// Step 3: Final save
+const confirmFinalSave = async () => {
+  showFinalSaveDialog.value = false
   areYouSureLoading.value = true
   try { await doSubmit() } catch (error) {
     $q.notify({ type: 'negative', message: 'Failed to save patient record', position: 'top' })
   } finally { areYouSureLoading.value = false }
 }
 
-// ── SHARED SUBMIT HELPER ──
+// Shared submit helper
 const doSubmit = async () => {
   const shouldPrint = pendingAction.value === 'print'
   if (selectedBrowserPatient.value) {
@@ -1113,30 +992,7 @@ const doSubmit = async () => {
 const checkExistingPatients = async (isPrint = false) => {
   if (!lastNameValue.value || !firstNameValue.value) return
   pendingAction.value = isPrint ? 'print' : 'save'
-
-  if (usedBrowserPatient.value && selectedBrowserPatient.value) {
-    // EXISTING PATIENT: budget check first (silent), then details dialog
-    try {
-      const res = await axios.post('/api/validate-transfer', {
-        year: new Date().getFullYear(),
-        category: categoryValue.value,
-        amount: parseFloat(issuedAmountValue.value || 0)
-      })
-      if (!res.data.success) {
-        projectedBalance.value = res.data.breakdown.remaining
-        showInsufficientFundsDialog.value = true
-        return
-      }
-      // Budget OK → show details comparison dialog
-      showFinalConfirmDialog.value = true
-    } catch (error) {
-      $q.notify({ type: 'negative', message: 'Failed to check budget', position: 'top' })
-    }
-    return
-  }
-
-  // NEW PATIENT → Step 1: details review
-  showAreYouSureDialog.value = true
+  await runBudgetCheck()  // always starts with budget check for everyone
 }
 
 const proceedWithAction = async () => {
@@ -1144,7 +1000,7 @@ const proceedWithAction = async () => {
   actionLoading.value = true
   try {
     if (selectedAction.value === 'existing') await checkEligibilityAndProceed(selectedExistingPatient.value.patient_id)
-    else if (selectedAction.value === 'new') { showExistingDialog.value = false; showAreYouSureDialog.value = true }
+    else if (selectedAction.value === 'new') { showExistingDialog.value = false; await runBudgetCheck() }
   } catch (error) {
     $q.notify({ type: 'negative', message: 'Operation failed', position: 'top' })
   } finally { actionLoading.value = false }
@@ -1160,7 +1016,7 @@ const checkEligibilityAndProceed = async (patientId) => {
       return
     }
     showExistingDialog.value = false
-    showAreYouSureDialog.value = true
+    await runBudgetCheck()
   } catch (err) {
     $q.notify({ type: 'negative', message: 'Failed to check eligibility', position: 'top' })
   }
