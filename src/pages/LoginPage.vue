@@ -13,7 +13,7 @@
       />
 
       <div class="copyright">© 2026 MAMs</div>
-      <div class="version">V 1.0.0</div>
+      <div class="version">V 1.1.1</div>
     </div>
   </div>
 </template>
