@@ -44,11 +44,21 @@
         style="min-width: 650px; max-width: 750px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden;">
 
         <!-- HEADER - stays at top -->
-        <q-card-section class="bg-orange-6 text-white q-pa-md" style="flex-shrink: 0;">
+        <q-card-section class="bg-orange-6 text-white q-pa-md" style="flex-shrink: 0; position: relative;">
           <div class="text-h6">
             <q-icon name="receipt_long" size="sm" class="q-mr-sm" />
-            Record Details - UUID: {{ selectedRecord?.uuid }}
+            Record Details
           </div>
+          <!-- X CLOSE BUTTON -->
+          <q-btn
+            icon="close"
+            flat
+            round
+            style="position: absolute; top: 6px; right: 8px; font-size: 20px; color: white;"
+            @click="closeDialog"
+          >
+            <q-tooltip>Close</q-tooltip>
+          </q-btn>
         </q-card-section>
 
         <!-- BODY - scrollable -->
@@ -250,9 +260,8 @@
 
         <!-- FOOTER - pinned at bottom -->
         <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md" style="flex-shrink: 0;">
-          <!-- VIEW MODE BUTTONS -->
+          <!-- VIEW MODE BUTTONS (CLOSE removed — use X in header) -->
           <template v-if="!editMode">
-            <q-btn label="CLOSE" icon="close" unelevated class="dialog-goback-btn" @click="closeDialog" />
             <q-btn label="DELETE" icon="delete" unelevated class="dialog-delete-btn" @click="showDeleteDialog = true" />
             <q-btn label="EDIT" icon="edit" unelevated class="dialog-edit-btn" @click="enterEditMode" />
             <q-btn label="PRINT PDF" icon="print" unelevated class="dialog-print-btn" @click="generatePDF"
@@ -318,7 +327,7 @@
 
         <q-card-actions align="right" class="q-px-md q-pb-md">
           <q-btn unelevated icon="close" label="NO" class="dialog-goback-btn" v-close-popup />
-          <q-btn unelevated icon="check" label="YES" class="dialog-delete-confirm-btn" @click="handleDelete"
+          <q-btn unelevated icon="check" label="YES" class="dialog-yes-btn" @click="handleDelete"
             :loading="deleteLoading" />
         </q-card-actions>
       </q-card>
@@ -337,7 +346,7 @@
 
         <q-card-actions align="right" class="q-px-md q-pb-md">
           <q-btn unelevated icon="close" label="NO" class="dialog-goback-btn" v-close-popup />
-          <q-btn unelevated icon="check" label="YES" class="dialog-cancel-btn" @click="confirmClose" />
+          <q-btn unelevated icon="check" label="YES" class="dialog-yes-btn" @click="confirmClose" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -355,7 +364,7 @@
 
         <q-card-actions align="right">
           <q-btn unelevated icon="close" label="NO" class="dialog-goback-btn" v-close-popup />
-          <q-btn unelevated icon="print" label="YES" class="dialog-cancel-btn" @click="confirmPrint"
+          <q-btn unelevated icon="print" label="YES" class="dialog-yes-btn" @click="confirmPrint"
             :loading="pdfLoading" />
         </q-card-actions>
       </q-card>
@@ -495,7 +504,7 @@
 
         <q-card-actions align="right" class="q-px-md q-pb-md">
           <q-btn unelevated icon="close" label="NO" class="dialog-goback-btn" v-close-popup />
-          <q-btn unelevated icon="check" label="YES" class="dialog-cancel-btn" @click="confirmCancel" />
+          <q-btn unelevated icon="check" label="YES" class="dialog-yes-btn" @click="confirmCancel" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -571,7 +580,7 @@ const handleDelete = async () => {
   deleteLoading.value = true
   try {
     await axios.post(`/api/patient-details/delete/${selectedRecord.value.uuid}`, {
-      performed_by: userData.USERNAME 
+      performed_by: userData.USERNAME
     })
     $q.notify({
       type: 'positive',
@@ -1000,7 +1009,6 @@ const confirmSave = async () => {
     formData.append('relationship', editData.value.relationship || '')
     formData.append('performed_by', userData.USERNAME)
 
-
     await axios.post('/api/patient-details/update', formData)
 
     $q.notify({ type: 'positive', message: 'Record updated successfully', position: 'top' })
@@ -1237,6 +1245,15 @@ onMounted(async () => {
   border-radius: 4px;
 }
 
+/* YES button — green */
+.dialog-yes-btn {
+  background: #0aa64f !important;
+  color: white !important;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 4px;
+}
+
 /* ========================
    EDIT MODE STYLES
 ======================== */
@@ -1442,4 +1459,3 @@ onMounted(async () => {
   border-radius: 4px;
 }
 </style>
-

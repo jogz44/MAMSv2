@@ -1,7 +1,16 @@
 <template>
   <div class="activity-log q-mb-lg">
-    <q-table :rows="filteredLogs" :columns="columns" row-key="id" :loading="loading" :pagination="pagination" flat
-      bordered>
+    <q-table
+      :rows="filteredLogs"
+      :columns="columns"
+      row-key="id"
+      :loading="loading"
+      :pagination="pagination"
+      flat
+      bordered
+      @row-click="openLogDetails"
+    >
+
       <!-- TOP BAR -->
       <template #top>
         <div class="row items-center full-width q-gutter-sm">
@@ -11,16 +20,31 @@
           <q-space />
 
           <!-- SEARCH -->
-          <q-input v-model="searchText" dense outlined placeholder="Search..." style="min-width: 200px" clearable
-            @update:model-value="onSearchChange">
+          <q-input
+            v-model="searchText"
+            dense
+            outlined
+            placeholder="Search..."
+            style="min-width: 200px"
+            clearable
+            @update:model-value="onSearchChange"
+          >
             <template #prepend>
               <q-icon name="search" color="white" />
             </template>
           </q-input>
 
           <!-- ACTION FILTER -->
-          <q-select v-model="filterAction" :options="actionFilterOptions" dense outlined emit-value map-options
-            style="min-width: 220px" @update:model-value="fetchLogs" />
+          <q-select
+            v-model="filterAction"
+            :options="actionFilterOptions"
+            dense
+            outlined
+            emit-value
+            map-options
+            style="min-width: 220px"
+            @update:model-value="fetchLogs"
+          />
 
           <!-- REFRESH -->
           <q-btn icon="refresh" label="Refresh" flat dense color="white" @click="fetchLogs" />
@@ -30,8 +54,11 @@
       <!-- ACTION BADGE -->
       <template #body-cell-action="props">
         <q-td align="center">
-          <q-badge :color="getActionColor(props.row.action)" :label="props.row.action"
-            class="text-weight-bold q-pa-xs action-badge" />
+          <q-badge
+            :color="getActionColor(props.row.action)"
+            :label="props.row.action"
+            class="text-weight-bold q-pa-xs action-badge"
+          />
         </q-td>
       </template>
 
@@ -46,8 +73,11 @@
       <template #body-cell-changes="props">
         <q-td align="left">
           <span class="changes-text">{{ props.row.changes || '—' }}</span>
-          <q-tooltip v-if="props.row.changes && props.row.changes.length > 60" max-width="420px"
-            class="text-body2 q-pa-sm">
+          <q-tooltip
+            v-if="props.row.changes && props.row.changes.length > 60"
+            max-width="420px"
+            class="text-body2 q-pa-sm"
+          >
             {{ props.row.changes }}
           </q-tooltip>
         </q-td>
@@ -61,6 +91,81 @@
         </div>
       </template>
     </q-table>
+
+    <!-- ========================= -->
+    <!-- ACTIVITY DETAILS DIALOG  -->
+    <!-- ========================= -->
+
+    <q-dialog v-model="showDetails">
+      <q-card class="details-card">
+
+        <!-- HEADER -->
+        <q-card-section class="details-header row items-center">
+          <div class="text-h6 text-weight-bold">
+            Activity Details
+          </div>
+          <q-space />
+          <q-btn icon="close" flat dense round v-close-popup />
+        </q-card-section>
+
+        <!-- BODY -->
+        <q-card-section class="details-body" v-if="selectedLog">
+          <div class="section-box">
+
+            <div class="text-subtitle1 text-weight-bold q-mb-md">
+              Activity Information
+            </div>
+
+            <div class="row q-col-gutter-lg">
+
+              <!-- LEFT COLUMN -->
+              <div class="col-12 col-md-6">
+                <div class="field-block">
+                  <div class="field-label">Date & Time:</div>
+                  <div>{{ formatDate(selectedLog.created_at) }}</div>
+                </div>
+
+                <div class="field-block">
+                  <div class="field-label">Performed By:</div>
+                  <div>{{ selectedLog.performed_by }}</div>
+                </div>
+              </div>
+
+              <!-- RIGHT COLUMN -->
+              <div class="col-12 col-md-6">
+                <div class="field-block">
+                  <div class="field-label">Action:</div>
+                  <div>
+                    <q-badge
+                      :color="getActionColor(selectedLog.action)"
+                      :label="selectedLog.action"
+                      class="text-weight-bold"
+                    />
+                  </div>
+                </div>
+
+                <div class="field-block">
+                  <div class="field-label">Target:</div>
+                  <div>{{ selectedLog.target || '—' }}</div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- CHANGES -->
+            <div class="field-block q-mt-lg">
+              <div class="field-label">Changes Made:</div>
+              <div class="changes-full">
+                {{ selectedLog.changes || '—' }}
+              </div>
+            </div>
+
+          </div>
+        </q-card-section>
+
+      </q-card>
+    </q-dialog>
+
   </div>
 </template>
 
@@ -144,7 +249,7 @@ const filteredLogs = computed(() => {
 
 const getActionColor = (action) => {
   if (!action) return 'grey-6'
-  if (action.includes('DELETED')) return 'red-7'
+  if (action.includes('DELETE')) return 'red'
   if (action.includes('CREATED') || action.includes('ADDED') || action.includes('REACTIVATED')) return 'green-7'
   if (action.includes('UPDATED') || action.includes('TOGGLED')) return 'orange-8'
   return 'grey-6'
@@ -185,6 +290,18 @@ onMounted(async () => {
   await fetchActionTypes()
   await fetchLogs()
 })
+
+const showDetails = ref(false)
+const selectedLog = ref(null)
+
+const openLogDetails = (evt, row) => {
+  selectedLog.value = row
+  showDetails.value = true
+}
+
+const formatDate = (val) => {
+  return val ? dayjs(val).format('YYYY-MM-DD hh:mm A') : '—'
+}
 </script>
 
 <style scoped>
@@ -283,5 +400,49 @@ onMounted(async () => {
   font-size: 13px;
   font-weight: 500;
   color: #1f8f2e;
+}
+
+.details-card {
+  width: 90vw;
+  max-width: 750px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.details-header {
+  background-color: #f39c12;
+  color: white;
+  padding: 16px 20px;
+}
+
+.details-body {
+  background: #f4f4f4;
+  padding: 20px;
+}
+
+.section-box {
+  background: #eaeaea;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.field-block {
+  margin-bottom: 10px;
+}
+
+.field-label {
+  color: #1f8f2e;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.changes-full {
+  background: #ffffff;
+  padding: 12px;
+  border-radius: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  font-size: 13px;
 }
 </style>
