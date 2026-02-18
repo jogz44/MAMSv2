@@ -315,7 +315,7 @@ const formatDate = (val) => {
   border-radius: 4px;
   overflow: hidden;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12), 0 6px 18px rgba(0, 0, 0, 0.08);
-  width: 95%;
+  width: 96%;
 }
 
 .activity-log :deep(.q-table__top) {
