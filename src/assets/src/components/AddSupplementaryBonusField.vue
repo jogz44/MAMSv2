@@ -261,7 +261,7 @@ const addSupplementaryBonus = async () => {
     formData.append('laboratory_supplementary_bonus', laboratorySupplementaryBudget.value)
     formData.append('hospital_supplementary_bonus', hospitalSupplementaryBudget.value)
 
-    const res = await axios.post('http://localhost:8000/api/add-supplementary-bonus', formData)
+    const res = await axios.post('/api/add-supplementary-bonus', formData)
 
     $q.notify({
       type: 'positive',

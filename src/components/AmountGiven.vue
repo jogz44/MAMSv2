@@ -106,7 +106,7 @@ const updatePagination = (newPagination) => {
 onMounted(async () => {
   try {
     // Fetch barangay table
-    const resBarangay = await axios.get('http://localhost:8000/api/barangay-records')
+    const resBarangay = await axios.get('/api/barangay-records')
     rows.value = resBarangay.data.map((item, index) => ({
       num: index + 1,
       barangay: item.barangay,
@@ -121,11 +121,11 @@ onMounted(async () => {
     }))
 
     // Fetch all sectors from the database
-    const resSectors = await axios.get('http://localhost:8000/api/sectors')
+    const resSectors = await axios.get('/api/sectors')
     const allSectors = resSectors.data // Array of { id, sector }
 
     // Fetch chart data
-    const resChart = await axios.get('http://localhost:8000/api/amount-given')
+    const resChart = await axios.get('/api/amount-given')
     const chartData = resChart.data
 
     // Wait for DOM update

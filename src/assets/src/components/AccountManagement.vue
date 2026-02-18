@@ -345,7 +345,7 @@ const confirmEdit = async () => {
       payload.password = editData.value.password
     }
 
-    await axios.post('http://localhost:8000/api/update-account', payload)
+    await axios.post('/api/update-account', payload)
 
     closeEditDialog()
 
@@ -385,7 +385,7 @@ const createAccount = async () => {
   createLoading.value = true
 
   try {
-    await axios.post('http://localhost:8000/api/new-account', {
+    await axios.post('/api/new-account', {
       username: name.value,
       password: password.value,
       role: role.value
@@ -427,7 +427,7 @@ const deleteAccount = async () => {
   deleteLoading.value = true
 
   try {
-    await axios.post('http://localhost:8000/api/delete-account', {
+    await axios.post('/api/delete-account', {
       id: accountToDelete.value.ID
     })
 
@@ -479,7 +479,7 @@ const logout = () => {
 
 const fetchAccounts = async () => {
   try {
-    const res = await axios.get('http://localhost:8000/api/accounts')
+    const res = await axios.get('/api/accounts')
     accountRows.value = res.data[0]
   } catch (error) {
     console.error('Failed to fetch accounts:', error)

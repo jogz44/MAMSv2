@@ -258,7 +258,7 @@ const createYearlyBudget = async () => {
   formData.append('hospital_budget', hospitalBudget.value)
   
   try {
-    const res = await axios.post('http://localhost:8000/api/create-yearly-budget', formData)
+    const res = await axios.post('/api/create-yearly-budget', formData)
     
     $q.notify({
       type: 'positive',

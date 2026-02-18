@@ -120,16 +120,16 @@ const formatPeso = (amount) => {
 onMounted(async () => {
   try {
 
-    const categoryRes = await axios.get('http://localhost:8000/api/category-cards')
+    const categoryRes = await axios.get('/api/category-cards')
     categories.value[0] = { ...categories.value[0], ...categoryRes.data.medicineData }
     categories.value[1] = { ...categories.value[1], ...categoryRes.data.laboratoryData }
     categories.value[2] = { ...categories.value[2], ...categoryRes.data.hospitalData }
 
-    const totalsRes = await axios.get('http://localhost:8000/api/total-patients-and-amount')
+    const totalsRes = await axios.get('/api/total-patients-and-amount')
     totalPatients.value = totalsRes.data.totalPatients
     totalAmount.value = totalsRes.data.totalAmount
 
-    const monthlyRes = await axios.get('http://localhost:8000/api/monthly-patients')
+    const monthlyRes = await axios.get('/api/monthly-patients')
 
     const months = Array.from({ length: 12 }, (_, i) => i + 1)
 

@@ -562,7 +562,7 @@ const validateForm = () => {
 // Fetch eligibility cooldown from backend
 const fetchEligibilityCooldown = async () => {
   try {
-    const res = await axios.get('http://localhost:8000/api/get-eligibility-cooldown')
+    const res = await axios.get('/api/get-eligibility-cooldown')
     eligibilityCooldownDays.value = res.data.days
   } catch (err) {
     console.error('Error fetching eligibility cooldown:', err)
@@ -586,7 +586,7 @@ const calculateEligibility = (dateIssued) => {
 
 const checkBudget = async (originalAmount, newAmount) => {
   try {
-    const res = await axios.get('http://localhost:8000/api/budget/current')
+    const res = await axios.get('/api/budget/current')
     const currentBudget = parseFloat(res.data.amount || 0)
     
     const difference = newAmount - originalAmount
@@ -623,7 +623,7 @@ const proceedWithInsufficientFunds = () => {
 
 const viewDetails = async (glNumber) => {
   try {
-    const res = await axios.get(`http://localhost:8000/api/patient-details/${glNumber}`)
+    const res = await axios.get(`/api/patient-details/${glNumber}`)
     const data = res.data
 
     // Format client name if exists
@@ -780,7 +780,7 @@ const handleSaveClick = async () => {
 
 const loadPatientHistory = async () => {
   try {
-    const res = await axios.get(`http://localhost:8000/api/patient-history/${glNum.value}`)
+    const res = await axios.get(`/api/patient-history/${glNum.value}`)
     const today = dayjs().startOf('day')
 
     rows.value = res.data.history.map(item => {
@@ -827,7 +827,7 @@ const confirmSave = async () => {
     formData.append('client_suffix', editData.value.clientSuffix || '')
     formData.append('relationship', editData.value.relationship || '')
 
-    await axios.post('http://localhost:8000/api/patient-details/update', formData)
+    await axios.post('/api/patient-details/update', formData)
 
     $q.notify({
       type: 'positive',

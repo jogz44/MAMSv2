@@ -250,25 +250,25 @@ onMounted(async () => {
     const year = currentYear;
 
     // Fetch all patients
-    const resPatients = await axios.get("http://localhost:8000/api/patients");
+    const resPatients = await axios.get("/api/patients");
     allPatients.value = resPatients.data;
 
     // Fetch issued amounts
     const resIssued = await axios.get(
-      "http://localhost:8000/api/issued-amounts-by-year",
+      "/api/issued-amounts-by-year",
       { params: { year } },
     );
     issuedAmounts.value = resIssued.data;
 
     // Fetch yearly budgets
     const resBudget = await axios.get(
-      "http://localhost:8000/api/yearly-budget",
+      "/api/yearly-budget",
     );
     yearlyBudgets.value = resBudget.data;
 
     // Fetch supplementary bonuses
     const resSB = await axios.get(
-      "http://localhost:8000/api/supplementary-bonus",
+      "/api/supplementary-bonus",
     );
     supplementaryBonuses.value = resSB.data;
   } catch (err) {

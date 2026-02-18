@@ -319,9 +319,8 @@ const fetchAllOptions = async () => {
     loadingPreferences.value = true
     loadingPartners.value = true
     loadingSectors.value = true
-
-    console.log('Fetching all options from: http://localhost:8000/api/all')
-    const response = await axios.get('http://localhost:8000/api/all')
+    
+    const response = await axios.get('/api/all')
     
     console.log('Response received:', response)
     console.log('Response data:', response.data)
@@ -354,7 +353,7 @@ const fetchAllOptions = async () => {
 const fetchPreferences = async () => {
   try {
     loadingPreferences.value = true
-    const response = await axios.get('http://localhost:8000/api/preferences')
+    const response = await axios.get('/api/preferences')
     preferenceRows.value = response.data || []
   } catch (error) {
     console.error('Error fetching preferences:', error)
@@ -371,7 +370,7 @@ const fetchPreferences = async () => {
 const fetchPartners = async () => {
   try {
     loadingPartners.value = true
-    const response = await axios.get('http://localhost:8000/api/partners')
+    const response = await axios.get('/api/partners')
     partnerRows.value = response.data || []
   } catch (error) {
     console.error('Error fetching partners:', error)
@@ -388,7 +387,7 @@ const fetchPartners = async () => {
 const fetchSectors = async () => {
   try {
     loadingSectors.value = true
-    const response = await axios.get('http://localhost:8000/api/sectors')
+    const response = await axios.get('/api/sectors')
     sectorRows.value = response.data || []
   } catch (error) {
     console.error('Error fetching sectors:', error)
@@ -434,16 +433,16 @@ const doAdd = async () => {
     let payload = {}
 
     if (activeTable.value === 'preference') {
-      endpoint = 'http://localhost:8000/api/preferences'
+      endpoint = '/api/preferences'
       payload = { value: newOptionValue.value.trim() }
     } else if (activeTable.value === 'partner') {
-      endpoint = 'http://localhost:8000/api/partners'
+      endpoint = '/api/partners'
       payload = {
         category: newOptionCategory.value,
         value: newOptionValue.value.trim()
       }
     } else if (activeTable.value === 'sector') {
-      endpoint = 'http://localhost:8000/api/sectors'
+      endpoint = '/api/sectors'
       payload = { value: newOptionValue.value.trim() }
     }
 
@@ -496,11 +495,11 @@ const doDelete = async () => {
     let endpoint = ''
 
     if (activeTable.value === 'preference') {
-      endpoint = `http://localhost:8000/api/preferences/${optionToDelete.value.id}`
+      endpoint = `/api/preferences/${optionToDelete.value.id}`
     } else if (activeTable.value === 'partner') {
-      endpoint = `http://localhost:8000/api/partners/${optionToDelete.value.id}`
+      endpoint = `/api/partners/${optionToDelete.value.id}`
     } else if (activeTable.value === 'sector') {
-      endpoint = `http://localhost:8000/api/sectors/${optionToDelete.value.id}`
+      endpoint = `/api/sectors/${optionToDelete.value.id}`
     }
 
     const response = await axios.delete(endpoint)

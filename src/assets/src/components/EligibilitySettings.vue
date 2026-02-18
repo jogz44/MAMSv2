@@ -158,7 +158,7 @@ const confirmSave = async () => {
   saveLoading.value = true
 
   try {
-    await axios.post('http://localhost:8000/api/update-eligibility-cooldown', {
+    await axios.post('/api/update-eligibility-cooldown', {
       days: parseInt(daysValue.value)
     })
 
@@ -185,7 +185,7 @@ const confirmSave = async () => {
 
 onMounted(async () => {
   try {
-    const res = await axios.get('http://localhost:8000/api/get-eligibility-cooldown')
+    const res = await axios.get('/api/get-eligibility-cooldown')
     originalDays.value = res.data.days
     daysValue.value = res.data.days.toString()
   } catch (error) {

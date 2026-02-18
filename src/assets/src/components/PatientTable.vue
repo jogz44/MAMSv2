@@ -67,13 +67,13 @@ onMounted(() => {
 
   const getPatientList = async () => {
     try {
-      const res = await axios.get('http://localhost:8000/api/patients')
+      const res = await axios.get('/api/patients')
       rows.value = mapPatientsToRows(res.data)
       
       // If there's a saved search, trigger the search
       if (savedSearch && savedSearch !== 'null' && savedSearch !== '') {
         const searchRes = await axios.get(
-          'http://localhost:8000/api/patients/search',
+          '/api/patients/search',
           { params: { q: savedSearch } }
         )
         rows.value = mapPatientsToRows(searchRes.data)
@@ -122,11 +122,11 @@ watch(search, async (val) => {
   }
 
   if (!val || val.trim() === '') {
-    const res = await axios.get('http://localhost:8000/api/patients')
+    const res = await axios.get('/api/patients')
     rows.value = mapPatientsToRows(res.data)
   } else {
     const res = await axios.get(
-      'http://localhost:8000/api/patients/search',
+      '/api/patients/search',
       { params: { q: val } }
     )
     rows.value = mapPatientsToRows(res.data)

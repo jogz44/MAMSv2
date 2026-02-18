@@ -64,7 +64,7 @@ const rows = ref([]) // start empty
 onMounted(() => {
   const getBarangayData = async () => {
     try {
-      const res = await axios.get('http://localhost:8000/api/barangay-records')
+      const res = await axios.get('/api/barangay-records')
 
       // Now res.data is already the array
       rows.value = res.data.map((item, index) => ({

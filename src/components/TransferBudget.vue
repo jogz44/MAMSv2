@@ -220,7 +220,7 @@ const onSourceChange = async () => {
   if (!transferData.value.from) return
 
   try {
-    const response = await axios.post('http://localhost:8000/api/validate-transfer', {
+    const response = await axios.post('/api/validate-transfer', {
       year: transferData.value.year,
       category: transferData.value.from,
       amount: 0
@@ -271,7 +271,7 @@ const validateTransfer = async () => {
 
   try {
     // Fetch budget data for validation
-    const response = await axios.post('http://localhost:8000/api/validate-transfer', {
+    const response = await axios.post('/api/validate-transfer', {
       year: transferData.value.year,
       category: transferData.value.from,
       amount: amount
@@ -323,7 +323,7 @@ const confirmTransfer = async () => {
     const hospFrom = transferData.value.from === 'HOSPITAL' ? -amount : 0
     const hospTo = transferData.value.to === 'HOSPITAL' ? amount : 0
 
-    await axios.post('http://localhost:8000/api/add-supplementary-bonus', {
+    await axios.post('/api/add-supplementary-bonus', {
       year: transferData.value.year,
       date_added: new Date().toISOString().split('T')[0],
       medicine_supplementary_bonus: fromAmount + toAmount,

@@ -595,7 +595,7 @@ const checkForChanges = () => {
 const handleDelete = async () => {
   deleteLoading.value = true
   try {
-    await axios.post(`http://localhost:8000/api/patient-details/delete/${glNum.value}`)
+    await axios.post(`/api/patient-details/delete/${glNum.value}`)
     $q.notify({
       type: 'positive',
       message: 'Patient record deleted successfully',
@@ -745,7 +745,7 @@ const updatePatientInfo = async () => {
   formData.append('client_middlename', clientMiddleNameValue.value || '')
   formData.append('client_suffix', clientSuffixValue.value || '')
   formData.append('relationship', relationshipValue.value || '')
-  await axios.post('http://localhost:8000/api/patient-details/update', formData)
+  await axios.post('/api/patient-details/update', formData)
   $q.notify({
     type: 'positive',
     message: 'Patient information updated successfully',
@@ -767,7 +767,7 @@ const updateTransactionDetails = async () => {
   formData.append('client_middlename', clientMiddleNameValue.value || '')
   formData.append('client_suffix', clientSuffixValue.value || '')
   formData.append('relationship', relationshipValue.value || '')
-  await axios.post('http://localhost:8000/api/patient-details/update', formData)
+  await axios.post('/api/patient-details/update', formData)
   $q.notify({
     type: 'positive',
     message: 'Transaction details updated successfully',
@@ -822,7 +822,7 @@ const confirmSave = async () => {
 
 const getPatientDetails = async (id) => {
   const res = await axios.get(
-    `http://localhost:8000/api/patient-details/${id}`
+    `/api/patient-details/${id}`
   )
   const patientDetails = res.data
   if (!patientDetails) return

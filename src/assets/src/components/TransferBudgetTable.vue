@@ -59,7 +59,7 @@ const formatCurrency = (value) => {
 onMounted(() => {
   const getTransferBudget = async () => {
     try {
-      const res = await axios.get('http://localhost:8000/api/transfer-budget-history')
+      const res = await axios.get('/api/transfer-budget-history')
       rows.value = res.data
     } catch (err) {
       console.log(err)

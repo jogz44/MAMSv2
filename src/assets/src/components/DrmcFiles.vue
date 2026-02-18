@@ -189,7 +189,7 @@ const fetchPatients = async (dateFilter = null) => {
       }
     }
     
-    const res = await axios.get('http://localhost:8000/api/patient-records', { params })
+    const res = await axios.get('/api/patient-records', { params })
     allPatients.value = mapPatientsToRows(res.data)
   } catch (err) {
     console.error('Failed to fetch patients:', err)

@@ -952,7 +952,7 @@ const selectedSectorIds = ref([])
 
 const fetchDropdownOptions = async () => {
   try {
-    const res = await axios.get('http://localhost:8000/api/all')
+    const res = await axios.get('/api/all')
     dynamicPreferences.value = res.data.preferences
     dynamicPartners.value = res.data.partners
     dynamicSectors.value = res.data.sectors
@@ -1387,7 +1387,7 @@ const searchPatients = async (query) => {
   searchingPatients.value = true
 
   try {
-    const res = await axios.get('http://localhost:8000/api/patients/all-with-eligibility')
+    const res = await axios.get('/api/patients/all-with-eligibility')
     patientSearchResults.value = res.data
     showPatientDropdown.value = true
   } catch (err) {
@@ -1491,7 +1491,7 @@ const proceedWithFinalConfirm = () => {
 
 const checkBudget = async () => {
   try {
-    const res = await axios.post('http://localhost:8000/api/validate-transfer', {
+    const res = await axios.post('/api/validate-transfer', {
       year: new Date().getFullYear(),
       category: categoryValue.value,
       amount: parseFloat(issuedAmountValue.value || 0)
@@ -1587,7 +1587,7 @@ const proceedWithAction = async () => {
 
 const checkEligibilityAndProceed = async (patientId) => {
   try {
-    const res = await axios.post('http://localhost:8000/api/patients/check-eligibility-by-id', {
+    const res = await axios.post('/api/patients/check-eligibility-by-id', {
       patient_id: patientId
     })
 
@@ -1712,7 +1712,7 @@ const submitForm = async (shouldPrint, patientId = null, updatePatientInfo = fal
   }
 
   try {
-    const res = await axios.post('http://localhost:8000/api/patients', formData)
+    const res = await axios.post('/api/patients', formData)
     glNum.value = res.data.gl_no
 
     $q.notify({

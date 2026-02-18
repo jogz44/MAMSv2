@@ -331,7 +331,7 @@ onMounted(() => {
 
 const getYearlyBudget = async () => {
   try {
-    const res = await axios.get('http://localhost:8000/api/yearly-budget')
+    const res = await axios.get('/api/yearly-budget')
     rows.value = res.data
   } catch (err) {
     console.error(err)
@@ -437,7 +437,7 @@ const onSourceChange = async () => {
   if (!transferData.value.from) return
 
   try {
-    const response = await axios.post('http://localhost:8000/api/validate-transfer', {
+    const response = await axios.post('/api/validate-transfer', {
       year: transferData.value.year,
       category: transferData.value.from,
       amount: 0
@@ -488,7 +488,7 @@ const validateTransfer = async () => {
 
   try {
     // Fetch budget data for validation
-    const response = await axios.post('http://localhost:8000/api/validate-transfer', {
+    const response = await axios.post('/api/validate-transfer', {
       year: transferData.value.year,
       category: transferData.value.from,
       amount: amount
@@ -540,7 +540,7 @@ const confirmTransfer = async () => {
     const hospFrom = transferData.value.from === 'HOSPITAL' ? -amount : 0
     const hospTo = transferData.value.to === 'HOSPITAL' ? amount : 0
 
-    await axios.post('http://localhost:8000/api/add-supplementary-bonus', {
+    await axios.post('/api/add-supplementary-bonus', {
       year: transferData.value.year,
       date_added: new Date().toISOString().split('T')[0],
       medicine_supplementary_bonus: fromAmount + toAmount,
@@ -688,7 +688,7 @@ const confirmAddBudget = async () => {
     formData.append('laboratory_budget', laboratoryBudget.value)
     formData.append('hospital_budget', hospitalBudget.value)
 
-    await axios.post('http://localhost:8000/api/create-yearly-budget', formData)
+    await axios.post('/api/create-yearly-budget', formData)
 
     $q.notify({
       type: 'positive',

@@ -763,7 +763,7 @@ const filteredRows = computed(() => {
 // Fetch dropdown options from backend
 const fetchDropdownOptions = async () => {
   try {
-    const res = await axios.get('http://localhost:8000/api/all')
+    const res = await axios.get('/api/all')
     allPartners.value = res.data.partners
     allPreferences.value = res.data.preferences
     allSectors.value = res.data.sectors
@@ -796,7 +796,7 @@ const fetchPatients = async (dateFilter = null) => {
       params.to = `31/12/${currentYear}`
     }
 
-    const res = await axios.get('http://localhost:8000/api/general-summary-records', { params })
+    const res = await axios.get('/api/general-summary-records', { params })
 
     // Extract unique partners from the data to include deleted ones
     const dataPartners = [...new Set(res.data.map(r => ({ category: r.category, partner: r.partner })))]

@@ -46,7 +46,7 @@ const formatPeso = (amount) => {
 onMounted(() => {
   const getTotalPatientsAndAmount = async () => {
     try {
-      const res = await axios.get('http://localhost:8000/api/total-patients-and-amount')
+      const res = await axios.get('/api/total-patients-and-amount')
       totalPatients.value = res.data.totalPatients
       totalAmount.value = res.data.totalAmount
     } catch (err) {

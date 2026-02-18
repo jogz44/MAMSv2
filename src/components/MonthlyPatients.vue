@@ -38,7 +38,7 @@ const monthlyCateredPatients = ref(null)
 
 onMounted(async () => {
   try {
-    const res = await axios.get('http://localhost:8000/api/monthly-patients')
+    const res = await axios.get('/api/monthly-patients')
 
     const months = Array.from({ length: 12 }, (_, i) => i + 1)
 

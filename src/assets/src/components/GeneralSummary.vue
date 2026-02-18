@@ -726,7 +726,7 @@ const fetchPatients = async (dateFilter = null) => {
       params.to = `31/12/${currentYear}`
     }
 
-    const res = await axios.get('http://localhost:8000/api/general-summary-records', { params })
+    const res = await axios.get('/api/general-summary-records', { params })
     allPatients.value = processPatientData(res.data)
   } catch (err) {
     console.error('Failed to fetch patients:', err)
