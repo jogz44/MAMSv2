@@ -54,8 +54,7 @@
             icon="close"
             flat
             round
-            color="white"
-            style="position: absolute; top: 6px; right: 8px; font-size: 20px;"
+            style="position: absolute; top: 6px; right: 8px; font-size: 20px; color: white;"
             @click="closeDialog"
           >
             <q-tooltip>Close</q-tooltip>
