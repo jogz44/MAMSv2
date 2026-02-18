@@ -460,7 +460,7 @@ const validateTransfer = async () => {
 
     if (data.success) {
       isValid.value = true
-      validationMessage.value = 'Transfer is valid. Budget will remain positive.'
+      validationMessage.value = 'Transfer is valid. Available balance is sufficient.'
     } else {
       isValid.value = false
       validationMessage.value = data.message
