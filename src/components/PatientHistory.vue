@@ -1425,9 +1425,6 @@ onMounted(async () => {
   color: #388e3c;
   font-weight: 600;
 }
-<<<<<<< HEAD
-</style>
-=======
 
 .dialog-delete-btn {
   background: #ff3b3b !important;
@@ -1445,4 +1442,4 @@ onMounted(async () => {
   border-radius: 4px;
 }
 </style>
->>>>>>> fc30ada65a48f771420f26fe3fa9712bcc9ada6d
+
