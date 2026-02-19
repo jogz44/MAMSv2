@@ -96,9 +96,9 @@
               <div v-if="allSectors.length === 0" class="text-grey-6 text-caption q-pa-sm">
                 No sectors available
               </div>
-              <q-checkbox v-for="sector in allSectors" :key="sector.id" :val="sector.id" v-model="selectedSectorIds"
-                :label="sector.sector" dense :disable="!edit || !sector.is_active"
-                @update:model-value="checkForChanges">
+              <q-checkbox v-for="sector in allSectors.filter(s => s.is_active || selectedSectorIds.includes(s.id))"
+                :key="sector.id" :val="sector.id" v-model="selectedSectorIds" :label="sector.sector" dense
+                :disable="!edit || !sector.is_active" @update:model-value="checkForChanges">
                 <q-tooltip v-if="!sector.is_active" :delay="300" class="text-body2">
                   This sector is deactivated and cannot be changed
                 </q-tooltip>
