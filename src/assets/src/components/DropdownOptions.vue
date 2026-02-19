@@ -185,7 +185,7 @@
           <q-card-section class="q-pt-md">
             <div class="text-subtitle1 q-mb-md">
               Are you sure you want to <strong>{{ optionToToggle && optionToToggle.is_active ? 'deactivate' : 'activate'
-                }}</strong> this option?
+              }}</strong> this option?
             </div>
 
             <div class="info-box" v-if="optionToToggle">
@@ -228,6 +228,7 @@ import { api } from 'src/boot/axios'
 
 const axios = api
 const $q = useQuasar()
+const userData = JSON.parse(localStorage.getItem('user') || '{}')
 
 // ===================== DATA =====================
 
@@ -353,13 +354,13 @@ const doAdd = async () => {
 
     if (activeTable.value === 'preference') {
       endpoint = '/api/preferences'
-      payload = { value: newOptionValue.value.trim() }
+      payload = { value: newOptionValue.value.trim(), performed_by: userData.USERNAME }
     } else if (activeTable.value === 'partner') {
       endpoint = '/api/partners'
-      payload = { category: newOptionCategory.value, value: newOptionValue.value.trim() }
+      payload = { category: newOptionCategory.value, value: newOptionValue.value.trim(), performed_by: userData.USERNAME }
     } else if (activeTable.value === 'sector') {
       endpoint = '/api/sectors'
-      payload = { value: newOptionValue.value.trim() }
+      payload = { value: newOptionValue.value.trim(), performed_by: userData.USERNAME }
     }
 
     const response = await axios.post(endpoint, payload)
@@ -402,7 +403,7 @@ const doToggle = async () => {
       endpoint = `/api/sectors/${optionToToggle.value.id}/toggle`
     }
 
-    const response = await axios.post(endpoint)
+    const response = await axios.post(endpoint, { performed_by: userData.USERNAME })
 
     if (activeTable.value === 'preference') await fetchPreferences()
     else if (activeTable.value === 'partner') await fetchPartners()

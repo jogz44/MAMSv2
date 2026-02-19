@@ -24,19 +24,11 @@
         <div class="row q-col-gutter-md">
           <div class="col-12">
             <label class="form-label">Current Eligibility Cooldown (Days) <span class="required">*</span></label>
-            <q-input 
-              v-model="daysValue" 
-              type="text" 
-              dense 
-              outlined 
-              class="flat-input"
+            <q-input v-model="daysValue" type="text" dense outlined class="flat-input"
               placeholder="Enter number of days"
               :rules="[val => !!val || 'This field is required', val => val > 0 || 'Must be greater than 0']"
-              :readonly="!edit"
-              @input="daysValue = daysValue.replace(/[^0-9]/g, '')"
-              hint="Note: This will affect ALL eligibility cooldowns for each category"
-              :persistent-hint="true"
-            />
+              :readonly="!edit" @input="daysValue = daysValue.replace(/[^0-9]/g, '')"
+              hint="Note: This will affect ALL eligibility cooldowns for each category" :persistent-hint="true" />
           </div>
         </div>
       </q-form>
@@ -122,6 +114,7 @@ const originalDays = ref(0)
 const showCancelDialog = ref(false)
 const showSaveDialog = ref(false)
 const saveLoading = ref(false)
+const userData = JSON.parse(localStorage.getItem('user') || '{}')
 
 const handleCancel = () => {
   showCancelDialog.value = false
@@ -159,7 +152,8 @@ const confirmSave = async () => {
 
   try {
     await axios.post('/api/update-eligibility-cooldown', {
-      days: parseInt(daysValue.value)
+      days: parseInt(daysValue.value),
+      performed_by: userData.USERNAME
     })
 
     originalDays.value = parseInt(daysValue.value)
@@ -231,12 +225,15 @@ onMounted(async () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: -25px -30px 20px -30px; /* ← pull it to the edges of the padded card */
+  margin: -25px -30px 20px -30px;
+  /* ← pull it to the edges of the padded card */
   background-color: #1f8f2e;
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
-  padding-right: 16px; /* give the buttons some breathing room */
+  padding-right: 16px;
+  /* give the buttons some breathing room */
 }
+
 .actions {
   display: flex;
   gap: 8px;

@@ -13,230 +13,214 @@
             <div class="fieldset-title">Create Account</div>
           </div>
 
-        <!-- ================= ACCOUNT CREATION FORM ================= -->
-        <div class="row q-col-gutter-md q-mb-lg">
-          <div class="col-4">
-            <label class="form-label">Name / Username <span class="required">*</span></label>
-            <q-input
-              v-model="name"
-              type="text"
-              dense
-              outlined
-              class="flat-input"
-              placeholder="Enter username"
-              :rules="[val => !!val || 'This field is required']"
-            />
+          <!-- ================= ACCOUNT CREATION FORM ================= -->
+          <div class="row q-col-gutter-md q-mb-lg">
+            <div class="col-4">
+              <label class="form-label">Name / Username <span class="required">*</span></label>
+              <q-input v-model="name" type="text" dense outlined class="flat-input" placeholder="Enter username"
+                :rules="[val => !!val || 'This field is required']" />
+            </div>
+
+            <div class="col-4">
+              <label class="form-label">Password <span class="required">*</span></label>
+              <q-input v-model="password" type="password" dense outlined class="flat-input" placeholder="Enter password"
+                :rules="[val => !!val || 'This field is required']" />
+            </div>
+
+            <div class="col-4">
+              <label class="form-label">Role <span class="required">*</span></label>
+              <q-select v-model="role" :options="roles" dense outlined class="flat-input" placeholder="Select role"
+                :rules="[val => !!val || 'This field is required']" />
+            </div>
           </div>
 
-          <div class="col-4">
-            <label class="form-label">Password <span class="required">*</span></label>
-            <q-input
-              v-model="password"
-              type="password"
-              dense
-              outlined
-              class="flat-input"
-              placeholder="Enter password"
-              :rules="[val => !!val || 'This field is required']"
-            />
+          <div class="row">
+            <div class="col-12" style="text-align: right;">
+              <q-btn label="CREATE ACCOUNT" icon="save" class="action-btn save-btn" dense @click="showCreateDialog" />
+            </div>
           </div>
-
-          <div class="col-4">
-            <label class="form-label">Role <span class="required">*</span></label>
-            <q-select
-              v-model="role"
-              :options="roles"
-              dense
-              outlined
-              class="flat-input"
-              placeholder="Select role"
-              :rules="[val => !!val || 'This field is required']"
-            />
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col-12" style="text-align: right;">
-            <q-btn label="CREATE ACCOUNT" icon="save" class="action-btn save-btn" dense @click="showCreateDialog" />
-          </div>
-        </div>
-      </q-form>
-    </div>
-
-    <!-- ACCOUNTS TABLE -->
-    <div class="form-container q-mt-lg">
-      <div class="fieldset-header">
-        <div class="fieldset-title">Accounts</div>
+        </q-form>
       </div>
 
-      <div class="table-wrapper">
-        <q-table
-          :rows="accountRows"
-          :columns="accountColumns"
-          row-key="id"
-          :rows-per-page-options="[0]"
-          hide-pagination
-          flat
-        >
-          <template #body-cell-action="props">
-            <q-td :props="props">
-              <div class="action-buttons">
-                <q-btn icon="edit" label="EDIT" color="orange" size="sm" unelevated @click="showEditDialog(props.row)" />
-                <q-btn icon="delete" label="DELETE" color="red" size="sm" unelevated @click="showDeleteDialog(props.row)" />
+      <!-- ACCOUNTS TABLE -->
+      <div class="form-container q-mt-lg">
+        <div class="fieldset-header">
+          <div class="fieldset-title">Accounts</div>
+        </div>
+
+        <div class="table-wrapper">
+          <q-table :rows="accountRows" :columns="accountColumns" row-key="id" :rows-per-page-options="[0]"
+            hide-pagination flat>
+            <template #body-cell-action="props">
+              <q-td :props="props">
+                <div class="action-buttons">
+                  <q-btn icon="edit" label="EDIT" color="orange" size="sm" unelevated
+                    @click="showEditDialog(props.row)" />
+                  <q-btn icon="delete" label="DELETE" color="red" size="sm" unelevated
+                    @click="showDeleteDialog(props.row)" />
+                </div>
+              </q-td>
+            </template>
+          </q-table>
+        </div>
+      </div>
+
+      <!-- CREATE ACCOUNT CONFIRMATION DIALOG -->
+      <q-dialog v-model="createDialogVisible">
+        <q-card style="min-width: 350px">
+          <q-card-section class="bg-blue-6 text-white">
+            <div class="text-h6">
+              <q-icon name="info" size="sm" class="q-mr-sm" />
+              Create Account?
+            </div>
+          </q-card-section>
+
+          <q-card-section class="q-pt-md">
+            <div class="text-subtitle1 q-mb-md">
+              Are you sure you want to create an account with these details?
+            </div>
+
+            <div class="account-info-box">
+              <div class="info-item">
+                <strong>Username:</strong> {{ name }}
               </div>
-            </q-td>
-          </template>
-        </q-table>
-      </div>
-    </div>
-
-    <!-- CREATE ACCOUNT CONFIRMATION DIALOG -->
-    <q-dialog v-model="createDialogVisible">
-      <q-card style="min-width: 350px">
-        <q-card-section class="bg-blue-6 text-white">
-          <div class="text-h6">
-            <q-icon name="info" size="sm" class="q-mr-sm" />
-            Create Account?
-          </div>
-        </q-card-section>
-
-        <q-card-section class="q-pt-md">
-          <div class="text-subtitle1 q-mb-md">
-            Are you sure you want to create an account with these details?
-          </div>
-
-          <div class="account-info-box">
-            <div class="info-item">
-              <strong>Username:</strong> {{ name }}
+              <div class="info-item">
+                <strong>Role:</strong> {{ role }}
+              </div>
             </div>
-            <div class="info-item">
-              <strong>Role:</strong> {{ role }}
+          </q-card-section>
+
+          <q-separator />
+
+          <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md">
+            <q-btn unelevated icon="close" label="NO" class="dialog-goback-btn" v-close-popup />
+            <q-btn unelevated icon="check" label="YES" class="dialog-cancel-btn" @click="createAccount"
+              :loading="createLoading" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+
+      <!-- EDIT ACCOUNT DIALOG -->
+      <q-dialog v-model="editDialogVisible" persistent>
+        <q-card style="min-width: 500px">
+          <q-card-section class="bg-orange-6 text-white">
+            <div class="text-h6">
+              <q-icon name="edit" size="sm" class="q-mr-sm" />
+              Edit Account
             </div>
-          </div>
-        </q-card-section>
+          </q-card-section>
 
-        <q-separator />
+          <q-card-section>
+            <q-form ref="editForm">
+              <div class="edit-field">
+                <label>Name / Username <span class="required">*</span></label>
+                <q-input v-model="editData.username" outlined dense
+                  :rules="[val => !!val || 'This field is required']" />
+              </div>
 
-        <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md">
-          <q-btn unelevated icon="close" label="NO" class="dialog-goback-btn" v-close-popup />
-          <q-btn unelevated icon="check" label="YES" class="dialog-cancel-btn" @click="createAccount" :loading="createLoading" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+              <div class="edit-field">
+                <label>Role <span class="required">*</span></label>
+                <q-select v-model="editData.role" :options="roles" outlined dense
+                  :rules="[val => !!val || 'This field is required']" />
+              </div>
 
-    <!-- EDIT ACCOUNT DIALOG -->
-    <q-dialog v-model="editDialogVisible" persistent>
-      <q-card style="min-width: 500px">
-        <q-card-section class="bg-orange-6 text-white">
-          <div class="text-h6">
-            <q-icon name="edit" size="sm" class="q-mr-sm" />
-            Edit Account
-          </div>
-        </q-card-section>
+              <q-separator class="q-my-md" />
 
-        <q-card-section>
-          <q-form ref="editForm">
-            <div class="edit-field">
-              <label>Name / Username <span class="required">*</span></label>
-              <q-input v-model="editData.username" outlined dense :rules="[val => !!val || 'This field is required']" />
+              <div class="text-subtitle2 text-weight-bold q-mb-sm">Change Password (Optional)</div>
+              <div class="text-caption text-grey-7 q-mb-md">Leave blank to keep current password</div>
+
+              <div class="edit-field">
+                <label>New Password</label>
+                <q-input v-model="editData.password" :type="showPassword ? 'text' : 'password'" outlined dense
+                  :rules="passwordRules">
+                  <template v-slot:append>
+                    <q-icon :name="showPassword ? 'visibility_off' : 'visibility'" class="cursor-pointer"
+                      @click="showPassword = !showPassword" />
+                  </template>
+                </q-input>
+              </div>
+
+              <div class="edit-field">
+                <label>Confirm New Password</label>
+                <q-input v-model="editData.confirmPassword" :type="showConfirmPassword ? 'text' : 'password'" outlined
+                  dense :rules="confirmPasswordRules">
+                  <template v-slot:append>
+                    <q-icon :name="showConfirmPassword ? 'visibility_off' : 'visibility'" class="cursor-pointer"
+                      @click="showConfirmPassword = !showConfirmPassword" />
+                  </template>
+                </q-input>
+              </div>
+            </q-form>
+
+            <q-banner v-if="isEditingOwnAccount" class="bg-orange-1 text-orange-9 q-mt-md">
+              <template v-slot:avatar>
+                <q-icon name="warning" color="orange" />
+              </template>
+              You are editing your own account. You will be logged out after saving changes.
+            </q-banner>
+          </q-card-section>
+
+          <q-separator />
+
+          <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md">
+            <q-btn unelevated icon="close" label="CANCEL" class="dialog-goback-btn" @click="closeEditDialog" />
+            <q-btn unelevated icon="check" label="SAVE CHANGES" class="dialog-cancel-btn" @click="confirmEdit"
+              :loading="editLoading" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+
+      <!-- DELETE ACCOUNT CONFIRMATION DIALOG -->
+      <q-dialog v-model="deleteDialogVisible">
+        <q-card style="min-width: 350px">
+          <q-card-section class="bg-red-6 text-white">
+            <div class="text-h6">
+              <q-icon name="warning" size="sm" class="q-mr-sm" />
+              Delete Account?
+            </div>
+          </q-card-section>
+
+          <q-card-section class="q-pt-md">
+            <div class="text-subtitle1 q-mb-md">
+              Are you sure you want to delete this account?
             </div>
 
-            <div class="edit-field">
-              <label>Role <span class="required">*</span></label>
-              <q-select v-model="editData.role" :options="roles" outlined dense :rules="[val => !!val || 'This field is required']" />
+            <div class="account-info-box" v-if="accountToDelete">
+              <div class="info-item">
+                <strong>ID:</strong> {{ accountToDelete.ID }}
+              </div>
+              <div class="info-item">
+                <strong>Username:</strong> {{ accountToDelete.USERNAME }}
+              </div>
+              <div class="info-item">
+                <strong>Role:</strong> {{ accountToDelete.ROLE }}
+              </div>
             </div>
 
-            <q-separator class="q-my-md" />
+            <q-banner class="bg-red-1 text-red-9 q-mt-md">
+              <template v-slot:avatar>
+                <q-icon name="warning" color="red" />
+              </template>
+              This action cannot be undone.
+            </q-banner>
 
-            <div class="text-subtitle2 text-weight-bold q-mb-sm">Change Password (Optional)</div>
-            <div class="text-caption text-grey-7 q-mb-md">Leave blank to keep current password</div>
+            <q-banner v-if="isDeletingOwnAccount" class="bg-orange-1 text-orange-9 q-mt-md">
+              <template v-slot:avatar>
+                <q-icon name="warning" color="orange" />
+              </template>
+              You are deleting your own account. You will be logged out immediately.
+            </q-banner>
+          </q-card-section>
 
-            <div class="edit-field">
-              <label>New Password</label>
-              <q-input v-model="editData.password" :type="showPassword ? 'text' : 'password'" outlined dense :rules="passwordRules">
-                <template v-slot:append>
-                  <q-icon :name="showPassword ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="showPassword = !showPassword" />
-                </template>
-              </q-input>
-            </div>
+          <q-separator />
 
-            <div class="edit-field">
-              <label>Confirm New Password</label>
-              <q-input v-model="editData.confirmPassword" :type="showConfirmPassword ? 'text' : 'password'" outlined dense :rules="confirmPasswordRules">
-                <template v-slot:append>
-                  <q-icon :name="showConfirmPassword ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="showConfirmPassword = !showConfirmPassword" />
-                </template>
-              </q-input>
-            </div>
-          </q-form>
-
-          <q-banner v-if="isEditingOwnAccount" class="bg-orange-1 text-orange-9 q-mt-md">
-            <template v-slot:avatar>
-              <q-icon name="warning" color="orange" />
-            </template>
-            You are editing your own account. You will be logged out after saving changes.
-          </q-banner>
-        </q-card-section>
-
-        <q-separator />
-
-        <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md">
-          <q-btn unelevated icon="close" label="CANCEL" class="dialog-goback-btn" @click="closeEditDialog" />
-          <q-btn unelevated icon="check" label="SAVE CHANGES" class="dialog-cancel-btn" @click="confirmEdit" :loading="editLoading" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-    <!-- DELETE ACCOUNT CONFIRMATION DIALOG -->
-    <q-dialog v-model="deleteDialogVisible">
-      <q-card style="min-width: 350px">
-        <q-card-section class="bg-red-6 text-white">
-          <div class="text-h6">
-            <q-icon name="warning" size="sm" class="q-mr-sm" />
-            Delete Account?
-          </div>
-        </q-card-section>
-
-        <q-card-section class="q-pt-md">
-          <div class="text-subtitle1 q-mb-md">
-            Are you sure you want to delete this account?
-          </div>
-
-          <div class="account-info-box" v-if="accountToDelete">
-            <div class="info-item">
-              <strong>ID:</strong> {{ accountToDelete.ID }}
-            </div>
-            <div class="info-item">
-              <strong>Username:</strong> {{ accountToDelete.USERNAME }}
-            </div>
-            <div class="info-item">
-              <strong>Role:</strong> {{ accountToDelete.ROLE }}
-            </div>
-          </div>
-
-          <q-banner class="bg-red-1 text-red-9 q-mt-md">
-            <template v-slot:avatar>
-              <q-icon name="warning" color="red" />
-            </template>
-            This action cannot be undone.
-          </q-banner>
-
-          <q-banner v-if="isDeletingOwnAccount" class="bg-orange-1 text-orange-9 q-mt-md">
-            <template v-slot:avatar>
-              <q-icon name="warning" color="orange" />
-            </template>
-            You are deleting your own account. You will be logged out immediately.
-          </q-banner>
-        </q-card-section>
-
-        <q-separator />
-
-        <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md">
-          <q-btn unelevated icon="close" label="NO" class="dialog-goback-btn" v-close-popup />
-          <q-btn unelevated icon="check" label="YES" class="dialog-cancel-btn" @click="deleteAccount" :loading="deleteLoading" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+          <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md">
+            <q-btn unelevated icon="close" label="NO" class="dialog-goback-btn" v-close-popup />
+            <q-btn unelevated icon="check" label="YES" class="dialog-cancel-btn" @click="deleteAccount"
+              :loading="deleteLoading" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
     </div>
   </div>
 </template>
@@ -270,6 +254,7 @@ const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 
 const currentUserId = ref(null)
+const currentUserData = ref({})
 
 const editData = ref({
   id: null,
@@ -369,8 +354,10 @@ const confirmEdit = async () => {
     const payload = {
       id: editData.value.id,
       username: editData.value.username,
-      role: editData.value.role
+      role: editData.value.role,
+      performed_by: currentUserData.value.USERNAME
     }
+
 
     if (editData.value.password && editData.value.password.trim() !== '') {
       payload.password = editData.value.password
@@ -401,6 +388,7 @@ const confirmEdit = async () => {
       message: 'Error updating account',
       position: 'top'
     })
+  } finally {
     editLoading.value = false
   }
 }
@@ -417,8 +405,10 @@ const createAccount = async () => {
     await axios.post('/api/new-account', {
       username: name.value,
       password: password.value,
-      role: role.value
+      role: role.value,
+      performed_by: currentUserData.value.USERNAME
     })
+
 
     $q.notify({
       type: 'positive',
@@ -453,9 +443,9 @@ const deleteAccount = async () => {
 
   try {
     await axios.post('/api/delete-account', {
-      id: accountToDelete.value.ID
+      id: accountToDelete.value.ID,
+      performed_by: currentUserData.value.USERNAME
     })
-
     deleteDialogVisible.value = false
 
     $q.notify({
@@ -515,6 +505,7 @@ const fetchAccounts = async () => {
 const getCurrentUser = () => {
   const user = JSON.parse(localStorage.getItem('user') || '{}')
   currentUserId.value = user.id || user.ID || null
+  currentUserData.value = user
 }
 
 onMounted(() => {

@@ -7,13 +7,12 @@
       <div class="actions">
         <!-- View Mode Buttons -->
         <template v-if="!edit">
-          <q-btn label="DELETE" icon="delete" class="action-btn delete-btn" @click="showDeleteDialog = true" dense />
           <q-btn label="EDIT" icon="edit" class="action-btn edit-btn" dense @click="edit = true" />
         </template>
 
         <!-- Edit Mode Buttons -->
         <template v-if="edit">
-          <q-btn label="Cancel" icon="close" class="action-btn cancel-btn" @click="showCancelDialog = true" dense />
+          <q-btn label="Cancel" icon="close" class="action-btn cancel-btn" @click="handleCancel" dense />
           <q-btn label="Save" icon="save" class="action-btn save-btn" @click="handleSaveClick" dense />
         </template>
       </div>
@@ -97,9 +96,9 @@
               <div v-if="allSectors.length === 0" class="text-grey-6 text-caption q-pa-sm">
                 No sectors available
               </div>
-              <q-checkbox v-for="sector in allSectors" :key="sector.id" :val="sector.id" v-model="selectedSectorIds"
-                :label="sector.sector" dense :disable="!edit || !sector.is_active"
-                @update:model-value="checkForChanges">
+              <q-checkbox v-for="sector in allSectors.filter(s => s.is_active || selectedSectorIds.includes(s.id))"
+                :key="sector.id" :val="sector.id" v-model="selectedSectorIds" :label="sector.sector" dense
+                :disable="!edit || !sector.is_active" @update:model-value="checkForChanges">
                 <q-tooltip v-if="!sector.is_active" :delay="300" class="text-body2">
                   This sector is deactivated and cannot be changed
                 </q-tooltip>
@@ -141,44 +140,6 @@
         </div>
       </q-form>
     </div>
-
-    <!-- All dialogs remain the same -->
-    <!-- DELETE CONFIRMATION DIALOG -->
-    <q-dialog v-model="showDeleteDialog">
-      <q-card style="min-width: 350px">
-        <q-card-section>
-          <div class="text-h6">Delete Patient Record?</div>
-        </q-card-section>
-
-        <q-card-section class="q-pt-none">
-          Are you sure you want to delete this patient record? This action cannot be undone.
-        </q-card-section>
-
-        <q-card-actions align="right" class="q-px-md q-pb-md">
-          <q-btn unelevated icon="close" label="NO" class="dialog-goback-btn" v-close-popup />
-          <q-btn unelevated icon="check" label="YES" class="dialog-cancel-btn" @click="handleDelete"
-            :loading="deleteLoading" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-    <!-- CANCEL CONFIRMATION DIALOG -->
-    <q-dialog v-model="showCancelDialog">
-      <q-card style="min-width: 350px">
-        <q-card-section>
-          <div class="text-h6">Cancel Editing?</div>
-        </q-card-section>
-
-        <q-card-section class="q-pt-none">
-          Are you sure you want to cancel? All unsaved changes will be lost.
-        </q-card-section>
-
-        <q-card-actions align="right" class="q-px-md q-pb-md">
-          <q-btn unelevated icon="close" label="NO" class="dialog-goback-btn" v-close-popup />
-          <q-btn unelevated icon="check" label="YES" class="dialog-cancel-btn" @click="handleCancel" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
 
     <!-- FINAL SAVE CONFIRMATION -->
     <q-dialog v-model="showFinalSaveDialog">
@@ -421,6 +382,10 @@ const categoryOptions = ['MEDICINE', 'LABORATORY', 'HOSPITAL']
 const preferenceOptions = computed(() =>
   dynamicPreferences.value.map(p => p.preference)
 )
+
+watch(selectedSectorIds, () => {
+  checkForChanges()
+}, { deep: true })
 
 const options = [
   ['MALE', 'FEMALE'],
@@ -793,6 +758,7 @@ const updatePatientInfo = async () => {
   formData.append('client_middlename', clientMiddleNameValue.value || '')
   formData.append('client_suffix', clientSuffixValue.value || '')
   formData.append('relationship', relationshipValue.value || '')
+  formData.append('performed_by', user.USERNAME)
   await axios.post('/api/patient-details/update', formData)
   $q.notify({
     type: 'positive',
@@ -816,6 +782,7 @@ const updateTransactionDetails = async () => {
   formData.append('client_middlename', clientMiddleNameValue.value || '')
   formData.append('client_suffix', clientSuffixValue.value || '')
   formData.append('relationship', relationshipValue.value || '')
+  formData.append('performed_by', user.USERNAME)
   await axios.post('/api/patient-details/update', formData)
   $q.notify({
     type: 'positive',

@@ -1,15 +1,7 @@
 <template>
   <div class="budget-card">
-    <q-table
-      title="Annual Budget"
-      flat
-      bordered
-      class="budget-table"
-      :rows="rows"
-      :columns="columns"
-      row-key="year"
-      :rows-per-page-options="[5, 10, 15, 20, 0]"
-    >
+    <q-table title="Annual Budget" flat bordered class="budget-table" :rows="rows" :columns="columns" row-key="year"
+      :rows-per-page-options="[5, 10, 15, 20, 0]">
       <template #top-right>
         <q-btn icon="add" label="ADD BUDGET" class="add-btn" @click="openAddBudgetDialog" />
       </template>
@@ -94,16 +86,8 @@
             </div>
 
             <label>TRANSFER AMOUNT: <span>*</span></label>
-            <q-input
-              v-model="amountDisplay"
-              dense
-              outlined
-              type="text"
-              placeholder="0.00"
-              class="amount-input"
-              @update:model-value="onAmountInput"
-              @blur="finalizeAmount"
-            />
+            <q-input v-model="amountDisplay" dense outlined type="text" placeholder="0.00" class="amount-input"
+              @update:model-value="onAmountInput" @blur="finalizeAmount" />
           </div>
 
           <!-- VALIDATION MESSAGE -->
@@ -115,8 +99,8 @@
 
         <q-card-actions align="right" class="q-px-md q-pb-md">
           <q-btn unelevated icon="close" label="CANCEL" class="dialog-goback-btn" @click="closeTransferDialog" />
-          <q-btn unelevated icon="swap_horiz" label="TRANSFER" class="dialog-cancel-btn"
-            @click="handleTransferClick" :disable="!isValid" />
+          <q-btn unelevated icon="swap_horiz" label="TRANSFER" class="dialog-cancel-btn" @click="handleTransferClick"
+            :disable="!isValid" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -137,8 +121,8 @@
 
         <q-card-actions align="right" class="q-px-md q-pb-md">
           <q-btn unelevated icon="close" label="NO" class="dialog-goback-btn" v-close-popup />
-          <q-btn unelevated icon="swap_horiz" label="YES, TRANSFER" class="dialog-cancel-btn"
-            @click="confirmTransfer" :loading="transferLoading" />
+          <q-btn unelevated icon="swap_horiz" label="YES, TRANSFER" class="dialog-cancel-btn" @click="confirmTransfer"
+            :loading="transferLoading" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -161,53 +145,29 @@
           <div class="budget-block">
             <h3>MEDICINE</h3>
             <label>BUDGET: <span>*</span></label>
-            <q-input
-              v-model="medicineDisplay"
-              dense
-              outlined
-              type="text"
-              placeholder="0.00"
-              class="amount-input"
-              @update:model-value="onMedicineInput"
-              @blur="finalizeMedicine"
-            />
+            <q-input v-model="medicineDisplay" dense outlined type="text" placeholder="0.00" class="amount-input"
+              @update:model-value="onMedicineInput" @blur="finalizeMedicine" />
           </div>
 
           <div class="budget-block">
             <h3>LABORATORY</h3>
             <label>BUDGET: <span>*</span></label>
-            <q-input
-              v-model="laboratoryDisplay"
-              dense
-              outlined
-              type="text"
-              placeholder="0.00"
-              class="amount-input"
-              @update:model-value="onLaboratoryInput"
-              @blur="finalizeLaboratory"
-            />
+            <q-input v-model="laboratoryDisplay" dense outlined type="text" placeholder="0.00" class="amount-input"
+              @update:model-value="onLaboratoryInput" @blur="finalizeLaboratory" />
           </div>
 
           <div class="budget-block">
             <h3>HOSPITAL</h3>
             <label>BUDGET: <span>*</span></label>
-            <q-input
-              v-model="hospitalDisplay"
-              dense
-              outlined
-              type="text"
-              placeholder="0.00"
-              class="amount-input"
-              @update:model-value="onHospitalInput"
-              @blur="finalizeHospital"
-            />
+            <q-input v-model="hospitalDisplay" dense outlined type="text" placeholder="0.00" class="amount-input"
+              @update:model-value="onHospitalInput" @blur="finalizeHospital" />
           </div>
         </q-card-section>
 
         <q-card-actions align="right" class="q-px-md q-pb-md">
           <q-btn unelevated icon="close" label="CANCEL" class="dialog-goback-btn" @click="closeAddBudgetDialog" />
-          <q-btn unelevated icon="save" label="SAVE" class="dialog-cancel-btn"
-            @click="handleAddBudgetSave" :disable="!isAddFormValid" />
+          <q-btn unelevated icon="save" label="SAVE" class="dialog-cancel-btn" @click="handleAddBudgetSave"
+            :disable="!isAddFormValid" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -225,8 +185,8 @@
 
         <q-card-actions align="right" class="q-px-md q-pb-md">
           <q-btn unelevated icon="close" label="NO" class="dialog-goback-btn" v-close-popup />
-          <q-btn unelevated icon="check" label="YES" class="dialog-cancel-btn"
-            @click="confirmAddBudget" :loading="addBudgetLoading" />
+          <q-btn unelevated icon="check" label="YES" class="dialog-cancel-btn" @click="confirmAddBudget"
+            :loading="addBudgetLoading" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -238,6 +198,8 @@ import { useRouter } from 'vue-router'
 import { onMounted, ref, computed } from 'vue'
 import { useQuasar } from 'quasar'
 import { api } from 'src/boot/axios'
+
+const userData = JSON.parse(localStorage.getItem('user') || '{}')
 
 const axios = api
 
@@ -311,11 +273,11 @@ const validationIcon = computed(() => {
 // Add form validation
 const isAddFormValid = computed(() => {
   return medicineBudget.value !== null &&
-         laboratoryBudget.value !== null &&
-         hospitalBudget.value !== null &&
-         medicineDisplay.value !== '' &&
-         laboratoryDisplay.value !== '' &&
-         hospitalDisplay.value !== ''
+    laboratoryBudget.value !== null &&
+    hospitalBudget.value !== null &&
+    medicineDisplay.value !== '' &&
+    laboratoryDisplay.value !== '' &&
+    hospitalDisplay.value !== ''
 })
 
 const columns = [
@@ -498,7 +460,7 @@ const validateTransfer = async () => {
 
     if (data.success) {
       isValid.value = true
-      validationMessage.value = 'Transfer is valid. Budget will remain positive.'
+      validationMessage.value = 'Transfer is valid. Available balance is sufficient.'
     } else {
       isValid.value = false
       validationMessage.value = data.message
@@ -545,7 +507,8 @@ const confirmTransfer = async () => {
       date_added: new Date().toISOString().split('T')[0],
       medicine_supplementary_bonus: fromAmount + toAmount,
       laboratory_supplementary_bonus: labFrom + labTo,
-      hospital_supplementary_bonus: hospFrom + hospTo
+      hospital_supplementary_bonus: hospFrom + hospTo,
+      performed_by: userData.USERNAME
     })
 
     $q.notify({
@@ -687,6 +650,7 @@ const confirmAddBudget = async () => {
     formData.append('medicine_budget', medicineBudget.value)
     formData.append('laboratory_budget', laboratoryBudget.value)
     formData.append('hospital_budget', hospitalBudget.value)
+    formData.append('performed_by', userData.USERNAME)
 
     await axios.post('/api/create-yearly-budget', formData)
 
