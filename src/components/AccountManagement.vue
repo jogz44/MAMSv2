@@ -102,15 +102,17 @@
 
       <!-- EDIT ACCOUNT DIALOG -->
       <q-dialog v-model="editDialogVisible" persistent>
-        <q-card style="min-width: 500px">
-          <q-card-section class="bg-orange-6 text-white">
+        <q-card style="min-width: 500px; max-height: 90vh; display: flex; flex-direction: column;">
+          <!-- Sticky header -->
+          <q-card-section class="bg-orange-6 text-white" style="flex-shrink: 0;">
             <div class="text-h6">
               <q-icon name="edit" size="sm" class="q-mr-sm" />
               Edit Account
             </div>
           </q-card-section>
 
-          <q-card-section>
+          <!-- Scrollable body -->
+          <q-card-section style="flex: 1; overflow-y: auto;">
             <q-form ref="editForm">
               <div class="edit-field">
                 <label>Name / Username <span class="required">*</span></label>
@@ -160,9 +162,9 @@
             </q-banner>
           </q-card-section>
 
-          <q-separator />
-
-          <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md">
+          <!-- Sticky footer -->
+          <q-separator style="flex-shrink: 0;" />
+          <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md" style="flex-shrink: 0;">
             <q-btn unelevated icon="close" label="CANCEL" class="dialog-goback-btn" @click="closeEditDialog" />
             <q-btn unelevated icon="check" label="SAVE CHANGES" class="dialog-cancel-btn" @click="confirmEdit"
               :loading="editLoading" />
@@ -226,7 +228,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { api } from 'src/boot/axios'
@@ -294,6 +296,31 @@ const confirmPasswordRules = computed(() => {
   ]
 })
 
+// ── FIX 3: Poll every 10s to detect if current user's account was deleted ──
+let sessionCheckInterval = null
+
+const startSessionCheck = () => {
+  sessionCheckInterval = setInterval(async () => {
+    try {
+      const res = await axios.get('/api/accounts')
+      const accounts = res.data[0]
+      const stillExists = accounts.some(a => a.ID === currentUserId.value)
+      if (!stillExists) {
+        clearInterval(sessionCheckInterval)
+        $q.notify({
+          type: 'negative',
+          message: 'Your account has been deleted. You will be logged out.',
+          position: 'top',
+          timeout: 2000
+        })
+        setTimeout(() => logout(false), 2000)
+      }
+    } catch {
+      // Silently ignore polling errors
+    }
+  }, 10000)
+}
+
 const showCreateDialog = async () => {
   const isValid = await accountForm.value.validate()
 
@@ -358,7 +385,6 @@ const confirmEdit = async () => {
       performed_by: currentUserData.value.USERNAME
     }
 
-
     if (editData.value.password && editData.value.password.trim() !== '') {
       payload.password = editData.value.password
     }
@@ -374,13 +400,10 @@ const confirmEdit = async () => {
     })
 
     if (editingOwnAccount) {
-      setTimeout(() => {
-        logout()
-      }, 1000)
+      setTimeout(() => logout(), 1000)
     } else {
       await fetchAccounts()
     }
-
   } catch (error) {
     console.error('Error updating account:', error)
     $q.notify({
@@ -389,6 +412,7 @@ const confirmEdit = async () => {
       position: 'top'
     })
   } finally {
+    // FIX 2: always reset editLoading so buttons don't stay stuck
     editLoading.value = false
   }
 }
@@ -409,7 +433,6 @@ const createAccount = async () => {
       performed_by: currentUserData.value.USERNAME
     })
 
-
     $q.notify({
       type: 'positive',
       message: 'Account Created Successfully',
@@ -422,7 +445,6 @@ const createAccount = async () => {
     createDialogVisible.value = false
 
     await fetchAccounts()
-
   } catch (error) {
     console.error('Error creating account:', error)
     $q.notify({
@@ -446,6 +468,7 @@ const deleteAccount = async () => {
       id: accountToDelete.value.ID,
       performed_by: currentUserData.value.USERNAME
     })
+
     deleteDialogVisible.value = false
 
     $q.notify({
@@ -455,14 +478,12 @@ const deleteAccount = async () => {
     })
 
     if (deletingOwnAccount) {
-      setTimeout(() => {
-        logout()
-      }, 1000)
+      setTimeout(() => logout(), 1000)
     } else {
+      // FIX 1: reset state BEFORE fetching so next delete works cleanly
       accountToDelete.value = null
       await fetchAccounts()
     }
-
   } catch (error) {
     console.error('Error deleting account:', error)
     $q.notify({
@@ -470,11 +491,22 @@ const deleteAccount = async () => {
       message: 'Error deleting account',
       position: 'top'
     })
+  } finally {
+    // FIX 1: always reset deleteLoading so the button never stays stuck
     deleteLoading.value = false
   }
 }
 
-const logout = () => {
+// FIX 2: logout now calls the backend so the session log is written
+const logout = async (callBackend = true) => {
+  if (callBackend) {
+    try {
+      await axios.post('/api/logout', { username: currentUserData.value.USERNAME ?? 'Unknown' })
+    } catch (err) {
+      console.error('Logout request failed:', err)
+    }
+  }
+
   localStorage.removeItem('token')
   localStorage.removeItem('user')
   sessionStorage.clear()
@@ -511,6 +543,11 @@ const getCurrentUser = () => {
 onMounted(() => {
   getCurrentUser()
   fetchAccounts()
+  startSessionCheck()
+})
+
+onUnmounted(() => {
+  clearInterval(sessionCheckInterval)
 })
 </script>
 
