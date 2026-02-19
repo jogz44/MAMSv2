@@ -162,15 +162,15 @@
 
     <!-- PATIENT EDIT CONFIRMATION DIALOG -->
     <q-dialog v-model="showPatientEditDialog" persistent>
-      <q-card style="min-width: 600px; max-width: 700px;">
-        <q-card-section class="bg-orange-6 text-white">
+      <q-card style="min-width: 600px; max-width: 700px; max-height: 90vh; display: flex; flex-direction: column;">
+        <q-card-section class="bg-orange-6 text-white" style="flex-shrink: 0;">
           <div class="text-h6">
             <q-icon name="edit" size="sm" class="q-mr-sm" />
             Patient Information Changed
           </div>
         </q-card-section>
 
-        <q-card-section>
+        <q-card-section style="flex: 1; overflow-y: auto;">
           <div class="text-subtitle1 q-mb-md">
             You have modified the patient information. Are you sure you want to update?
           </div>
@@ -186,7 +186,7 @@
                 <span v-if="originalPatientData.suffix"> {{ originalPatientData.suffix }}</span>
               </div>
               <div class="info-item">
-                <strong>Birthdate:</strong> {{ originalPatientData.birthdate }}
+                <strong>Birthdate:</strong> {{ formatDisplayDate(originalPatientData.birthdate) }}
               </div>
               <div class="info-item">
                 <strong>Age:</strong> {{ calculateAgeFromDate(originalPatientData.birthdate) }}
@@ -206,9 +206,9 @@
               </div>
               <div class="info-item info-item-full">
                 <strong>Sectors:</strong>
-                {{(originalPatientData.sector_ids || []).length
-                  ? allSectors.filter(s => (originalPatientData.sector_ids || []).includes(s.id)).map(s =>
-                    s.sector).join(',') : 'None'}}
+                {{ (originalPatientData.sector_ids || []).length
+                  ? allSectors.filter(s => (originalPatientData.sector_ids || []).includes(s.id)).map(s => s.sector).join(', ')
+                  : 'None' }}
               </div>
             </div>
           </div>
@@ -224,7 +224,7 @@
                 <span v-if="suffixValue"> {{ suffixValue }}</span>
               </div>
               <div class="info-item">
-                <strong>Birthdate:</strong> {{ birthdateValue || 'N/A' }}
+                <strong>Birthdate:</strong> {{ formatDisplayDate(birthdateValue) }}
               </div>
               <div class="info-item">
                 <strong>Age:</strong> {{ ageValue }}
@@ -236,24 +236,24 @@
                 <strong>Preference:</strong> {{ preferenceValue || 'N/A' }}
               </div>
               <div class="info-item info-item-full">
-                <strong>Address:</strong> {{ houseAddressValue }}, {{ barangayValue }}, {{ cityValue }}, {{
-                  provinceValue }}
+                <strong>Address:</strong> {{ houseAddressValue }}, {{ barangayValue }}, {{ cityValue }}, {{ provinceValue }}
               </div>
               <div class="info-item">
                 <strong>Phone:</strong> {{ formatPhoneNumber(phoneNumberValue) }}
               </div>
               <div class="info-item info-item-full">
                 <strong>Sectors:</strong>
-                {{selectedSectorIds.length
-                  ? allSectors.filter(s => selectedSectorIds.includes(s.id)).map(s => s.sector).join(', ') : 'None'}}
+                {{ selectedSectorIds.length
+                  ? allSectors.filter(s => selectedSectorIds.includes(s.id)).map(s => s.sector).join(', ')
+                  : 'None' }}
               </div>
             </div>
           </div>
         </q-card-section>
 
-        <q-separator />
+        <q-separator style="flex-shrink: 0;" />
 
-        <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md">
+        <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md" style="flex-shrink: 0;">
           <q-btn label="CANCEL" icon="close" unelevated class="dialog-goback-btn" @click="cancelPatientEdit" />
           <q-btn label="UPDATE" icon="check" unelevated class="dialog-cancel-btn" @click="showFinalSaveDialog = true"
             :loading="editActionLoading" />
@@ -263,15 +263,15 @@
 
     <!-- TRANSACTION/CLIENT DETAILS EDIT CONFIRMATION DIALOG -->
     <q-dialog v-model="showTransactionEditDialog" persistent>
-      <q-card style="min-width: 600px; max-width: 700px;">
-        <q-card-section class="bg-orange-6 text-white">
+      <q-card style="min-width: 600px; max-width: 700px; max-height: 90vh; display: flex; flex-direction: column;">
+        <q-card-section class="bg-orange-6 text-white" style="flex-shrink: 0;">
           <div class="text-h6">
             <q-icon name="receipt_long" size="sm" class="q-mr-sm" />
             Transaction/Client Details Changed
           </div>
         </q-card-section>
 
-        <q-card-section>
+        <q-card-section style="flex: 1; overflow-y: auto;">
           <div class="text-subtitle1 q-mb-md">
             You have modified the transaction or client details for this record. Are you sure you want to update?
           </div>
@@ -339,9 +339,9 @@
           </div>
         </q-card-section>
 
-        <q-separator />
+        <q-separator style="flex-shrink: 0;" />
 
-        <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md">
+        <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md" style="flex-shrink: 0;">
           <q-btn label="CANCEL" icon="close" unelevated class="dialog-goback-btn" @click="cancelTransactionEdit" />
           <q-btn label="UPDATE" icon="check" unelevated class="dialog-cancel-btn" @click="proceedWithTransactionUpdate"
             :loading="editActionLoading" />
@@ -353,7 +353,6 @@
 </template>
 
 <script setup>
-// Script remains exactly the same - no changes needed
 import { api } from 'src/boot/axios'
 
 const axios = api
@@ -501,44 +500,31 @@ const phoneNumberValue = ref(null)
 const normalizePhoneNumber = (value) => {
   if (!value) return null
   let cleaned = value.replace(/\D/g, '')
-  if (!cleaned.startsWith('09')) {
-    return null
-  }
-  if (cleaned.length !== 11) {
-    return null
-  }
+  if (!cleaned.startsWith('09')) return null
+  if (cleaned.length !== 11) return null
   return cleaned
 }
 
 const validatePhoneNumber = (value) => {
   if (!value) return 'Phone number is required'
   const normalized = normalizePhoneNumber(value)
-  if (!normalized) {
-    return 'Invalid phone number. Must be 11 digits starting with 09'
-  }
+  if (!normalized) return 'Invalid phone number. Must be 11 digits starting with 09'
   return true
 }
 
 const onPhoneNumberChange = (value) => {
   if (value) {
-    // Remove all non-digit characters
     const cleaned = value.replace(/\D/g, '')
     phoneNumberValue.value = cleaned
-
     const normalized = normalizePhoneNumber(cleaned)
-    if (normalized) {
-      phoneNumberValue.value = normalized
-    }
+    if (normalized) phoneNumberValue.value = normalized
   }
   checkForChanges()
 }
 
 const onPhoneNumberKeyPress = (event) => {
-  // Only allow numbers (0-9)
   const charCode = event.which ? event.which : event.keyCode
-  if (charCode < 48 || charCode > 57) {
-    event.preventDefault()
-  }
+  if (charCode < 48 || charCode > 57) event.preventDefault()
 }
 
 const formatPhoneNumber = (phone) => {
@@ -547,6 +533,12 @@ const formatPhoneNumber = (phone) => {
     return `${phone.substring(0, 4)} ${phone.substring(4, 7)} ${phone.substring(7)}`
   }
   return phone
+}
+
+// ── FIX: formats DD/MM/YYYY → "Month DD, YYYY" for display in dialogs ──
+const formatDisplayDate = (ddmmyyyy) => {
+  if (!ddmmyyyy) return 'N/A'
+  return dayjs(ddmmyyyy, 'DD/MM/YYYY', true).format('MMMM DD, YYYY')
 }
 
 const convertToMySQLDate = (dateString) => {
@@ -582,7 +574,7 @@ const checkPatientChanges = () => {
     barangayValue.value !== originalPatientData.value.barangay ||
     houseAddressValue.value !== originalPatientData.value.house_address ||
     (phoneNumberValue.value || null) !== (originalPatientData.value.phone_number || null) ||
-    JSON.stringify([...selectedSectorIds.value].sort()) !== JSON.stringify([...(originalPatientData.value.sector_ids || [])].sort())  // ADD THIS LINE
+    JSON.stringify([...selectedSectorIds.value].sort()) !== JSON.stringify([...(originalPatientData.value.sector_ids || [])].sort())
 }
 
 const checkTransactionChanges = () => {
@@ -608,20 +600,12 @@ const handleDelete = async () => {
   deleteLoading.value = true
   try {
     await axios.post(`/api/patient-details/delete/${glNum.value}`)
-    $q.notify({
-      type: 'positive',
-      message: 'Patient record deleted successfully',
-      position: 'top'
-    })
+    $q.notify({ type: 'positive', message: 'Patient record deleted successfully', position: 'top' })
     showDeleteDialog.value = false
     router.push('/patient-records')
   } catch (error) {
     console.error("Failed to delete patient:", error)
-    $q.notify({
-      type: 'negative',
-      message: 'Failed to delete patient record',
-      position: 'top'
-    })
+    $q.notify({ type: 'negative', message: 'Failed to delete patient record', position: 'top' })
   } finally {
     deleteLoading.value = false
   }
@@ -665,22 +649,12 @@ const validateRequiredFields = () => {
 const handleSaveClick = async () => {
   const errors = validateRequiredFields()
   if (errors.length > 0) {
-    $q.notify({
-      type: 'negative',
-      message: errors.join('<br>'),
-      html: true,
-      position: 'top',
-      timeout: 4000
-    })
+    $q.notify({ type: 'negative', message: errors.join('<br>'), html: true, position: 'top', timeout: 4000 })
     return
   }
   const isValid = await patientForm.value.validate()
   if (!isValid) {
-    $q.notify({
-      type: 'negative',
-      message: 'Please fill in all required fields',
-      position: 'top'
-    })
+    $q.notify({ type: 'negative', message: 'Please fill in all required fields', position: 'top' })
     return
   }
   const patientChanged = checkPatientChanges()
@@ -690,20 +664,19 @@ const handleSaveClick = async () => {
   } else if (transactionChanged) {
     showTransactionEditDialog.value = true
   } else {
-    $q.notify({
-      type: 'info',
-      message: 'No changes detected',
-      position: 'top'
-    })
+    $q.notify({ type: 'info', message: 'No changes detected', position: 'top' })
     edit.value = false
   }
 }
 
+// ── FIX: close both dialogs on cancel ──
 const cancelPatientEdit = () => {
+  showFinalSaveDialog.value = false
   showPatientEditDialog.value = false
 }
 
 const cancelTransactionEdit = () => {
+  showFinalSaveDialog.value = false
   showTransactionEditDialog.value = false
 }
 
@@ -718,11 +691,7 @@ const proceedWithTransactionUpdate = async () => {
     await getPatientDetails(glNum.value)
   } catch (error) {
     console.error('Transaction update failed:', error)
-    $q.notify({
-      type: 'negative',
-      message: 'Failed to update transaction details',
-      position: 'top'
-    })
+    $q.notify({ type: 'negative', message: 'Failed to update transaction details', position: 'top' })
   } finally {
     editActionLoading.value = false
   }
@@ -760,14 +729,11 @@ const updatePatientInfo = async () => {
   formData.append('relationship', relationshipValue.value || '')
   formData.append('performed_by', user.USERNAME)
   await axios.post('/api/patient-details/update', formData)
-  $q.notify({
-    type: 'positive',
-    message: 'Patient information updated successfully',
-    position: 'top'
-  })
+  $q.notify({ type: 'positive', message: 'Patient information updated successfully', position: 'top' })
 }
 
 const updateTransactionDetails = async () => {
+  const user = JSON.parse(localStorage.getItem('user'))
   const formData = new FormData()
   formData.append('identifier', glNum.value)
   formData.append('update_transaction_only', '1')
@@ -784,26 +750,19 @@ const updateTransactionDetails = async () => {
   formData.append('relationship', relationshipValue.value || '')
   formData.append('performed_by', user.USERNAME)
   await axios.post('/api/patient-details/update', formData)
-  $q.notify({
-    type: 'positive',
-    message: 'Transaction details updated successfully',
-    position: 'top'
-  })
+  $q.notify({ type: 'positive', message: 'Transaction details updated successfully', position: 'top' })
 }
 
 onMounted(async () => {
-  // Fetch dropdown options first
   await fetchDropdownOptions()
-
   if (!glNum.value) return
   getPatientDetails(glNum.value)
 })
+
 watch(
   () => route.params.glNum,
   (newGlNum) => {
-    if (newGlNum) {
-      getPatientDetails(newGlNum)
-    }
+    if (newGlNum) getPatientDetails(newGlNum)
   }
 )
 
@@ -823,20 +782,14 @@ const confirmSave = async () => {
     }
   } catch (error) {
     console.error('Save failed:', error)
-    $q.notify({
-      type: 'negative',
-      message: 'Failed to save changes',
-      position: 'top'
-    })
+    $q.notify({ type: 'negative', message: 'Failed to save changes', position: 'top' })
   } finally {
     editActionLoading.value = false
   }
 }
 
 const getPatientDetails = async (id) => {
-  const res = await axios.get(
-    `/api/patient-details/${id}`
-  )
+  const res = await axios.get(`/api/patient-details/${id}`)
   const patientDetails = res.data
   if (!patientDetails) return
   patientIDValue.value = patientDetails.patient_id
@@ -908,14 +861,10 @@ const getPatientDetails = async (id) => {
 function getDaySuffix(day) {
   if (day > 3 && day < 21) return 'th'
   switch (day % 10) {
-    case 1:
-      return 'st'
-    case 2:
-      return 'nd'
-    case 3:
-      return 'rd'
-    default:
-      return 'th'
+    case 1: return 'st'
+    case 2: return 'nd'
+    case 3: return 'rd'
+    default: return 'th'
   }
 }
 </script>
@@ -965,7 +914,6 @@ function getDaySuffix(day) {
   align-items: center;
 }
 
-/* BUTTON BASE */
 .action-btn {
   font-weight: 600;
   font-size: 14px;
@@ -974,9 +922,6 @@ function getDaySuffix(day) {
   color: white;
 }
 
-/* =========================
-   FORM LAYOUT
-========================= */
 .form-group {
   margin-bottom: 16px;
 }
@@ -991,9 +936,6 @@ function getDaySuffix(day) {
   color: red;
 }
 
-/* =========================
-   INPUTS & SELECTS (FIXED)
-========================= */
 .flat-input :deep(.q-field__control) {
   background-color: #f3f3f3;
   border: 1px solid #bdbdbd;
@@ -1048,7 +990,6 @@ function getDaySuffix(day) {
   color: #757575 !important;
 }
 
-/* BUTTON COLORS */
 .delete-btn {
   background: #ff3b3b;
   border-radius: 5%;
@@ -1110,9 +1051,6 @@ function getDaySuffix(day) {
   margin-right: 6px;
 }
 
-/* =========================
-   PATIENT INFO BOX
-========================= */
 .patient-info-box {
   background: #f5f5f5;
   border: 1px solid #e0e0e0;
@@ -1139,9 +1077,6 @@ function getDaySuffix(day) {
   grid-column: 1 / -1;
 }
 
-/* =========================
-   CHANGES LIST (for transaction dialog)
-========================= */
 .changes-list {
   display: flex;
   flex-direction: column;
@@ -1172,9 +1107,6 @@ function getDaySuffix(day) {
   font-weight: 600;
 }
 
-/* =========================
-   OPTIONS GRID
-========================= */
 .options-grid {
   display: grid;
   grid-template-columns: 1fr;

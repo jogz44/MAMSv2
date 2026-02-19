@@ -47,16 +47,11 @@
                           <span><strong>Sex:</strong> {{ patient.sex || 'N/A' }}</span>
                         </div>
                         <div class="detail-row-dropdown">
-                          <span><strong>Birthdate:</strong> {{ patient.birthdate ? formatDate(patient.birthdate) : 'N/A'
-                          }}</span>
-                          <span><strong>Age:</strong> {{ patient.birthdate ? calculateAgeFromDate(patient.birthdate) :
-                            'N/A'
-                          }}</span>
+                          <span><strong>Birthdate:</strong> {{ patient.birthdate ? formatDate(patient.birthdate) : 'N/A' }}</span>
+                          <span><strong>Age:</strong> {{ patient.birthdate ? calculateAgeFromDate(patient.birthdate) : 'N/A' }}</span>
                         </div>
-                        <div class="detail-row-dropdown"><span><strong>Address:</strong> {{ formatAddress(patient)
-                        }}</span></div>
-                        <div class="detail-row-dropdown"><span><strong>Phone Number:</strong> {{
-                          formatPhoneNumber(patient.phone_number) }}</span></div>
+                        <div class="detail-row-dropdown"><span><strong>Address:</strong> {{ formatAddress(patient) }}</span></div>
+                        <div class="detail-row-dropdown"><span><strong>Phone Number:</strong> {{ formatPhoneNumber(patient.phone_number) }}</span></div>
                         <div class="detail-row-dropdown" v-if="patient.last_issued_at">
                           <span><strong>Latest GL:</strong> {{ patient.gl_no }}</span>
                           <span><strong>Issued:</strong> {{ formatDate(patient.last_issued_at) }}</span>
@@ -111,16 +106,11 @@
                           <span><strong>Sex:</strong> {{ patient.sex || 'N/A' }}</span>
                         </div>
                         <div class="detail-row-dropdown">
-                          <span><strong>Birthdate:</strong> {{ patient.birthdate ? formatDate(patient.birthdate) : 'N/A'
-                          }}</span>
-                          <span><strong>Age:</strong> {{ patient.birthdate ? calculateAgeFromDate(patient.birthdate) :
-                            'N/A'
-                          }}</span>
+                          <span><strong>Birthdate:</strong> {{ patient.birthdate ? formatDate(patient.birthdate) : 'N/A' }}</span>
+                          <span><strong>Age:</strong> {{ patient.birthdate ? calculateAgeFromDate(patient.birthdate) : 'N/A' }}</span>
                         </div>
-                        <div class="detail-row-dropdown"><span><strong>Address:</strong> {{ formatAddress(patient)
-                        }}</span></div>
-                        <div class="detail-row-dropdown"><span><strong>Phone Number:</strong> {{
-                          formatPhoneNumber(patient.phone_number) }}</span></div>
+                        <div class="detail-row-dropdown"><span><strong>Address:</strong> {{ formatAddress(patient) }}</span></div>
+                        <div class="detail-row-dropdown"><span><strong>Phone Number:</strong> {{ formatPhoneNumber(patient.phone_number) }}</span></div>
                         <div class="detail-row-dropdown" v-if="patient.last_issued_at">
                           <span><strong>Latest GL:</strong> {{ patient.gl_no }}</span>
                           <span><strong>Issued:</strong> {{ formatDate(patient.last_issued_at) }}</span>
@@ -174,16 +164,11 @@
                           <span><strong>Sex:</strong> {{ patient.sex || 'N/A' }}</span>
                         </div>
                         <div class="detail-row-dropdown">
-                          <span><strong>Birthdate:</strong> {{ patient.birthdate ? formatDate(patient.birthdate) : 'N/A'
-                          }}</span>
-                          <span><strong>Age:</strong> {{ patient.birthdate ? calculateAgeFromDate(patient.birthdate) :
-                            'N/A'
-                          }}</span>
+                          <span><strong>Birthdate:</strong> {{ patient.birthdate ? formatDate(patient.birthdate) : 'N/A' }}</span>
+                          <span><strong>Age:</strong> {{ patient.birthdate ? calculateAgeFromDate(patient.birthdate) : 'N/A' }}</span>
                         </div>
-                        <div class="detail-row-dropdown"><span><strong>Address:</strong> {{ formatAddress(patient)
-                        }}</span></div>
-                        <div class="detail-row-dropdown"><span><strong>Phone Number:</strong> {{
-                          formatPhoneNumber(patient.phone_number) }}</span></div>
+                        <div class="detail-row-dropdown"><span><strong>Address:</strong> {{ formatAddress(patient) }}</span></div>
+                        <div class="detail-row-dropdown"><span><strong>Phone Number:</strong> {{ formatPhoneNumber(patient.phone_number) }}</span></div>
                         <div class="detail-row-dropdown" v-if="patient.last_issued_at">
                           <span><strong>Latest GL:</strong> {{ patient.gl_no }}</span>
                           <span><strong>Issued:</strong> {{ formatDate(patient.last_issued_at) }}</span>
@@ -257,8 +242,7 @@
           <div class="field sector-field">
             <label>Sector</label>
             <div class="sector-container">
-              <div v-if="dynamicSectors.length === 0" class="text-grey-6 text-caption q-pa-sm">No sectors available
-              </div>
+              <div v-if="dynamicSectors.length === 0" class="text-grey-6 text-caption q-pa-sm">No sectors available</div>
               <q-checkbox v-for="sector in dynamicSectors" :key="sector.id" :val="sector.id" v-model="selectedSectorIds"
                 :label="sector.sector" dense @update:model-value="checkForPatientEdits" />
             </div>
@@ -268,8 +252,7 @@
         <div class="grid-5">
           <div class="field">
             <label>Province</label>
-            <q-input v-model="provinceValue" :hint="'Cannot be edited!'" :persistent-hint="true" dense outlined
-              disable />
+            <q-input v-model="provinceValue" :hint="'Cannot be edited!'" :persistent-hint="true" dense outlined disable />
           </div>
           <div class="field">
             <label>City</label>
@@ -379,11 +362,12 @@
 
       <!--CONFIRM DETAILS-->
       <q-dialog v-model="showConfirmDetailsDialog" persistent>
-        <q-card style="min-width: 700px; max-width: 800px;">
-          <q-card-section class="bg-blue-6 text-white">
+        <q-card style="min-width: 700px; max-width: 800px; max-height: 90vh; display: flex; flex-direction: column;">
+          <q-card-section class="bg-blue-6 text-white" style="flex-shrink: 0;">
             <div class="text-h6"><q-icon name="info" size="sm" class="q-mr-sm" />Confirm Patient Information</div>
           </q-card-section>
-          <q-card-section>
+
+          <q-card-section style="flex: 1; overflow-y: auto;">
             <div class="text-subtitle1 q-mb-md">Please review the patient information before proceeding.</div>
 
             <!-- Existing patient WITH edits: show side-by-side comparison -->
@@ -399,23 +383,17 @@
                   </div>
                   <div class="info-grid">
                     <div class="info-item">
-                      <strong>Name:</strong> {{ selectedBrowserPatient.lastname }}, {{ selectedBrowserPatient.firstname
-                      }}
+                      <strong>Name:</strong> {{ selectedBrowserPatient.lastname }}, {{ selectedBrowserPatient.firstname }}
                       <span v-if="selectedBrowserPatient.middlename"> {{ selectedBrowserPatient.middlename }}</span>
                       <span v-if="selectedBrowserPatient.suffix"> {{ selectedBrowserPatient.suffix }}</span>
                     </div>
                     <div class="info-item"><strong>Patient ID:</strong> {{ selectedBrowserPatient.patient_id }}</div>
-                    <div class="info-item"><strong>Birthdate:</strong> {{ selectedBrowserPatient.birthdate ?
-                      formatDate(selectedBrowserPatient.birthdate) : 'N/A' }}</div>
+                    <div class="info-item"><strong>Birthdate:</strong> {{ selectedBrowserPatient.birthdate ? formatDate(selectedBrowserPatient.birthdate) : 'N/A' }}</div>
                     <div class="info-item"><strong>Sex:</strong> {{ selectedBrowserPatient.sex || 'N/A' }}</div>
-                    <div class="info-item"><strong>Preference:</strong> {{ selectedBrowserPatient.preference || 'N/A' }}
-                    </div>
+                    <div class="info-item"><strong>Preference:</strong> {{ selectedBrowserPatient.preference || 'N/A' }}</div>
                     <div class="info-item"><strong>Sector:</strong> {{ originalSectorValue }}</div>
-                    <div class="info-item info-item-full"><strong>Address:</strong> {{
-                      formatAddress(selectedBrowserPatient)
-                    }}</div>
-                    <div class="info-item"><strong>Phone Number:</strong> {{
-                      formatPhoneNumber(selectedBrowserPatient.phone_number) }}</div>
+                    <div class="info-item info-item-full"><strong>Address:</strong> {{ formatAddress(selectedBrowserPatient) }}</div>
+                    <div class="info-item"><strong>Phone Number:</strong> {{ formatPhoneNumber(selectedBrowserPatient.phone_number) }}</div>
                   </div>
                 </div>
                 <div class="comparison-arrow"><q-icon name="arrow_downward" size="lg" color="orange" /></div>
@@ -429,24 +407,19 @@
                       <span v-if="middleNameValue"> {{ middleNameValue }}</span>
                       <span v-if="suffixValue"> {{ suffixValue }}</span>
                     </div>
-                    <div class="info-item"><strong>Patient ID:</strong> {{ selectedBrowserPatient.patient_id }}
-                      (unchanged)
-                    </div>
-                    <div class="info-item"><strong>Birthdate:</strong> {{ birthdateValue ?
-                      formatDate(convertToMySQLDate(birthdateValue)) : 'N/A' }}</div>
+                    <div class="info-item"><strong>Patient ID:</strong> {{ selectedBrowserPatient.patient_id }} (unchanged)</div>
+                    <div class="info-item"><strong>Birthdate:</strong> {{ birthdateValue ? formatDate(convertToMySQLDate(birthdateValue)) : 'N/A' }}</div>
                     <div class="info-item"><strong>Sex:</strong> {{ sexValue || 'N/A' }}</div>
                     <div class="info-item"><strong>Preference:</strong> {{ preferenceValue || 'N/A' }}</div>
                     <div class="info-item"><strong>Sector:</strong> {{ sectorValue }}</div>
-                    <div class="info-item info-item-full"><strong>Address:</strong> {{ houseAddressValue }}, {{
-                      barangayValue
-                    }}, {{ cityValue }}, {{ provinceValue }}</div>
+                    <div class="info-item info-item-full"><strong>Address:</strong> {{ houseAddressValue }}, {{ barangayValue }}, {{ cityValue }}, {{ provinceValue }}</div>
+                    <div class="info-item"><strong>Phone Number:</strong> {{ formatPhoneNumber(phoneNumberValue) }}</div>
                   </div>
                 </div>
               </div>
               <q-banner class="bg-blue-1 text-blue-9 q-mt-md">
                 <template v-slot:avatar><q-icon name="info" color="blue" /></template>
-                Updating this patient will affect Patient ID {{ selectedBrowserPatient?.patient_id }} for all future
-                records.
+                Updating this patient will affect Patient ID {{ selectedBrowserPatient?.patient_id }} for all future records.
               </q-banner>
             </div>
 
@@ -462,17 +435,14 @@
                     <span v-if="middleNameValue"> {{ middleNameValue }}</span>
                     <span v-if="suffixValue"> {{ suffixValue }}</span>
                   </div>
-                  <div class="info-item" v-if="selectedBrowserPatient"><strong>Patient ID:</strong> {{
-                    selectedBrowserPatient.patient_id }}</div>
-                  <div class="info-item"><strong>Birthdate:</strong> {{ birthdateValue || 'N/A' }}</div>
+                  <div class="info-item" v-if="selectedBrowserPatient"><strong>Patient ID:</strong> {{ selectedBrowserPatient.patient_id }}</div>
+                  <div class="info-item"><strong>Birthdate:</strong> {{ birthdateValue ? formatDate(convertToMySQLDate(birthdateValue)) : 'N/A' }}</div>
                   <div class="info-item"><strong>Age:</strong> {{ calculateAgeFromBirthdate(birthdateValue) }}</div>
                   <div class="info-item"><strong>Sex:</strong> {{ sexValue || 'N/A' }}</div>
                   <div class="info-item"><strong>Preference:</strong> {{ preferenceValue || 'N/A' }}</div>
                   <div class="info-item"><strong>Sector:</strong> {{ sectorValue }}</div>
                   <div class="info-item info-item-full">
-                    <strong>Address:</strong> {{ houseAddressValue }}, {{ barangayValue }}, {{ cityValue }}, {{
-                      provinceValue
-                    }}
+                    <strong>Address:</strong> {{ houseAddressValue }}, {{ barangayValue }}, {{ cityValue }}, {{ provinceValue }}
                   </div>
                   <div class="info-item"><strong>Phone Number:</strong> {{ formatPhoneNumber(phoneNumberValue) }}</div>
                 </div>
@@ -487,8 +457,7 @@
               <div class="info-grid">
                 <div class="info-item"><strong>Category:</strong> {{ categoryValue }}</div>
                 <div class="info-item"><strong>Partner:</strong> {{ partnerValue }}</div>
-                <div class="info-item" v-if="categoryValue === 'HOSPITAL'"><strong>Hospital Bill:</strong> ₱{{
-                  formatCurrency(hospitalBillValue) }}</div>
+                <div class="info-item" v-if="categoryValue === 'HOSPITAL'"><strong>Hospital Bill:</strong> ₱{{ formatCurrency(hospitalBillValue) }}</div>
                 <div class="info-item"><strong>Issued Amount:</strong> ₱{{ formatCurrency(issuedAmountValue) }}</div>
               </div>
             </div>
@@ -504,8 +473,7 @@
                   <span v-if="clientMiddleNameValue"> {{ clientMiddleNameValue }}</span>
                   <span v-if="clientSuffixValue"> {{ clientSuffixValue }}</span>
                 </div>
-                <div class="info-item info-item-full"><strong>Relationship to Patient:</strong> {{ relationshipValue }}
-                </div>
+                <div class="info-item info-item-full"><strong>Relationship to Patient:</strong> {{ relationshipValue }}</div>
               </div>
             </div>
             <div v-else class="patient-info-box q-mt-md">
@@ -517,8 +485,9 @@
               </div>
             </div>
           </q-card-section>
-          <q-separator />
-          <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md dialog-actions-sticky">
+
+          <q-separator style="flex-shrink: 0;" />
+          <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md" style="flex-shrink: 0;">
             <q-btn label="CANCEL" icon="close" unelevated class="dialog-goback-btn" @click="cancelConfirmDetails" />
             <q-btn label="PROCEED" icon="check" unelevated class="dialog-cancel-btn" @click="proceedConfirmDetails" />
           </q-card-actions>
@@ -531,7 +500,6 @@
           <q-card-section>
             <div class="text-h6">Save Changes?</div>
           </q-card-section>
-
           <q-card-section class="q-pt-none">
             Are you sure you want to save these changes?
           </q-card-section>
@@ -558,11 +526,8 @@
               <div v-if="eligibilityWarningData">
                 <div class="text-weight-bold">Last GL Number: {{ eligibilityWarningData.last_gl_no }}</div>
                 <div>Issued: {{ formatDate(eligibilityWarningData.last_issued_at) }}</div>
-                <div class="text-weight-bold text-orange-9 q-mt-sm">Eligible from: {{
-                  formatDate(eligibilityWarningData.eligibility_date) }}</div>
-                <div class="text-caption q-mt-xs">({{ calculateDaysRemaining(eligibilityWarningData.eligibility_date) }}
-                  days
-                  remaining)</div>
+                <div class="text-weight-bold text-orange-9 q-mt-sm">Eligible from: {{ formatDate(eligibilityWarningData.eligibility_date) }}</div>
+                <div class="text-caption q-mt-xs">({{ calculateDaysRemaining(eligibilityWarningData.eligibility_date) }} days remaining)</div>
               </div>
             </q-banner>
             <div class="text-body2 text-grey-8">Patients must wait 3 months between guarantee letters.</div>
@@ -580,8 +545,7 @@
           <q-card-section>
             <div class="text-h6">Close Form?</div>
           </q-card-section>
-          <q-card-section class="q-pt-none">Are you sure you want to close? All unsaved changes will be
-            lost.</q-card-section>
+          <q-card-section class="q-pt-none">Are you sure you want to close? All unsaved changes will be lost.</q-card-section>
           <q-card-actions align="right" class="q-px-md q-pb-md">
             <q-btn unelevated icon="close" label="NO" class="dialog-goback-btn" v-close-popup />
             <q-btn unelevated icon="check" label="YES" class="dialog-cancel-btn" @click="handleCancel" />
@@ -596,8 +560,7 @@
             <div class="text-h6"><q-icon name="info" size="sm" class="q-mr-sm" />Existing Patients Found</div>
           </q-card-section>
           <q-card-section>
-            <div class="text-subtitle1 q-mb-md">One or more patients with the same name already exist in the system.
-            </div>
+            <div class="text-subtitle1 q-mb-md">One or more patients with the same name already exist in the system.</div>
             <q-banner class="bg-blue-1 text-blue-9 q-mb-md">
               <template v-slot:avatar><q-icon name="help_outline" color="blue" /></template>
               Please choose whether to link this record to an existing patient or create a new patient entry.
@@ -633,8 +596,7 @@
                 <q-icon name="link" size="md" color="blue" />
                 <div class="option-title">Use Existing Patient</div>
                 <div class="option-description">
-                  Link this record to the selected patient above. This will add a new GL record under the same Patient
-                  ID.
+                  Link this record to the selected patient above. This will add a new GL record under the same Patient ID.
                   <span v-if="!selectedExistingPatient" class="text-red"> (Please select a patient first)</span>
                 </div>
               </div>
@@ -642,9 +604,7 @@
                 :class="{ 'option-selected': selectedAction === 'new' }">
                 <q-icon name="person_add" size="md" color="green" />
                 <div class="option-title">Create New Patient</div>
-                <div class="option-description">Create a completely new patient with a new Patient ID. Use this if this
-                  is
-                  actually a different person.</div>
+                <div class="option-description">Create a completely new patient with a new Patient ID. Use this if this is actually a different person.</div>
               </div>
             </div>
           </q-card-section>
@@ -758,11 +718,6 @@ const usedBrowserPatient = ref(false)
 const browserPatientEdited = ref(false)
 
 // ── DIALOG REFS ──
-// Unified 3-step flow for BOTH new and existing patients:
-//   Step 1 (silent): runBudgetCheck()
-//   Step 1b (if fails): showInsufficientFundsDialog → cancel OR proceed anyway → Step 2
-//   Step 2: showConfirmDetailsDialog — review all details → cancel OR proceed → Step 3
-//   Step 3: showFinalSaveDialog — "Save Changes?" → cancel OR SAVE → doSubmit()
 const showInsufficientFundsDialog = ref(false)
 const showConfirmDetailsDialog = ref(false)
 const showFinalSaveDialog = ref(false)
@@ -872,7 +827,6 @@ const originalSectorValue = computed(() => {
   if (!ids.length) return 'N/A'
   return dynamicSectors.value.filter(s => ids.includes(s.id)).map(s => s.sector).join(', ')
 })
-
 
 // ── HELPERS ──
 const formatCurrency = (amount) => {
@@ -994,8 +948,6 @@ const checkForPatientEdits = () => {
 }
 
 // ── UNIFIED 3-STEP DIALOG FLOW ──
-
-// Step 1 (silent): budget check — called by checkExistingPatients and proceedWithAction
 const runBudgetCheck = async () => {
   try {
     const res = await axios.post('/api/validate-transfer', {
@@ -1005,30 +957,27 @@ const runBudgetCheck = async () => {
     })
     if (!res.data.success) {
       projectedBalance.value = res.data.breakdown.remaining
-      showInsufficientFundsDialog.value = true   // → Step 1b
+      showInsufficientFundsDialog.value = true
     } else {
-      showConfirmDetailsDialog.value = true       // → Step 2
+      showConfirmDetailsDialog.value = true
     }
   } catch (error) {
     $q.notify({ type: 'negative', message: 'Failed to check budget', position: 'top' })
   }
 }
 
-// Step 1b: Insufficient funds
 const cancelInsufficientFunds = () => { showInsufficientFundsDialog.value = false; pendingAction.value = null }
 const proceedWithInsufficientFunds = () => {
   showInsufficientFundsDialog.value = false
-  showConfirmDetailsDialog.value = true           // → Step 2
+  showConfirmDetailsDialog.value = true
 }
 
-// Step 2: Confirm details
 const cancelConfirmDetails = () => { showConfirmDetailsDialog.value = false; pendingAction.value = null }
 const proceedConfirmDetails = () => {
   showConfirmDetailsDialog.value = false
-  showFinalSaveDialog.value = true                // → Step 3
+  showFinalSaveDialog.value = true
 }
 
-// Step 3: Final save
 const confirmFinalSave = async () => {
   showFinalSaveDialog.value = false
   areYouSureLoading.value = true
@@ -1037,7 +986,6 @@ const confirmFinalSave = async () => {
   } finally { areYouSureLoading.value = false }
 }
 
-// Shared submit helper
 const doSubmit = async () => {
   const shouldPrint = pendingAction.value === 'print'
   if (selectedBrowserPatient.value) {
@@ -1049,11 +997,10 @@ const doSubmit = async () => {
   }
 }
 
-// ── ENTRY POINT ──
 const checkExistingPatients = async (isPrint = false) => {
   if (!lastNameValue.value || !firstNameValue.value) return
   pendingAction.value = isPrint ? 'print' : 'save'
-  await runBudgetCheck()  // always starts with budget check for everyone
+  await runBudgetCheck()
 }
 
 const proceedWithAction = async () => {
