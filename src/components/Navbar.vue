@@ -104,7 +104,9 @@ const user = computed(() => {
 const logout = async () => {
   try {
     // Call backend FIRST so the session is still active when the log is written
-    await axios.post('/api/logout')
+    // Send username explicitly since cross-origin sessions may not resolve Auth::user()
+    const userData = JSON.parse(localStorage.getItem('user') || '{}')
+    await axios.post('/api/logout', { username: userData?.USERNAME ?? 'Unknown' })
   } catch (err) {
     // Proceed with local logout even if the request fails
     console.error('Logout request failed:', err)
