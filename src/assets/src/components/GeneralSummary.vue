@@ -65,7 +65,7 @@
     <div class="table-container">
       <div class="scrollable-wrapper">
         <!-- LEFT SECTION (Patient Info) -->
-        <div class="left-section" :style="{ width: sectionWidths.left + '%' }">
+        <div class="left-section" :style="{ width: sectionWidths.left + '%' }" ref="leftSection">
           <table class="data-table">
             <thead>
               <!-- Spacer row when no category - matches month header height -->
@@ -163,9 +163,8 @@
         </div>
 
         <!-- RIGHT SECTION (Monthly Records) -->
-        <!-- RIGHT SECTION (Monthly Records) -->
-        <div class="right-section" :style="{ width: sectionWidths.right + '%' }">
-          <div class="horizontal-scroll">
+        <div class="right-section" :style="{ width: sectionWidths.right + '%' }" ref="rightSection">
+          <div class="horizontal-scroll" ref="rightScroll">
             <table class="data-table">
               <thead>
                 <!-- Month headers row -->
@@ -243,20 +242,46 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, watch, onBeforeUnmount, nextTick } from 'vue'
 import { api } from 'src/boot/axios'
 
 const axios = api
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 
-// Extend dayjs with customParseFormat plugin
 dayjs.extend(customParseFormat)
 
 const rows = ref([])
 const allPatients = ref([])
 const loading = ref(false)
 const dateRange = ref(null)
+
+// Scroll sync refs
+const leftSection = ref(null)
+const rightSection = ref(null)
+const rightScroll = ref(null)
+
+let isSyncingLeft = false
+let isSyncingRight = false
+
+const syncScrollFromLeft = () => {
+  if (isSyncingLeft) return
+  isSyncingRight = true
+  if (rightScroll.value) {
+    rightScroll.value.scrollTop = leftSection.value.scrollTop
+  }
+  isSyncingRight = false
+}
+
+const syncScrollFromRight = () => {
+  if (isSyncingRight) return
+  isSyncingLeft = true
+  if (leftSection.value) {
+    leftSection.value.scrollTop = rightScroll.value.scrollTop
+  }
+  isSyncingLeft = false
+}
+
 
 const categoryOptions = ['MEDICINE', 'LABORATORY', 'HOSPITAL']
 const barangayOptions = [
@@ -271,12 +296,10 @@ const partnerValue = ref(null)
 const barangayValue = ref(null)
 const sectorValue = ref(null)
 
-// Dynamic options from backend
 const allPartners = ref([])
 const allPreferences = ref([])
 const allSectors = ref([])
 
-// Storage keys
 const STORAGE_KEYS = {
   DATE_RANGE: 'general_summary_date_range',
   CATEGORY: 'general_summary_category',
@@ -285,19 +308,16 @@ const STORAGE_KEYS = {
   SECTOR: 'general_summary_sector'
 }
 
-// Column widths for resizable columns
 const columnWidths = ref({
   name: 300,
   address: 350
 })
 
-// Section widths (percentages) - resizable
 const sectionWidths = ref({
   left: 50,
   right: 50
 })
 
-// Resize state
 const resizeState = ref({
   isResizing: false,
   column: null,
@@ -305,7 +325,6 @@ const resizeState = ref({
   startWidth: 0
 })
 
-// Section resize state
 const sectionResizeState = ref({
   isResizing: false,
   startX: 0,
@@ -313,7 +332,6 @@ const sectionResizeState = ref({
 })
 
 const visibleMonths = computed(() => {
-  // If date filter is applied, show the date range in header
   if (dateRange.value) {
     let fromDate, toDate
 
@@ -340,25 +358,20 @@ const visibleMonths = computed(() => {
     const end = toDate.clone().endOf('month')
 
     while (current.isBefore(end) || current.isSame(end, 'month')) {
-      // Check if this is the first month or last month in the range
       const isFirstMonth = current.isSame(fromDate, 'month')
       const isLastMonth = current.isSame(toDate, 'month')
 
       let monthDisplay = ''
 
       if (isFirstMonth && isLastMonth) {
-        // Single month with date range
         monthDisplay = `${fromDate.format('MMM DD, YYYY')} - ${toDate.format('MMM DD, YYYY')}`
       } else if (isFirstMonth) {
-        // First month in range - show from date to end of month
         const endOfMonth = current.clone().endOf('month')
         monthDisplay = `${fromDate.format('MMM DD, YYYY')} - ${endOfMonth.format('MMM DD, YYYY')}`
       } else if (isLastMonth) {
-        // Last month in range - show start of month to end date
         const startOfMonth = current.clone().startOf('month')
         monthDisplay = `${startOfMonth.format('MMM DD, YYYY')} - ${toDate.format('MMM DD, YYYY')}`
       } else {
-        // Middle months - show full month
         monthDisplay = `${current.format('MMMM YYYY').toUpperCase()}`
       }
 
@@ -369,7 +382,6 @@ const visibleMonths = computed(() => {
     return monthYears
   }
 
-  // No date filter - show all months for current year
   const currentYear = dayjs().format('YYYY')
   return [
     `JANUARY ${currentYear}`, `FEBRUARY ${currentYear}`, `MARCH ${currentYear}`,
@@ -379,7 +391,6 @@ const visibleMonths = computed(() => {
   ]
 })
 
-// Add this computed property for month mapping
 const monthMapping = computed(() => {
   const mapping = new Map()
 
@@ -414,7 +425,6 @@ const monthMapping = computed(() => {
           monthDisplay = `${current.format('MMMM YYYY').toUpperCase()}`
         }
 
-        // Map the display format to the data storage format
         const dataKey = `${current.format('MMMM').toUpperCase()} ${current.format('YYYY')}`
         mapping.set(monthDisplay, dataKey)
 
@@ -422,7 +432,6 @@ const monthMapping = computed(() => {
       }
     }
   } else {
-    // No date filter - map display to same format
     const currentYear = dayjs().format('YYYY')
     const months = [
       'JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE',
@@ -438,62 +447,52 @@ const monthMapping = computed(() => {
   return mapping
 })
 
-// Computed: Partner options based on category
 const partnerOptions = computed(() => {
   if (!categoryValue.value) {
-    // If no category selected, show all partners that exist in the summary data
     return [...new Set(allPartners.value.map(p => p.partner))].sort()
   }
-
-  // Filter partners by category
   return allPartners.value
     .filter(p => p.category === categoryValue.value)
     .map(p => p.partner)
     .sort()
 })
 
-// Computed: Sector options from backend
 const sectorOptions = computed(() => {
   return allSectors.value.map(s => s.sector).sort()
 })
 
-// Computed: Show hospital bill column if category is HOSPITAL or no category filter
 const showHospitalBill = computed(() => {
   return categoryValue.value === 'HOSPITAL' || categoryValue.value === null
 })
 
-// Computed: Get colspan for each month header
 const getMonthColspan = (monthYear) => {
-  let cols = 6 // UUID, GL NO., CLIENT'S NAME, DATE ISSUED, AMOUNT, ISSUED BY
+  let cols = 6
 
   if (!categoryValue.value && !partnerValue.value) {
-    cols += 1 // CATEGORY
+    cols += 1
   }
 
   if (!partnerValue.value) {
-    cols += 1 // PARTNER
+    cols += 1
   }
 
   if (showHospitalBill.value) {
-    cols += 1 // HOSPITAL BILL
+    cols += 1
   }
 
   return cols
 }
 
-// Computed: Total columns for empty state colspan
 const totalColumns = computed(() => {
   return visibleMonths.value.length * getMonthColspan('JANUARY 2026')
 })
 
-// Watch category changes to reset partner
 watch(categoryValue, (newVal, oldVal) => {
   if (newVal !== oldVal) {
     partnerValue.value = null
   }
 })
 
-// Save filters to localStorage
 const saveFiltersToStorage = () => {
   localStorage.setItem(STORAGE_KEYS.DATE_RANGE, JSON.stringify(dateRange.value))
   localStorage.setItem(STORAGE_KEYS.CATEGORY, JSON.stringify(categoryValue.value))
@@ -502,7 +501,6 @@ const saveFiltersToStorage = () => {
   localStorage.setItem(STORAGE_KEYS.SECTOR, JSON.stringify(sectorValue.value))
 }
 
-// Load filters from localStorage
 const loadFiltersFromStorage = () => {
   try {
     const savedDateRange = localStorage.getItem(STORAGE_KEYS.DATE_RANGE)
@@ -521,17 +519,10 @@ const loadFiltersFromStorage = () => {
   }
 }
 
-// Watch filters and save to localStorage
 watch([dateRange, categoryValue, partnerValue, barangayValue, sectorValue], () => {
   saveFiltersToStorage()
 })
 
-// Save filters before component unmounts
-onBeforeUnmount(() => {
-  saveFiltersToStorage()
-})
-
-// Format date for display
 const formattedDate = computed(() => {
   if (!dateRange.value) {
     return ''
@@ -551,7 +542,6 @@ const formattedDate = computed(() => {
   return ''
 })
 
-// Calculate age from birthdate
 const calculateAge = (birthdate) => {
   if (!birthdate) return null
   const birth = dayjs(birthdate)
@@ -561,7 +551,6 @@ const calculateAge = (birthdate) => {
   return age
 }
 
-// Format currency
 const formatCurrency = (amount) => {
   if (amount === null || amount === undefined) return 'N/A'
   const num = parseFloat(amount)
@@ -572,10 +561,9 @@ const formatCurrency = (amount) => {
   })
 }
 
-// Format client name
 const formatClientName = (clientData, patientName) => {
   if (!clientData || !clientData.firstname) {
-    return 'SAME' // Same as patient
+    return 'SAME'
   }
 
   const parts = [
@@ -588,7 +576,6 @@ const formatClientName = (clientData, patientName) => {
   return parts.join(' ')
 }
 
-// Format sector
 const formatSector = (sectorIds, sectorsLookup) => {
   if (!sectorIds || !sectorIds.length || !sectorsLookup || !sectorsLookup.length) return 'N/A'
   const names = sectorIds
@@ -603,7 +590,6 @@ const formatSector = (sectorIds, sectorsLookup) => {
 const processPatientData = (rawData) => {
   const patientGroups = new Map()
 
-  // 1. Group by patient
   rawData.forEach(record => {
     const key = record.patient_id
 
@@ -647,39 +633,31 @@ const processPatientData = (rawData) => {
 
   const allRows = []
 
-  // 2. Sort patient groups by patient ID (ascending)
   const sortedPatients = Array.from(patientGroups.entries()).sort(
     (a, b) => a[1].patientInfo.patientId - b[1].patientInfo.patientId
   )
 
-  // 3. Process each patient
   sortedPatients.forEach(([key, group]) => {
-    // Sort months chronologically
     const sortedMonths = Array.from(group.recordsByMonth.keys()).sort(
       (a, b) => dayjs(a, 'MMMM YYYY') - dayjs(b, 'MMMM YYYY')
     )
 
-    // Build a structure: for each month, get all records
     const monthRecordsMap = new Map()
 
     sortedMonths.forEach(monthYear => {
       const recordsInMonth = group.recordsByMonth.get(monthYear)
-      // Sort records in this month by GL number (ascending)
       recordsInMonth.sort((a, b) => a.gl_no - b.gl_no)
       monthRecordsMap.set(monthYear, recordsInMonth)
     })
 
-    // Find the maximum number of records in any single month for this patient
     let maxRecordsInAnyMonth = 0
     monthRecordsMap.forEach(records => {
       maxRecordsInAnyMonth = Math.max(maxRecordsInAnyMonth, records.length)
     })
 
-    // Create rows equal to maxRecordsInAnyMonth
     for (let rowIndex = 0; rowIndex < maxRecordsInAnyMonth; rowIndex++) {
       const monthlyRecords = {}
 
-      // For each month, get the record at rowIndex (if exists)
       sortedMonths.forEach(monthYear => {
         const recordsInMonth = monthRecordsMap.get(monthYear)
 
@@ -687,7 +665,7 @@ const processPatientData = (rawData) => {
           const record = recordsInMonth[rowIndex]
 
           monthlyRecords[monthYear] = {
-            uuid: record.uuid, // Added UUID
+            uuid: record.uuid,
             glNo: record.gl_no,
             category: record.category,
             partner: record.partner,
@@ -705,49 +683,42 @@ const processPatientData = (rawData) => {
         }
       })
 
-      // Create a row - each row is a complete clone of patient info
       allRows.push({
         ...group.patientInfo,
         rowId: `patient-${group.patientInfo.patientId}-row-${rowIndex}`,
         monthlyRecords: monthlyRecords,
-        isFirstInMonth: true, // Each row shows full patient info
-        recordsInThisMonth: 1 // No rowspan needed
+        isFirstInMonth: true,
+        recordsInThisMonth: 1
       })
     }
   })
 
   return allRows
 }
-// Computed: Filtered rows
+
 const filteredRows = computed(() => {
   let filtered = allPatients.value
 
-  // Apply category filter
   if (categoryValue.value) {
     filtered = filtered.filter(row => {
-      // Check if patient has ANY record matching the category
       return Object.values(row.monthlyRecords).some(
         record => record.category === categoryValue.value
       )
     })
   }
 
-  // Apply partner filter
   if (partnerValue.value) {
     filtered = filtered.filter(row => {
-      // Check if patient has ANY record matching the partner
       return Object.values(row.monthlyRecords).some(
         record => record.partner === partnerValue.value
       )
     })
   }
 
-  // Apply barangay filter
   if (barangayValue.value) {
     filtered = filtered.filter(row => row.barangay === barangayValue.value)
   }
 
-  // Apply sector filter
   if (sectorValue.value) {
     filtered = filtered.filter(row => {
       if (!row.sectorIds || !row.sectorIds.length) return false
@@ -774,7 +745,7 @@ const fetchDropdownOptions = async () => {
     console.error('Failed to fetch dropdown options:', err)
   }
 }
-// Fetch patients with optional date filter
+
 const fetchPatients = async (dateFilter = null) => {
   loading.value = true
   try {
@@ -800,19 +771,15 @@ const fetchPatients = async (dateFilter = null) => {
 
     const res = await axios.get('/api/general-summary-records', { params })
 
-    // Extract unique partners from the data to include deleted ones
     const dataPartners = [...new Set(res.data.map(r => ({ category: r.category, partner: r.partner })))]
 
-    // Merge with backend partners (this ensures deleted partners in data are still available)
     const mergedPartners = new Map()
 
-    // Add all partners from backend
     allPartners.value.forEach(p => {
       const key = `${p.category}-${p.partner}`
       mergedPartners.set(key, p)
     })
 
-    // Add any partners from data that aren't in backend (deleted ones)
     dataPartners.forEach(p => {
       const key = `${p.category}-${p.partner}`
       if (!mergedPartners.has(key)) {
@@ -830,7 +797,7 @@ const fetchPatients = async (dateFilter = null) => {
   }
 }
 
-// Watch for date range changes
+
 watch(dateRange, async (newVal) => {
   if (!newVal) {
     fetchPatients()
@@ -849,29 +816,12 @@ watch(dateRange, async (newVal) => {
   }
 })
 
-// Clear filters
-const onClearDate = () => {
-  dateRange.value = null
-}
+const onClearDate = () => { dateRange.value = null }
+const onClearCategory = () => { categoryValue.value = null; partnerValue.value = null }
+const onClearPartner = () => { partnerValue.value = null }
+const onClearBarangay = () => { barangayValue.value = null }
+const onClearSector = () => { sectorValue.value = null }
 
-const onClearCategory = () => {
-  categoryValue.value = null
-  partnerValue.value = null
-}
-
-const onClearPartner = () => {
-  partnerValue.value = null
-}
-
-const onClearBarangay = () => {
-  barangayValue.value = null
-}
-
-const onClearSector = () => {
-  sectorValue.value = null
-}
-
-// Column resize functions
 const startResize = (event, column) => {
   event.preventDefault()
   resizeState.value = {
@@ -889,10 +839,8 @@ const startResize = (event, column) => {
 
 const onResize = (event) => {
   if (!resizeState.value.isResizing) return
-
   const diff = event.pageX - resizeState.value.startX
   const newWidth = Math.max(150, resizeState.value.startWidth + diff)
-
   columnWidths.value[resizeState.value.column] = newWidth
 }
 
@@ -904,7 +852,6 @@ const stopResize = () => {
   document.body.style.userSelect = ''
 }
 
-// Section resize functions
 const startSectionResize = (event) => {
   event.preventDefault()
   sectionResizeState.value = {
@@ -927,14 +874,9 @@ const onSectionResize = (event) => {
 
   const containerRect = container.getBoundingClientRect()
   const containerWidth = containerRect.width
-
-  // Calculate the mouse position relative to the container
   const relativeX = event.pageX - containerRect.left
 
-  // Calculate new percentage (with constraints)
   let newLeftPercent = (relativeX / containerWidth) * 100
-
-  // Constrain between 20% and 80%
   newLeftPercent = Math.max(20, Math.min(80, newLeftPercent))
 
   sectionWidths.value.left = newLeftPercent
@@ -949,7 +891,6 @@ const stopSectionResize = () => {
   document.body.style.userSelect = ''
 }
 
-// Download CSV function
 const downloadCSV = () => {
   const rows = []
 
@@ -1071,18 +1012,10 @@ const downloadCSV = () => {
   const today = dayjs().format('YYYY-MM-DD')
   let filename = `general-summary-${today}`
 
-  if (categoryValue.value) {
-    filename += `-${categoryValue.value.toLowerCase()}`
-  }
-  if (partnerValue.value) {
-    filename += `-${partnerValue.value.toLowerCase().replace(/\s+/g, '-')}`
-  }
-  if (barangayValue.value) {
-    filename += `-${barangayValue.value.toLowerCase().replace(/\s+/g, '-')}`
-  }
-  if (sectorValue.value) {
-    filename += `-${sectorValue.value.toLowerCase().replace(/\s+/g, '-')}`
-  }
+  if (categoryValue.value) filename += `-${categoryValue.value.toLowerCase()}`
+  if (partnerValue.value) filename += `-${partnerValue.value.toLowerCase().replace(/\s+/g, '-')}`
+  if (barangayValue.value) filename += `-${barangayValue.value.toLowerCase().replace(/\s+/g, '-')}`
+  if (sectorValue.value) filename += `-${sectorValue.value.toLowerCase().replace(/\s+/g, '-')}`
   if (dateRange.value) {
     if (typeof dateRange.value === 'string') {
       filename += `-${dateRange.value.replace(/\//g, '-')}`
@@ -1103,16 +1036,27 @@ const downloadCSV = () => {
 }
 
 onMounted(async () => {
-
   await fetchDropdownOptions()
-
   loadFiltersFromStorage()
-
   await fetchPatients()
+
+  nextTick(() => {
+    if (leftSection.value) {
+      leftSection.value.addEventListener('scroll', syncScrollFromLeft)
+    }
+    if (rightScroll.value) {
+      rightScroll.value.addEventListener('scroll', syncScrollFromRight)
+    }
+  })
+})
+
+onBeforeUnmount(() => {
+  saveFiltersToStorage()
+  if (leftSection.value) leftSection.value.removeEventListener('scroll', syncScrollFromLeft)
+  if (rightScroll.value) rightScroll.value.removeEventListener('scroll', syncScrollFromRight)
 })
 
 const getPatientNumber = (patientId) => {
-  // Get unique patient IDs in the order they appear
   const seen = new Set()
   const uniquePatients = []
 
@@ -1149,7 +1093,6 @@ const getPatientNumber = (patientId) => {
   color: #333 !important;
 }
 
-/* Responsive Filter Container */
 .filters-container {
   display: flex;
   gap: 12px;
@@ -1206,7 +1149,6 @@ const getPatientNumber = (patientId) => {
   width: 100%;
 }
 
-/* Responsive breakpoints */
 @media (max-width: 1400px) {
   .filter-item {
     min-width: 140px;
@@ -1369,7 +1311,6 @@ const getPatientNumber = (patientId) => {
   white-space: nowrap;
 }
 
-/* Column headers (not month or category headers) */
 .data-table thead tr:last-child th {
   padding: 12px 16px;
   font-size: 12px;
@@ -1377,18 +1318,21 @@ const getPatientNumber = (patientId) => {
 }
 
 .data-table td {
-  padding: 12px 16px;
+  padding: 0 16px;
+  height: 48px;
   border: none;
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
   text-align: center;
   white-space: nowrap;
   vertical-align: middle;
   font-size: 12px;
+  box-sizing: border-box;
 }
 
 .data-table tbody tr {
   background-color: white;
   transition: background-color 0.2s;
+  height: 48px;
 }
 
 .data-table tbody tr:nth-child(even) {
@@ -1399,7 +1343,6 @@ const getPatientNumber = (patientId) => {
   background-color: #f5f5f5;
 }
 
-/* Category header row */
 .category-header-row th {
   padding: 10px 12px !important;
   font-size: 13px !important;
@@ -1411,7 +1354,6 @@ const getPatientNumber = (patientId) => {
   color: white;
 }
 
-/* Month headers with different colors */
 .month-headers th {
   font-size: 13px;
   font-weight: 700;
@@ -1473,14 +1415,12 @@ const getPatientNumber = (patientId) => {
   background-color: #F44336 !important;
 }
 
-/* Sticky first column */
 .sticky-col {
   position: sticky;
   left: 0;
   background-color: white;
   z-index: 5;
   box-shadow: 2px 0 3px rgba(0, 0, 0, 0.08);
-  /* Ensure rowspan cells expand properly */
   vertical-align: middle !important;
 }
 
@@ -1496,7 +1436,6 @@ const getPatientNumber = (patientId) => {
   background-color: #f5f5f5;
 }
 
-/* Cell widths */
 .resizable-col {
   position: relative;
 }
@@ -1552,7 +1491,6 @@ const getPatientNumber = (patientId) => {
   border-bottom: 2px solid rgba(0, 0, 0, 0.12) !important;
 }
 
-/* Scrollbar styling - moved higher in the container */
 .left-section::-webkit-scrollbar,
 .horizontal-scroll::-webkit-scrollbar,
 .right-section::-webkit-scrollbar {
@@ -1585,7 +1523,6 @@ const getPatientNumber = (patientId) => {
   background: transparent;
 }
 
-/* Loading and empty state styling */
 .text-center {
   text-align: center;
 }
