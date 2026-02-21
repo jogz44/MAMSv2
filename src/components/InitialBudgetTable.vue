@@ -1082,7 +1082,10 @@ const confirmAddBudget = async () => {
   min-width: 500px;
 }
 
-@media (min-width: 481px) and (max-width: 599px) {
+@media (min-width: 360px) and (max-width: 599px) {
+  .budget-table :deep(.q-table__title) {
+  font-size: 25px;
+}
   .add-btn {
     width: 25px;
     height: 25px;
