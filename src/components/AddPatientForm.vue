@@ -374,7 +374,7 @@
 
       <!-- INSUFFICIENT FUNDS -->
       <q-dialog v-model="showInsufficientFundsDialog" persistent>
-        <q-card style="min-width: 500px;">
+        <q-card style="width: 500px;">
           <q-card-section class="bg-orange-6 text-white">
             <div class="text-h6"><q-icon name="warning" size="sm" class="q-mr-sm" />Insufficient Funds Warning</div>
           </q-card-section>
@@ -398,7 +398,7 @@
 
       <!-- PREVIOUS CATEGORIES WARNING DIALOG -->
       <q-dialog v-model="showPreviousCategoriesDialog" persistent>
-        <q-card style="min-width: 520px;">
+        <q-card style="width: 520px;">
           <q-card-section class="bg-orange-7 text-white">
             <div class="text-h6">
               <q-icon name="history" size="sm" class="q-mr-sm" />Previous Issuances Found
@@ -443,7 +443,7 @@
 
       <!--CONFIRM DETAILS-->
       <q-dialog v-model="showConfirmDetailsDialog" persistent>
-        <q-card style="min-width: 700px; max-width: 800px; max-height: 90vh; display: flex; flex-direction: column;">
+        <q-card style="width: 700px; max-width: 800px; max-height: 90vh; display: flex; flex-direction: column;">
           <q-card-section class="bg-blue-6 text-white" style="flex-shrink: 0;">
             <div class="text-h6"><q-icon name="info" size="sm" class="q-mr-sm" />Confirm Patient Information</div>
           </q-card-section>
@@ -577,7 +577,7 @@
 
       <!--FINAL SAVE CONFIRMATION -->
       <q-dialog v-model="showFinalSaveDialog" persistent>
-        <q-card style="min-width: 350px">
+        <q-card style="width: 350px">
           <q-card-section>
             <div class="text-h6">Save Changes?</div>
           </q-card-section>
@@ -596,7 +596,7 @@
 
       <!-- CANCEL CONFIRMATION DIALOG -->
       <q-dialog v-model="showCancelDialog">
-        <q-card style="min-width: 350px">
+        <q-card style="width: 350px">
           <q-card-section>
             <div class="text-h6">Close Form?</div>
           </q-card-section>
@@ -610,7 +610,7 @@
 
       <!-- EXISTING PATIENTS DIALOG -->
       <q-dialog v-model="showExistingDialog" persistent>
-        <q-card style="min-width: 600px; max-width: 700px;">
+        <q-card style="width: 600px; max-width: 700px;">
           <q-card-section class="bg-blue-6 text-white">
             <div class="text-h6"><q-icon name="info" size="sm" class="q-mr-sm" />Existing Patients Found</div>
           </q-card-section>
@@ -675,7 +675,7 @@
 
       <!-- PRINT CHOICE DIALOG -->
       <q-dialog v-model="showPrintChoiceDialog" persistent>
-        <q-card style="min-width: 420px;">
+        <q-card style="width: 420px;">
           <q-card-section class="bg-green-7 text-white">
             <div class="text-h6"><q-icon name="print" size="sm" class="q-mr-sm" />Choose Print Type</div>
           </q-card-section>
@@ -1902,14 +1902,14 @@ label span {
   }
 
   .actions {
-  flex-direction: row;
-  gap: 8px;
-}
+    flex-direction: row;
+    gap: 8px;
+  }
 
-.actions .q-btn {
-  flex: 1;
-  width: auto;
-}
+  .actions .q-btn {
+    flex: 1;
+    width: auto;
+  }
 
   .patient-dropdown {
     position: fixed;

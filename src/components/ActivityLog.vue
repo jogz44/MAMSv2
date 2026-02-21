@@ -432,5 +432,60 @@ const formatDate = (val) => {
     max-width: 140px;
     margin-left: 4px;
   }
+  .details-card {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    border-radius: 6px;
+  }
+
+  .details-header {
+    padding: 10px 12px;
+  }
+
+  .details-header .text-h6 {
+    font-size: 14px;
+  }
+
+  .details-body {
+    padding: 12px;
+  }
+
+  .section-box {
+    padding: 12px;
+  }
+
+  .section-box .text-subtitle1 {
+    font-size: 13px;
+  }
+
+  .activity-log :deep(.q-table__top .row) {
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
+  .activity-log :deep(.q-table__top .text-h4) {
+    font-size: 16px;
+    white-space: nowrap;
+  }
+
+  .activity-log :deep(.q-input) {
+    min-width: 0 !important;
+    max-width: 140px;
+    margin-left: 4px;
+  }
+
+  .activity-log :deep(.q-btn[icon="refresh"] .q-btn__content span) {
+    display: none;
+  }
+
+  .changes-full {
+    max-height: 150px;
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .field-label {
+    font-size: 12px;
+  }
 }
 </style>
