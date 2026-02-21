@@ -419,4 +419,18 @@ const formatDate = (val) => {
   white-space: pre-wrap;
   font-size: 13px;
 }
+@media screen and (max-width: 638px) {
+  .activity-log :deep(.q-input) {
+    min-width: 0 !important;
+    max-width: 140px;
+    margin-left: 4px;
+  }
+}
+@media screen and (max-width: 480px) {
+  .activity-log :deep(.q-input) {
+    min-width: 0 !important;
+    max-width: 140px;
+    margin-left: 4px;
+  }
+}
 </style>

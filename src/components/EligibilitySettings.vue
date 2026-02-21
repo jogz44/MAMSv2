@@ -349,4 +349,26 @@ onMounted(async () => {
 .dialog-goback-btn .q-icon {
   margin-right: 6px;
 }
+@media screen and (max-width: 480px) {
+  .page-bg {
+    padding: 16px;
+  }
+
+  .form-container {
+    padding: 16px;
+  }
+
+  .fieldset-header {
+    margin: -16px -16px 16px -16px;
+  }
+
+  .fieldset-title {
+    font-size: 22px;
+  }
+
+  .action-btn {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+}
 </style>
