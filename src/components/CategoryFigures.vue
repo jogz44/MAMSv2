@@ -57,7 +57,6 @@
     <q-card class="totals-card">
       <div class="totals-container">
         <div class="total-left">
-          <!-- HEADER -->
           <div class="totals-header">TOTAL PATIENTS CATERED</div>
           <div class="total-item">
             <div class="amount-titles">{{ totalPatients }}</div>
@@ -67,7 +66,6 @@
         <div class="vertical-divider"></div>
 
         <div class="total-right">
-          <!-- HEADER -->
           <div class="totals-header">TOTAL AMOUNT RELEASED</div>
           <div class="total-item">
             <div class="amount-titles2">{{ formatPeso(totalAmount) }}</div>
@@ -78,7 +76,6 @@
 
     <!-- MONTHLY CHART -->
     <q-card class="chart-card">
-      <!-- HEADER -->
       <div class="chart-header">MONTHLY CATERED PATIENTS</div>
 
       <q-card-section class="text-center">
@@ -119,7 +116,6 @@ const formatPeso = (amount) => {
 
 onMounted(async () => {
   try {
-
     const categoryRes = await axios.get('/api/category-cards')
     categories.value[0] = { ...categories.value[0], ...categoryRes.data.medicineData }
     categories.value[1] = { ...categories.value[1], ...categoryRes.data.laboratoryData }
@@ -161,7 +157,10 @@ onMounted(async () => {
 
 <style scoped>
 
-/* CONTAINER */
+/* ═══════════════════════════════════════════════════════════
+   BASE STYLES — original, untouched
+═══════════════════════════════════════════════════════════ */
+
 .dashboard-container {
   width: 70%;
   max-width: 90%;
@@ -170,7 +169,6 @@ onMounted(async () => {
   margin: 0 auto 1%;
 }
 
-/* CATEGORY GRID */
 .dashboard-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -178,7 +176,6 @@ onMounted(async () => {
   margin-bottom: 24px;
 }
 
-/* CATEGORY CARD */
 .enhanced-card {
   border-radius: 14px;
   border: 2px solid grey;
@@ -190,7 +187,6 @@ onMounted(async () => {
   transition: transform 0.2s ease;
 }
 
-/* HEADER */
 .enhanced-header {
   padding: 10px;
   font-size: 18px;
@@ -209,7 +205,6 @@ onMounted(async () => {
   box-sizing: border-box;
 }
 
-/* BODY */
 .card-body {
   padding: 16px;
   display: flex;
@@ -217,7 +212,6 @@ onMounted(async () => {
   gap: 12px;
 }
 
-/* ROW */
 .card-row {
   display: flex;
   flex-direction: column;
@@ -225,7 +219,6 @@ onMounted(async () => {
   gap: 8px;
 }
 
-/* LABEL */
 .label {
   font-size: 13px;
   font-weight: 700;
@@ -239,26 +232,22 @@ onMounted(async () => {
   box-sizing: border-box;
 }
 
-/* VALUE */
 .value {
   font-size: 20px;
   font-weight: 600;
   color: #23424b;
 }
 
-/* PATIENT VALUE */
 .patient-value {
   font-size: 20px;
   font-weight: 600;
 }
 
-/* DIVIDER */
 .divider {
   border-top: 2px solid #ddd;
   margin: 4px 0;
 }
 
-/* REMAINING */
 .remaining {
   display: flex;
   flex-direction: column;
@@ -283,7 +272,6 @@ onMounted(async () => {
   color: #db001d;
 }
 
-/* TOTAL CARD */
 .totals-card {
   width: 100%;
   background: #ffffff;
@@ -338,6 +326,9 @@ onMounted(async () => {
   font-weight: 700;
   font-size: 30px;
   color: #2e7d32;
+  /* FIX: prevent long peso amounts from overflowing on small screens */
+  word-break: break-word;
+  text-align: center;
 }
 
 .vertical-divider {
@@ -346,7 +337,6 @@ onMounted(async () => {
   align-self: stretch;
 }
 
-/* CHART CARD */
 .chart-card {
   border-radius: 14px;
   border: 2px solid grey;
@@ -380,11 +370,23 @@ onMounted(async () => {
   padding: 16px;
 }
 
-/* Extra Small Mobile (320px to 480px) */
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE — fixes & additions only
+   KEY FIXES:
+   1. dashboard-container uses width:100% on small screens
+      so content never overflows the viewport
+   2. totals-container stacks vertically below 768px so the
+      peso amount doesn't get squished beside the divider
+   3. chart-card margin-bottom reset to 0 on mobile so it
+      doesn't create a negative gap
+═══════════════════════════════════════════════════════════ */
+
+/* Extra Small Mobile (≤ 480px) */
 @media (max-width: 480px) {
   .dashboard-container {
+    width: 100%;
+    max-width: 100%;
     padding: 8px;
-    width: 95%;
   }
 
   .dashboard-row {
@@ -393,9 +395,7 @@ onMounted(async () => {
     margin-bottom: 12px;
   }
 
-  .enhanced-card {
-    border-radius: 10px;
-  }
+  .enhanced-card { border-radius: 10px; }
 
   .enhanced-header {
     font-size: 13px;
@@ -403,79 +403,49 @@ onMounted(async () => {
     gap: 6px;
   }
 
-  .card-body {
-    padding: 10px;
-    gap: 8px;
-  }
+  .card-body { padding: 10px; gap: 8px; }
 
-  .label {
-    font-size: 10px;
-    max-width: 160px;
-    padding: 3px;
-  }
+  .label { font-size: 10px; max-width: 160px; padding: 3px; }
 
-  .value,
-  .patient-value {
-    font-size: 14px;
-  }
+  .value, .patient-value { font-size: 14px; }
 
-  .remaining-value {
-    font-size: 20px;
-  }
+  .remaining-value { font-size: 16px; }
 
-  .divider {
-    margin: 2px 0;
-  }
+  .divider { margin: 2px 0; }
 
-  .totals-card {
-    border-radius: 10px;
-    margin-bottom: 12px;
-  }
+  .totals-card { border-radius: 10px; margin-bottom: 12px; }
 
-  .totals-container {
-    flex-direction: column;
-  }
-
+  /* Stack side-by-side totals vertically */
+  .totals-container { flex-direction: column; }
   .vertical-divider {
-    display: none;
+    width: 100%;
+    height: 2px;
+    align-self: auto;
   }
 
-  .totals-header {
-    font-size: 12px;
-    padding: 8px;
-  }
+  .totals-header { font-size: 12px; padding: 8px; }
 
-  .total-item {
-    padding: 12px;
-  }
+  .total-item { padding: 12px; }
 
-  .amount-titles,
-  .amount-titles2 {
-    font-size: 18px;
-  }
+  .amount-titles, .amount-titles2 { font-size: 18px; }
 
   .chart-card {
     border-radius: 10px;
     margin-bottom: 0;
-    margin-top: 1%;
+    margin-top: 10px;
   }
 
-  .chart-header {
-    font-size: 12px;
-    padding: 8px;
-  }
+  .chart-header { font-size: 12px; padding: 8px; }
 
-  .chart-container {
-    height: 250px;
-    padding: 10px;
-  }
+  .chart-container { height: 220px; padding: 10px; }
 }
 
-/* Small Mobile (481px to 599px) */
+/* Small Mobile (481px – 599px) */
 @media (min-width: 481px) and (max-width: 599px) {
   .dashboard-container {
+    width: 100%;
+    max-width: 100%;
     padding: 9px;
-    width: 95%;
   }
 
   .dashboard-row {
@@ -484,82 +454,50 @@ onMounted(async () => {
     margin-bottom: 14px;
   }
 
-  .enhanced-card {
-    border-radius: 11px;
-  }
+  .enhanced-card { border-radius: 11px; }
 
-  .enhanced-header {
-    font-size: 14px;
-    padding: 9px;
-    gap: 7px;
-  }
+  .enhanced-header { font-size: 14px; padding: 9px; gap: 7px; }
 
-  .card-body {
-    padding: 12px;
-    gap: 9px;
-  }
+  .card-body { padding: 12px; gap: 9px; }
 
-  .label {
-    font-size: 11px;
-    max-width: 170px;
-  }
+  .label { font-size: 11px; max-width: 170px; }
 
-  .value,
-  .patient-value {
-    font-size: 16px;
-  }
+  .value, .patient-value { font-size: 16px; }
 
-  .remaining-value {
-    font-size: 14px;
-  }
+  .remaining-value { font-size: 14px; }
 
-  .totals-card {
-    border-radius: 11px;
-    margin-bottom: 14px;
-  }
+  .totals-card { border-radius: 11px; margin-bottom: 14px; }
 
-  .totals-container {
-    flex-direction: column;
-  }
-
+  .totals-container { flex-direction: column; }
   .vertical-divider {
-    display: none;
+    width: 100%;
+    height: 2px;
+    align-self: auto;
   }
 
-  .totals-header {
-    font-size: 13px;
-    padding: 9px;
-  }
+  .totals-header { font-size: 13px; padding: 9px; }
 
-  .total-item {
-    padding: 14px;
-  }
+  .total-item { padding: 14px; }
 
-  .amount-titles,
-  .amount-titles2 {
-    font-size: 20px;
-  }
+  .amount-titles, .amount-titles2 { font-size: 20px; }
 
   .chart-card {
     border-radius: 11px;
+    margin-bottom: 0;
+    margin-top: 10px;
   }
 
-  .chart-header {
-    font-size: 13px;
-    padding: 9px;
-  }
+  .chart-header { font-size: 13px; padding: 9px; }
 
-  .chart-container {
-    height: 280px;
-    padding: 12px;
-  }
+  .chart-container { height: 260px; padding: 12px; }
 }
 
-/* Tablet Portrait (600px to 767px) */
+/* Tablet Portrait (600px – 767px) */
 @media (min-width: 600px) and (max-width: 767px) {
   .dashboard-container {
+    width: 100%;
+    max-width: 100%;
     padding: 10px;
-    width: 90%;
   }
 
   .dashboard-row {
@@ -568,74 +506,51 @@ onMounted(async () => {
     margin-bottom: 16px;
   }
 
-  .enhanced-card {
-    border-radius: 12px;
+  .enhanced-card { border-radius: 12px; }
+
+  .enhanced-header { font-size: 15px; padding: 9px; gap: 8px; }
+
+  .card-body { padding: 13px; gap: 10px; }
+
+  .label { font-size: 11px; max-width: 180px; }
+
+  .value, .patient-value { font-size: 17px; }
+
+  .remaining-value { font-size: 15px; }
+
+  .totals-card { border-radius: 12px; margin-bottom: 16px; }
+
+  /* Still stack on portrait tablet — not enough width for side-by-side amounts */
+  .totals-container { flex-direction: column; }
+  .vertical-divider {
+    width: 100%;
+    height: 2px;
+    align-self: auto;
   }
 
-  .enhanced-header {
-    font-size: 15px;
-    padding: 9px;
-    gap: 8px;
-  }
+  .totals-header { font-size: 14px; padding: 12px; }
 
-  .card-body {
-    padding: 13px;
-    gap: 10px;
-  }
+  .total-item { padding: 16px; }
 
-  .label {
-    font-size: 11px;
-    max-width: 180px;
-  }
-
-  .value,
-  .patient-value {
-    font-size: 17px;
-  }
-
-  .remaining-value {
-    font-size: 15px;
-  }
-
-  .totals-card {
-    border-radius: 12px;
-    margin-bottom: 16px;
-  }
-
-  .totals-header {
-    font-size: 14px;
-    padding: 12px;
-  }
-
-  .total-item {
-    padding: 16px;
-  }
-
-  .amount-titles,
-  .amount-titles2 {
-    font-size: 24px;
-  }
+  .amount-titles, .amount-titles2 { font-size: 24px; }
 
   .chart-card {
     border-radius: 12px;
+    margin-bottom: 0;
+    margin-top: 10px;
   }
 
-  .chart-header {
-    font-size: 14px;
-    padding: 12px;
-  }
+  .chart-header { font-size: 14px; padding: 12px; }
 
-  .chart-container {
-    height: 300px;
-    padding: 13px;
-  }
+  .chart-container { height: 280px; padding: 13px; }
 }
 
-/* Tablet Landscape (768px to 1023px) */
+/* Tablet Landscape (768px – 1023px) */
 @media (min-width: 768px) and (max-width: 1023px) {
   .dashboard-container {
+    width: 95%;
+    max-width: 95%;
     padding: 10px;
-    width: 85%;
   }
 
   .dashboard-row {
@@ -644,75 +559,48 @@ onMounted(async () => {
     margin-bottom: 18px;
   }
 
-  .enhanced-card {
-    border-radius: 13px;
+  .enhanced-card { border-radius: 13px; }
+
+  .enhanced-header { font-size: 14px; padding: 9px; gap: 8px; }
+
+  .card-body { padding: 14px; gap: 10px; }
+
+  .label { font-size: 11px; max-width: 185px; }
+
+  .value, .patient-value { font-size: 16px; }
+
+  .remaining-value { font-size: 15px; }
+
+  .totals-card { border-radius: 13px; margin-bottom: 18px; }
+
+  /* Side-by-side restored at landscape tablet */
+  .totals-container { flex-direction: row; }
+  .vertical-divider {
+    width: 2px;
+    height: auto;
+    align-self: stretch;
   }
 
-  .enhanced-header {
-    font-size: 16px;
-    padding: 9px;
-    gap: 8px;
-  }
+  .totals-header { font-size: 13px; padding: 13px; }
 
-  .card-body {
-    padding: 14px;
-    gap: 10px;
-  }
+  .total-item { padding: 17px; }
 
-  .label {
-    font-size: 11px;
-    max-width: 185px;
-  }
-
-  .value,
-  .patient-value {
-    font-size: 18px;
-  }
-
-  .remaining-value {
-    font-size: 16px;
-  }
-
-  .totals-card {
-    border-radius: 13px;
-    margin-bottom: 18px;
-  }
-
-  .totals-header {
-    font-size: 14px;
-    padding: 13px;
-  }
-
-  .total-item {
-    padding: 17px;
-  }
-
-  .amount-titles,
-  .amount-titles2 {
-    font-size: 26px;
-  }
+  .amount-titles, .amount-titles2 { font-size: 24px; }
 
   .chart-card {
     border-radius: 13px;
+    margin-bottom: -8.5%;
+    margin-top: 2%;
   }
 
-  .chart-header {
-    font-size: 14px;
-    padding: 13px;
-  }
+  .chart-header { font-size: 14px; padding: 13px; }
 
-  .chart-container {
-    height: 320px;
-    padding: 14px;
-  }
+  .chart-container { height: 300px; padding: 14px; }
 }
 
-/* Small Desktop (1024px to 1279px) */
+/* Small Desktop (1024px – 1279px) */
 @media (min-width: 1024px) and (max-width: 1279px) {
-  .dashboard-container {
-    padding: 10px;
-    width: 80%;
-  }
+  .dashboard-container { width: 85%; padding: 10px; }
 
   .dashboard-row {
     grid-template-columns: repeat(3, 1fr);
@@ -720,75 +608,32 @@ onMounted(async () => {
     margin-bottom: 20px;
   }
 
-  .enhanced-card {
-    border-radius: 13px;
-  }
+  .enhanced-header { font-size: 15px; padding: 10px; gap: 9px; }
 
-  .enhanced-header {
-    font-size: 17px;
-    padding: 10px;
-    gap: 9px;
-  }
+  .card-body { padding: 15px; gap: 11px; }
 
-  .card-body {
-    padding: 15px;
-    gap: 11px;
-  }
+  .label { font-size: 12px; max-width: 190px; }
 
-  .label {
-    font-size: 12px;
-    max-width: 190px;
-  }
+  .value, .patient-value { font-size: 18px; }
 
-  .value,
-  .patient-value {
-    font-size: 19px;
-  }
+  .remaining-value { font-size: 16px; }
 
-  .remaining-value {
-    font-size: 17px;
-  }
+  .totals-card { border-radius: 13px; margin-bottom: 20px; }
 
-  .totals-card {
-    border-radius: 13px;
-    margin-bottom: 20px;
-  }
+  .totals-header { font-size: 14px; padding: 14px; }
 
-  .totals-header {
-    font-size: 15px;
-    padding: 14px;
-  }
+  .total-item { padding: 18px; }
 
-  .total-item {
-    padding: 18px;
-  }
+  .amount-titles, .amount-titles2 { font-size: 26px; }
 
-  .amount-titles,
-  .amount-titles2 {
-    font-size: 28px;
-  }
+  .chart-header { font-size: 15px; padding: 14px; }
 
-  .chart-card {
-    border-radius: 13px;
-  }
-
-  .chart-header {
-    font-size: 15px;
-    padding: 14px;
-  }
-
-  .chart-container {
-    height: 350px;
-    padding: 15px;
-  }
+  .chart-container { height: 340px; padding: 15px; }
 }
 
-/* Medium Desktop (1280px to 1599px) */
+/* Medium Desktop (1280px – 1599px) */
 @media (min-width: 1280px) and (max-width: 1599px) {
-  .dashboard-container {
-    padding: 10px;
-    width: 75%;
-  }
+  .dashboard-container { width: 75%; padding: 10px; }
 
   .dashboard-row {
     grid-template-columns: repeat(3, 1fr);
@@ -796,75 +641,32 @@ onMounted(async () => {
     margin-bottom: 22px;
   }
 
-  .enhanced-card {
-    border-radius: 14px;
-  }
+  .enhanced-header { font-size: 17px; padding: 10px; gap: 10px; }
 
-  .enhanced-header {
-    font-size: 18px;
-    padding: 10px;
-    gap: 10px;
-  }
+  .card-body { padding: 16px; gap: 12px; }
 
-  .card-body {
-    padding: 16px;
-    gap: 12px;
-  }
+  .label { font-size: 13px; max-width: 200px; }
 
-  .label {
-    font-size: 13px;
-    max-width: 200px;
-  }
+  .value, .patient-value { font-size: 20px; }
 
-  .value,
-  .patient-value {
-    font-size: 20px;
-  }
+  .remaining-value { font-size: 18px; }
 
-  .remaining-value {
-    font-size: 18px;
-  }
+  .totals-card { border-radius: 14px; margin-bottom: 22px; }
 
-  .totals-card {
-    border-radius: 14px;
-    margin-bottom: 22px;
-  }
+  .totals-header { font-size: 15px; padding: 15px; }
 
-  .totals-header {
-    font-size: 16px;
-    padding: 15px;
-  }
+  .total-item { padding: 19px; }
 
-  .total-item {
-    padding: 19px;
-  }
+  .amount-titles, .amount-titles2 { font-size: 28px; }
 
-  .amount-titles,
-  .amount-titles2 {
-    font-size: 30px;
-  }
+  .chart-header { font-size: 16px; padding: 15px; }
 
-  .chart-card {
-    border-radius: 14px;
-  }
-
-  .chart-header {
-    font-size: 16px;
-    padding: 15px;
-  }
-
-  .chart-container {
-    height: 380px;
-    padding: 16px;
-  }
+  .chart-container { height: 370px; padding: 16px; }
 }
 
-/* Large Desktop (1600px to 1919px) */
+/* Large Desktop (1600px – 1919px) */
 @media (min-width: 1600px) and (max-width: 1919px) {
-  .dashboard-container {
-    padding: 10px;
-    width: 70%;
-  }
+  .dashboard-container { width: 70%; padding: 10px; }
 
   .dashboard-row {
     grid-template-columns: repeat(3, 1fr);
@@ -872,75 +674,32 @@ onMounted(async () => {
     margin-bottom: 24px;
   }
 
-  .enhanced-card {
-    border-radius: 14px;
-  }
+  .enhanced-header { font-size: 18px; padding: 10px; gap: 10px; }
 
-  .enhanced-header {
-    font-size: 18px;
-    padding: 10px;
-    gap: 10px;
-  }
+  .card-body { padding: 16px; gap: 12px; }
 
-  .card-body {
-    padding: 16px;
-    gap: 12px;
-  }
+  .label { font-size: 13px; max-width: 200px; }
 
-  .label {
-    font-size: 13px;
-    max-width: 200px;
-  }
+  .value, .patient-value { font-size: 20px; }
 
-  .value,
-  .patient-value {
-    font-size: 20px;
-  }
+  .remaining-value { font-size: 18px; }
 
-  .remaining-value {
-    font-size: 18px;
-  }
+  .totals-card { border-radius: 14px; margin-bottom: 24px; }
 
-  .totals-card {
-    border-radius: 14px;
-    margin-bottom: 24px;
-  }
+  .totals-header { font-size: 16px; padding: 16px; }
 
-  .totals-header {
-    font-size: 16px;
-    padding: 16px;
-  }
+  .total-item { padding: 20px; }
 
-  .total-item {
-    padding: 20px;
-  }
+  .amount-titles, .amount-titles2 { font-size: 30px; }
 
-  .amount-titles,
-  .amount-titles2 {
-    font-size: 30px;
-  }
+  .chart-header { font-size: 16px; padding: 16px; }
 
-  .chart-card {
-    border-radius: 14px;
-  }
-
-  .chart-header {
-    font-size: 16px;
-    padding: 16px;
-  }
-
-  .chart-container {
-    height: 400px;
-    padding: 16px;
-  }
+  .chart-container { height: 400px; padding: 16px; }
 }
 
-/* Extra Large Desktop (1920px and up) */
+/* Extra Large Desktop (1920px+) */
 @media (min-width: 1920px) {
-  .dashboard-container {
-    padding: 12px;
-    width: 70%;
-  }
+  .dashboard-container { width: 70%; padding: 12px; }
 
   .dashboard-row {
     grid-template-columns: repeat(3, 1fr);
@@ -948,67 +707,31 @@ onMounted(async () => {
     margin-bottom: 26px;
   }
 
-  .enhanced-card {
-    border-radius: 15px;
-  }
+  .enhanced-card { border-radius: 15px; }
 
-  .enhanced-header {
-    font-size: 19px;
-    padding: 11px;
-    gap: 11px;
-  }
+  .enhanced-header { font-size: 19px; padding: 11px; gap: 11px; }
 
-  .card-body {
-    padding: 17px;
-    gap: 13px;
-  }
+  .card-body { padding: 17px; gap: 13px; }
 
-  .label {
-    font-size: 14px;
-    max-width: 210px;
-  }
+  .label { font-size: 14px; max-width: 210px; }
 
-  .value,
-  .patient-value {
-    font-size: 22px;
-  }
+  .value, .patient-value { font-size: 22px; }
 
-  .remaining-value {
-    font-size: 20px;
-  }
+  .remaining-value { font-size: 20px; }
 
-  .totals-card {
-    border-radius: 15px;
-    margin-bottom: 26px;
-  }
+  .totals-card { border-radius: 15px; margin-bottom: 26px; }
 
-  .totals-header {
-    font-size: 17px;
-    padding: 17px;
-  }
+  .totals-header { font-size: 17px; padding: 17px; }
 
-  .total-item {
-    padding: 22px;
-  }
+  .total-item { padding: 22px; }
 
-  .amount-titles,
-  .amount-titles2 {
-    font-size: 34px;
-  }
+  .amount-titles, .amount-titles2 { font-size: 34px; }
 
-  .chart-card {
-    border-radius: 15px;
-  }
+  .chart-card { border-radius: 15px; }
 
-  .chart-header {
-    font-size: 17px;
-    padding: 17px;
-  }
+  .chart-header { font-size: 17px; padding: 17px; }
 
-  .chart-container {
-    height: 460px;
-    padding: 17px;
-  }
+  .chart-container { height: 460px; padding: 17px; }
 }
 
 </style>
