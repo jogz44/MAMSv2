@@ -13,6 +13,13 @@ const routes = [
     ]
   },
   {
+  path: '/',
+  component: () => import('layouts/MainLayout.vue'),
+  children: [
+    { path: 'about', component: () => import('src/pages/AboutPage.vue') }
+  ]
+},
+  {
     path: '/patient-records',
     component: () => import('layouts/MainLayout.vue'),
     meta: { requiresAuth: true },

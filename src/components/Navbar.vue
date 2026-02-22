@@ -69,12 +69,14 @@
         <q-btn v-if="role === 'ADMIN'" to="/settings" exact left rounded unelevated no-caps icon="settings"
           label="Settings" class="nav-btn" :class="{ 'active-btn': route.path === '/settings' }" />
 
-        <!-- Trademark -->
-        <div class="q-mt-sm row items-center justify-center text-white text-caption q-gutter-xs" style="opacity: 0.85">
-          <span>Developed by</span>
-          <q-img src="~assets/trademake.png" width="30px" height="50px" fit="contain" />
-          <span class="tm" style="margin-left: 0;">™</span>
-        </div>
+        <q-btn
+  unelevated
+  no-caps
+  icon="groups"
+  label="About Us"
+  class="about-nav-btn"
+  @click="$router.push('/about')"
+/>
       </div>
     </q-drawer>
   </div>
@@ -155,5 +157,19 @@ const logout = async () => {
 
 .nav-btn .q-icon {
   font-size: 22px;
+}
+.about-nav-btn {
+  background: #1f8f2e;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 1px;
+  border-radius: 20px;
+  padding: 4px 18px;
+  margin-left: 10px;
+  transition: background 0.2s ease;
+}
+.about-nav-btn:hover {
+  background: #0d3d16;
 }
 </style>
