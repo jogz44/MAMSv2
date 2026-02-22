@@ -1283,7 +1283,8 @@ const generatePDF = async (detailsOnly = false) => {
   pdfLoading.value = true
   try {
     const fullFormMap   = { MEDICINE: '/med.pdf',        LABORATORY: '/lab.pdf',        HOSPITAL: '/hosp.pdf' }
-    const detailsMap    = { MEDICINE: '/meddetails.pdf', LABORATORY: '/labdetails.pdf', HOSPITAL: '/hospdetails.pdf' }
+    // const detailsMap  = { MEDICINE: '/meddetails.pdf', LABORATORY: '/labdetails.pdf', HOSPITAL: '/hospdetails.pdf' }
+    const detailsMap  = { MEDICINE: '/detailsonly.pdf', LABORATORY: '/detailsonly.pdf', HOSPITAL: '/detailsonly.pdf' }
     const pdfFile = detailsOnly ? detailsMap[categoryValue.value] : fullFormMap[categoryValue.value]
     const existingPdfBytes = await fetch(pdfFile).then(res => res.arrayBuffer())
     const pdfDoc = await PDFDocument.load(existingPdfBytes)

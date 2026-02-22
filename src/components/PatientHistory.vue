@@ -1060,7 +1060,8 @@ const generatePDF = async (detailsOnly = false) => {
     const data = selectedRecord.value.rawData
 
     const fullFormMap = { MEDICINE: '/med.pdf', LABORATORY: '/lab.pdf', HOSPITAL: '/hosp.pdf' }
-    const detailsMap  = { MEDICINE: '/meddetails.pdf', LABORATORY: '/labdetails.pdf', HOSPITAL: '/hospdetails.pdf' }
+    // const detailsMap  = { MEDICINE: '/meddetails.pdf', LABORATORY: '/labdetails.pdf', HOSPITAL: '/hospdetails.pdf' }
+    const detailsMap  = { MEDICINE: '/detailsonly.pdf', LABORATORY: '/detailsonly.pdf', HOSPITAL: '/detailsonly.pdf' }
     const pdfPath = detailsOnly ? detailsMap[data.category] : fullFormMap[data.category]
 
     const existingPdfBytes = await fetch(pdfPath).then((res) => res.arrayBuffer())
