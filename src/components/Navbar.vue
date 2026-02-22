@@ -68,15 +68,8 @@
         <!-- Settings (ADMIN only) -->
         <q-btn v-if="role === 'ADMIN'" to="/settings" exact left rounded unelevated no-caps icon="settings"
           label="Settings" class="nav-btn" :class="{ 'active-btn': route.path === '/settings' }" />
-
-        <q-btn
-  unelevated
-  no-caps
-  icon="groups"
-  label="About Us"
-  class="about-nav-btn"
-  @click="$router.push('/about')"
-/>
+        
+        <q-btn icon="groups" label="ABOUT US" color="green" style="margin-left: 10px; color: palevioletred;" @click="$router.push('/about')"/>
       </div>
     </q-drawer>
   </div>
@@ -158,18 +151,14 @@ const logout = async () => {
 .nav-btn .q-icon {
   font-size: 22px;
 }
-.about-nav-btn {
-  background: #1f8f2e;
-  color: #ffffff;
-  font-weight: 600;
-  font-size: 13px;
-  letter-spacing: 1px;
-  border-radius: 20px;
-  padding: 4px 18px;
-  margin-left: 10px;
-  transition: background 0.2s ease;
+.about-btn {
+  border-radius: 8px;
+  padding: 4px 12px;
+  background-color: rgb(255, 255, 255);
+  color: #19ad19;
 }
-.about-nav-btn:hover {
-  background: #0d3d16;
+
+.about-btn:hover {
+  background-color: rgb(151, 252, 164);
 }
 </style>

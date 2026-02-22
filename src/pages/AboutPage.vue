@@ -179,7 +179,9 @@ const members = ref([
   {
     name: 'FREDDIE ANGELLA BULADACO',
     role: 'PRINT FEATURE',
-    dedication: `Write Angela's dedication message here.`,
+    dedication: `4:13 PM
+Angela
+My experience at the City Government of Tagum was truly the highlight of my school year. It was more than just an opportunity it was a time of growth, learning, and self-discovery. I developed discipline, teamwork, and confidence, and learned to approach every task with purpose. One lesson that will always stay with me is to put myself in the shoes of the users, which changed the way I think and work. I am deeply grateful for this experience, which has left a lasting mark on both my personal and professional journey.`,
     photo: new URL('../assets/angela.jpg', import.meta.url).href
   },
   {
