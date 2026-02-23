@@ -411,6 +411,7 @@
       </q-dialog>
 
       <!-- PREVIOUS CATEGORIES WARNING DIALOG -->
+      <!-- Shown immediately on patient selection (informational only — user can always proceed) -->
       <q-dialog v-model="showPreviousCategoriesDialog" persistent>
         <q-card style="width: 520px;">
           <q-card-section class="bg-orange-7 text-white">
@@ -448,10 +449,7 @@
           </q-card-section>
           <q-separator />
           <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md">
-            <q-btn label="GO BACK" icon="arrow_back" unelevated class="dialog-goback-btn"
-              @click="cancelPreviousCategories" />
-            <q-btn label="PROCEED" icon="check" unelevated class="dialog-cancel-btn"
-              @click="proceedPreviousCategories" />
+            <q-btn label="OK" icon="check" unelevated class="dialog-cancel-btn" @click="proceedPreviousCategories" />
           </q-card-actions>
         </q-card>
       </q-dialog>
@@ -846,7 +844,7 @@ const showInsufficientFundsDialog = ref(false)
 const showPreviousCategoriesDialog = ref(false)
 const showConfirmDetailsDialog = ref(false)
 const showFinalSaveDialog = ref(false)
-const showPrintChoiceDialog = ref(false)  // NEW: shown after save when printing
+const showPrintChoiceDialog = ref(false)
 const showCancelDialog = ref(false)
 const showExistingDialog = ref(false)
 
@@ -857,7 +855,7 @@ const projectedBalance = ref(0)
 const existingPatients = ref([])
 const selectedExistingPatient = ref(null)
 const selectedAction = ref(null)
-const previousCategoriesData = ref(null)  // NEW
+const previousCategoriesData = ref(null)
 
 const partnerOptions = computed(() => {
   if (!categoryValue.value) return []
@@ -937,14 +935,11 @@ const filteredSearchResults = computed(() => {
       return false
     })
     .map(p => {
-      // Check eligibility specifically for the currently selected category
       const catElig = p.category_eligibility?.[categoryValue.value]
       const same_category_ineligible = catElig ? !catElig.eligible : false
-
       return {
         ...p,
         same_category_ineligible,
-        // Override eligibility display info with category-specific data if available
         eligible: same_category_ineligible ? false : p.eligible,
         eligibility_date: same_category_ineligible ? catElig.eligibility_date : p.eligibility_date,
         days_remaining: same_category_ineligible ? catElig.days_remaining : p.days_remaining,
@@ -1045,12 +1040,10 @@ const searchPatients = async (query) => {
 }
 
 // ── PATIENT SELECTION ──
-// Same-category ineligibles are hard-blocked (disabled in template).
-// Other-category ineligibles are allowed — they show orange in the dropdown and will
-// trigger the previousCategoriesData warning dialog during the save flow.
-const selectPatientFromDropdown = (patient) => {
-  // Guard: same_category_ineligible should already be disabled in the template,
-  // but we double-check here just in case.
+// CHANGE 1: Now async — fires the previous-categories check immediately on selection.
+// Same-category ineligibles remain hard-blocked.
+// Other-category ineligibles show the warning dialog right away (informational only).
+const selectPatientFromDropdown = async (patient) => {
   if (patient.same_category_ineligible) return
 
   selectedBrowserPatient.value = patient
@@ -1073,15 +1066,23 @@ const selectPatientFromDropdown = (patient) => {
   phoneNumberValue.value = patient.phone_number
   selectedSectorIds.value = patient.sector_ids || []
 
-  if (!patient.eligible) {
-    $q.notify({
-      type: 'warning',
-      message: 'Patient is not yet eligible under their previous category but can still be issued under a different category.',
-      position: 'top',
-      timeout: 4000
-    })
-  } else {
-    $q.notify({ type: 'positive', message: 'Patient information loaded. Fill in the remaining details.', position: 'top' })
+  $q.notify({ type: 'positive', message: 'Patient information loaded. Fill in the remaining details.', position: 'top' })
+
+  // Check immediately for ineligible issuances in OTHER categories and warn the user.
+  // This is purely informational — they can still save since the current category is different.
+  try {
+    const res = await axios.get(
+      `/api/patients/${patient.patient_id}/previous-categories`,
+      { params: { exclude_category: categoryValue.value } }
+    )
+    const nonEligible = res.data
+    if (nonEligible && nonEligible.length > 0) {
+      previousCategoriesData.value = nonEligible
+      showPreviousCategoriesDialog.value = true
+    }
+  } catch (err) {
+    // Non-critical — just log, don't block the user
+    console.error('Failed to fetch previous categories:', err)
   }
 }
 
@@ -1103,7 +1104,8 @@ const checkForPatientEdits = () => {
 }
 
 // ── DIALOG FLOW ──
-// Order: Budget Check → Previous Categories Warning → Confirm Details → Final Save
+// Order: Budget Check → Confirm Details → Final Save
+// (Previous categories warning now fires at selection time, not during save flow)
 
 const runBudgetCheck = async () => {
   try {
@@ -1116,8 +1118,8 @@ const runBudgetCheck = async () => {
       projectedBalance.value = res.data.breakdown.remaining
       showInsufficientFundsDialog.value = true
     } else {
-      // Budget OK — move to next step
-      await checkPreviousCategories()
+      // Budget OK — go straight to confirm details
+      showConfirmDetailsDialog.value = true
     }
   } catch (error) {
     $q.notify({ type: 'negative', message: 'Failed to check budget', position: 'top' })
@@ -1129,53 +1131,25 @@ const cancelInsufficientFunds = () => {
   showInsufficientFundsDialog.value = false
   pendingAction.value = null
 }
-const proceedWithInsufficientFunds = async () => {
+const proceedWithInsufficientFunds = () => {
   showInsufficientFundsDialog.value = false
-  // Continue to next step even though funds are low
-  await checkPreviousCategories()
-}
-
-// Step 2: Check if the selected patient has non-eligible issuances in OTHER categories.
-// Runs whenever a patient was selected from the browser dropdown.
-// Passes exclude_category so the backend doesn't return the category we're currently issuing
-// (that case is already enforced at the dropdown level via same_category_ineligible).
-const checkPreviousCategories = async () => {
-  if (selectedBrowserPatient.value) {
-    try {
-      const res = await axios.get(
-        `/api/patients/${selectedBrowserPatient.value.patient_id}/previous-categories`,
-        { params: { exclude_category: categoryValue.value } }
-      )
-      const nonEligible = res.data
-
-      if (nonEligible && nonEligible.length > 0) {
-        previousCategoriesData.value = nonEligible
-        showPreviousCategoriesDialog.value = true
-        return  // Pause here — user must acknowledge before continuing
-      }
-    } catch (err) {
-      // Surface the error visibly instead of silently swallowing it
-      console.error('Failed to fetch previous categories:', err)
-      $q.notify({ type: 'negative', message: 'Failed to check previous category issuances. Please try again.', position: 'top' })
-      return
-    }
-  }
-  // No previous category issues (or brand-new patient) — go straight to confirm details
+  // Continue to confirm details even though funds are low
   showConfirmDetailsDialog.value = true
 }
 
-// Step 2 handlers
+// CHANGE 2: proceedPreviousCategories now just closes the dialog (purely informational).
+// It no longer chains into the save flow.
 const cancelPreviousCategories = () => {
   showPreviousCategoriesDialog.value = false
   previousCategoriesData.value = null
-  pendingAction.value = null
 }
+// CHANGE 3: renamed from proceedPreviousCategories — just dismisses the info dialog
 const proceedPreviousCategories = () => {
   showPreviousCategoriesDialog.value = false
-  showConfirmDetailsDialog.value = true
+  previousCategoriesData.value = null
 }
 
-// Step 3: Confirm Details handlers
+// Step 2: Confirm Details handlers
 const cancelConfirmDetails = () => {
   showConfirmDetailsDialog.value = false
   pendingAction.value = null
@@ -1185,7 +1159,7 @@ const proceedConfirmDetails = () => {
   showFinalSaveDialog.value = true
 }
 
-// Step 4: Final save confirmation
+// Step 3: Final save confirmation
 const confirmFinalSave = async () => {
   showFinalSaveDialog.value = false
   areYouSureLoading.value = true
@@ -1194,7 +1168,7 @@ const confirmFinalSave = async () => {
   } finally { areYouSureLoading.value = false }
 }
 
-// Step 5: Print choice (only shown when pendingAction === 'print')
+// Step 4: Print choice (only shown when pendingAction === 'print')
 const printDetailsOnly = async () => {
   showPrintChoiceDialog.value = false
   await generatePDF(true)
@@ -1238,8 +1212,6 @@ const checkEligibilityAndProceed = async (patientId) => {
     const res = await axios.post('/api/patients/check-eligibility-by-id', { patient_id: patientId })
     if (!res.data.eligible) {
       showExistingDialog.value = false
-      // This patient is ineligible under their latest category — since we're in the
-      // existing dialog flow (not the browser dropdown), still block them here.
       $q.notify({
         type: 'negative',
         message: `Patient is not yet eligible. Eligible from: ${formatDate(res.data.eligibility_date)} (${res.data.days_remaining} days remaining).`,
@@ -1313,7 +1285,6 @@ const submitForm = async (patientId = null, updatePatientInfo = false) => {
     glNum.value = res.data.gl_no
     $q.notify({ type: 'positive', message: 'Patient record saved successfully', position: 'top' })
     if (pendingAction.value === 'print') {
-      // Show print choice dialog — user picks details-only or full form
       showPrintChoiceDialog.value = true
     } else {
       router.push('/patient-records')
@@ -1332,7 +1303,6 @@ const generatePDF = async (detailsOnly = false) => {
   pdfLoading.value = true
   try {
     const fullFormMap = { MEDICINE: '/med.pdf', LABORATORY: '/lab.pdf', HOSPITAL: '/hosp.pdf' }
-    // const detailsMap  = { MEDICINE: '/meddetails.pdf', LABORATORY: '/labdetails.pdf', HOSPITAL: '/hospdetails.pdf' }
     const detailsMap = { MEDICINE: '/detailsonly.pdf', LABORATORY: '/detailsonly.pdf', HOSPITAL: '/detailsonly.pdf' }
     const pdfFile = detailsOnly ? detailsMap[categoryValue.value] : fullFormMap[categoryValue.value]
     const existingPdfBytes = await fetch(pdfFile).then(res => res.arrayBuffer())
@@ -1345,6 +1315,13 @@ const generatePDF = async (detailsOnly = false) => {
     const parsedDate = new Date(dateToday.value)
     const dayNum = parsedDate.getDate() + getDaySuffix(parsedDate.getDate())
     const monthName = parsedDate.toLocaleString('default', { month: 'long' })
+    const fullAddressValue = [
+      houseAddressValue.value,
+      barangayValue.value,
+      cityValue.value,
+      provinceValue.value
+    ].filter(Boolean).join(', ')
+
     const fullNameValue = firstNameValue.value +
       (middleNameValue.value ? ' ' + middleNameValue.value : '') + ' ' + lastNameValue.value +
       (suffixValue.value ? ' ' + suffixValue.value : '')
@@ -1355,7 +1332,7 @@ const generatePDF = async (detailsOnly = false) => {
       (clientSuffixValue.value ? ' ' + clientSuffixValue.value : '') +
       ' / ' + (relationshipValue.value ? ' ' + relationshipValue.value : '')
 
-    const draw = (text, x, y, size = 13) => page.drawText(text, { x, y, size, color: rgb(0, 0, 0), font: boldFont })
+    const draw = (text, x, y, size = 13) => page.drawText(String(text ?? ''), { x, y, size, color: rgb(0, 0, 0), font: boldFont })
     draw(glNum.value + ' / ' + partnerValue.value, 600, 489, 14)
     draw(fullNameValue.toUpperCase(), 160, 375)
     if (ageValue.value !== null) draw(String(ageValue.value), 545, 375)
@@ -1372,7 +1349,8 @@ const generatePDF = async (detailsOnly = false) => {
     window.open(URL.createObjectURL(blob))
     $q.notify({ type: 'positive', message: 'PDF generated successfully', position: 'top' })
   } catch (error) {
-    $q.notify({ type: 'negative', message: 'Failed to generate PDF', position: 'top' })
+    console.error('PDF generation error:', error)
+    $q.notify({ type: 'negative', message: `Failed to generate PDF: ${error.message}`, position: 'top' })
   } finally {
     pdfLoading.value = false
   }
@@ -1516,20 +1494,17 @@ label span {
   border-bottom: 1px solid #f0f0f0;
 }
 
-/* Eligible: normal hover */
 .dropdown-patient-item.patient-eligible:hover {
   background-color: #f5f5f5;
   cursor: pointer;
 }
 
-/* Same-category ineligible: hard blocked, greyed out */
 .dropdown-patient-item.patient-ineligible-same-category {
   opacity: 0.55;
   cursor: not-allowed;
   background-color: #fafafa;
 }
 
-/* Other-category ineligible: selectable, orange tint */
 .dropdown-patient-item.patient-ineligible-other-category {
   cursor: pointer;
   background-color: #fff8e1;
