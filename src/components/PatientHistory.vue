@@ -50,13 +50,8 @@
             Record Details
           </div>
           <!-- X CLOSE BUTTON -->
-          <q-btn
-            icon="close"
-            flat
-            round
-            style="position: absolute; top: 6px; right: 8px; font-size: 20px; color: white;"
-            @click="closeDialog"
-          >
+          <q-btn icon="close" flat round
+            style="position: absolute; top: 6px; right: 8px; font-size: 20px; color: white;" @click="closeDialog">
             <q-tooltip>Close</q-tooltip>
           </q-btn>
         </q-card-section>
@@ -297,7 +292,9 @@
               <q-icon name="account_balance_wallet" color="orange" />
             </template>
             <div>
-              <div class="text-weight-bold text-red">Projected Balance: ₱{{ formatCurrency(budgetData.projectedBalance) }}</div>
+              <div class="text-weight-bold text-red">Projected Balance: ₱{{ formatCurrency(budgetData.projectedBalance)
+                }}
+              </div>
             </div>
           </q-banner>
         </q-card-section>
@@ -443,7 +440,8 @@
                 <strong>Client Name:</strong>
                 <span v-if="selectedRecord?.rawData?.client_lastname">
                   {{ selectedRecord.rawData.client_lastname }}, {{ selectedRecord.rawData.client_firstname }}
-                  <span v-if="selectedRecord.rawData.client_middlename"> {{ selectedRecord.rawData.client_middlename }}</span>
+                  <span v-if="selectedRecord.rawData.client_middlename"> {{ selectedRecord.rawData.client_middlename
+                    }}</span>
                   <span v-if="selectedRecord.rawData.client_suffix"> {{ selectedRecord.rawData.client_suffix }}</span>
                 </span>
                 <span v-else>N/A</span>
@@ -477,7 +475,8 @@
                 <strong>Issued By:</strong> {{ editData.issuedBy }}
               </div>
               <div class="info-item" v-if="editData.category === 'HOSPITAL'">
-                <strong>Hospital Bill:</strong> {{ editData.hospitalBill ? '₱' + formatCurrency(editData.hospitalBill) : 'N/A' }}
+                <strong>Hospital Bill:</strong> {{ editData.hospitalBill ? '₱' + formatCurrency(editData.hospitalBill) :
+                'N/A' }}
               </div>
               <div class="info-item" :class="{ 'info-item-full': editData.category !== 'HOSPITAL' }">
                 <strong>Issued Amount:</strong> ₱{{ formatCurrency(editData.issuedAmount) }}
@@ -1061,7 +1060,7 @@ const generatePDF = async (detailsOnly = false) => {
 
     const fullFormMap = { MEDICINE: '/med.pdf', LABORATORY: '/lab.pdf', HOSPITAL: '/hosp.pdf' }
     // const detailsMap  = { MEDICINE: '/meddetails.pdf', LABORATORY: '/labdetails.pdf', HOSPITAL: '/hospdetails.pdf' }
-    const detailsMap  = { MEDICINE: '/detailsonly.pdf', LABORATORY: '/detailsonly.pdf', HOSPITAL: '/detailsonly.pdf' }
+    const detailsMap = { MEDICINE: '/detailsonly.pdf', LABORATORY: '/detailsonly.pdf', HOSPITAL: '/detailsonly.pdf' }
     const pdfPath = detailsOnly ? detailsMap[data.category] : fullFormMap[data.category]
 
     const existingPdfBytes = await fetch(pdfPath).then((res) => res.arrayBuffer())
@@ -1077,18 +1076,19 @@ const generatePDF = async (detailsOnly = false) => {
     const dayNum = parsedDate.getDate() + getDaySuffix(parsedDate.getDate())
     const monthName = parsedDate.toLocaleString('default', { month: 'long' })
 
-    const fullNameValue = data.patient_lastname + ", " + data.patient_firstname +
+    const fullNameValue = data.patient_firstname +
       (data.patient_middlename ? " " + data.patient_middlename : "") +
+      " " + data.patient_lastname +
       (data.patient_suffix ? " " + data.patient_suffix : "")
 
     let clientValue = fullNameValue
     if (data.client_lastname) {
-      clientValue = data.client_lastname + ", " + data.client_firstname +
+      clientValue = data.client_firstname +
         (data.client_middlename ? " " + data.client_middlename : "") +
+        " " + data.client_lastname +
         (data.client_suffix ? " " + data.client_suffix : "") +
         " / " + (data.relationship ? " " + data.relationship : "")
     }
-
     const fullAddressValue = data.house_address + ", " + data.barangay + ", " + data.city + ", " + data.province
     const age = calculateAge(data.birthdate)
 

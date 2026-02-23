@@ -38,9 +38,7 @@
               <q-scroll-area style="height: 300px;">
                 <q-list separator>
                   <q-item v-for="patient in filteredSearchResults" :key="patient.patient_id" clickable
-                    :disable="patient.same_category_ineligible"
-                    @click="selectPatientFromDropdown(patient)"
-                    :class="{
+                    :disable="patient.same_category_ineligible" @click="selectPatientFromDropdown(patient)" :class="{
                       'dropdown-patient-item': true,
                       'patient-eligible': patient.eligible,
                       'patient-ineligible-same-category': patient.same_category_ineligible,
@@ -54,11 +52,16 @@
                           <span><strong>Sex:</strong> {{ patient.sex || 'N/A' }}</span>
                         </div>
                         <div class="detail-row-dropdown">
-                          <span><strong>Birthdate:</strong> {{ patient.birthdate ? formatDate(patient.birthdate) : 'N/A' }}</span>
-                          <span><strong>Age:</strong> {{ patient.birthdate ? calculateAgeFromDate(patient.birthdate) : 'N/A' }}</span>
+                          <span><strong>Birthdate:</strong> {{ patient.birthdate ? formatDate(patient.birthdate) : 'N/A'
+                          }}</span>
+                          <span><strong>Age:</strong> {{ patient.birthdate ? calculateAgeFromDate(patient.birthdate) :
+                            'N/A'
+                          }}</span>
                         </div>
-                        <div class="detail-row-dropdown"><span><strong>Address:</strong> {{ formatAddress(patient) }}</span></div>
-                        <div class="detail-row-dropdown"><span><strong>Phone Number:</strong> {{ formatPhoneNumber(patient.phone_number) }}</span></div>
+                        <div class="detail-row-dropdown"><span><strong>Address:</strong> {{ formatAddress(patient)
+                        }}</span></div>
+                        <div class="detail-row-dropdown"><span><strong>Phone Number:</strong> {{
+                          formatPhoneNumber(patient.phone_number) }}</span></div>
                         <div class="detail-row-dropdown" v-if="patient.last_issued_at">
                           <span><strong>Latest GL:</strong> {{ patient.gl_no }}</span>
                           <span><strong>Issued:</strong> {{ formatDate(patient.last_issued_at) }}</span>
@@ -70,7 +73,8 @@
                         <q-badge v-if="patient.eligible" color="green" class="eligibility-badge-dropdown">
                           <q-icon name="check_circle" size="xs" class="q-mr-xs" />ELIGIBLE
                         </q-badge>
-                        <q-badge v-else-if="patient.same_category_ineligible" color="red" class="eligibility-badge-dropdown">
+                        <q-badge v-else-if="patient.same_category_ineligible" color="red"
+                          class="eligibility-badge-dropdown">
                           <q-icon name="block" size="xs" class="q-mr-xs" />SAME CATEGORY
                         </q-badge>
                         <q-badge v-else color="orange" class="eligibility-badge-dropdown">
@@ -109,9 +113,7 @@
               <q-scroll-area style="height: 300px;">
                 <q-list separator>
                   <q-item v-for="patient in filteredSearchResults" :key="patient.patient_id" clickable
-                    :disable="patient.same_category_ineligible"
-                    @click="selectPatientFromDropdown(patient)"
-                    :class="{
+                    :disable="patient.same_category_ineligible" @click="selectPatientFromDropdown(patient)" :class="{
                       'dropdown-patient-item': true,
                       'patient-eligible': patient.eligible,
                       'patient-ineligible-same-category': patient.same_category_ineligible,
@@ -125,11 +127,16 @@
                           <span><strong>Sex:</strong> {{ patient.sex || 'N/A' }}</span>
                         </div>
                         <div class="detail-row-dropdown">
-                          <span><strong>Birthdate:</strong> {{ patient.birthdate ? formatDate(patient.birthdate) : 'N/A' }}</span>
-                          <span><strong>Age:</strong> {{ patient.birthdate ? calculateAgeFromDate(patient.birthdate) : 'N/A' }}</span>
+                          <span><strong>Birthdate:</strong> {{ patient.birthdate ? formatDate(patient.birthdate) : 'N/A'
+                          }}</span>
+                          <span><strong>Age:</strong> {{ patient.birthdate ? calculateAgeFromDate(patient.birthdate) :
+                            'N/A'
+                          }}</span>
                         </div>
-                        <div class="detail-row-dropdown"><span><strong>Address:</strong> {{ formatAddress(patient) }}</span></div>
-                        <div class="detail-row-dropdown"><span><strong>Phone Number:</strong> {{ formatPhoneNumber(patient.phone_number) }}</span></div>
+                        <div class="detail-row-dropdown"><span><strong>Address:</strong> {{ formatAddress(patient)
+                        }}</span></div>
+                        <div class="detail-row-dropdown"><span><strong>Phone Number:</strong> {{
+                          formatPhoneNumber(patient.phone_number) }}</span></div>
                         <div class="detail-row-dropdown" v-if="patient.last_issued_at">
                           <span><strong>Latest GL:</strong> {{ patient.gl_no }}</span>
                           <span><strong>Issued:</strong> {{ formatDate(patient.last_issued_at) }}</span>
@@ -141,7 +148,8 @@
                         <q-badge v-if="patient.eligible" color="green" class="eligibility-badge-dropdown">
                           <q-icon name="check_circle" size="xs" class="q-mr-xs" />ELIGIBLE
                         </q-badge>
-                        <q-badge v-else-if="patient.same_category_ineligible" color="red" class="eligibility-badge-dropdown">
+                        <q-badge v-else-if="patient.same_category_ineligible" color="red"
+                          class="eligibility-badge-dropdown">
                           <q-icon name="block" size="xs" class="q-mr-xs" />SAME CATEGORY
                         </q-badge>
                         <q-badge v-else color="orange" class="eligibility-badge-dropdown">
@@ -179,9 +187,7 @@
               <q-scroll-area style="height: 300px;">
                 <q-list separator>
                   <q-item v-for="patient in filteredSearchResults" :key="patient.patient_id" clickable
-                    :disable="patient.same_category_ineligible"
-                    @click="selectPatientFromDropdown(patient)"
-                    :class="{
+                    :disable="patient.same_category_ineligible" @click="selectPatientFromDropdown(patient)" :class="{
                       'dropdown-patient-item': true,
                       'patient-eligible': patient.eligible,
                       'patient-ineligible-same-category': patient.same_category_ineligible,
@@ -195,11 +201,16 @@
                           <span><strong>Sex:</strong> {{ patient.sex || 'N/A' }}</span>
                         </div>
                         <div class="detail-row-dropdown">
-                          <span><strong>Birthdate:</strong> {{ patient.birthdate ? formatDate(patient.birthdate) : 'N/A' }}</span>
-                          <span><strong>Age:</strong> {{ patient.birthdate ? calculateAgeFromDate(patient.birthdate) : 'N/A' }}</span>
+                          <span><strong>Birthdate:</strong> {{ patient.birthdate ? formatDate(patient.birthdate) : 'N/A'
+                          }}</span>
+                          <span><strong>Age:</strong> {{ patient.birthdate ? calculateAgeFromDate(patient.birthdate) :
+                            'N/A'
+                          }}</span>
                         </div>
-                        <div class="detail-row-dropdown"><span><strong>Address:</strong> {{ formatAddress(patient) }}</span></div>
-                        <div class="detail-row-dropdown"><span><strong>Phone Number:</strong> {{ formatPhoneNumber(patient.phone_number) }}</span></div>
+                        <div class="detail-row-dropdown"><span><strong>Address:</strong> {{ formatAddress(patient)
+                        }}</span></div>
+                        <div class="detail-row-dropdown"><span><strong>Phone Number:</strong> {{
+                          formatPhoneNumber(patient.phone_number) }}</span></div>
                         <div class="detail-row-dropdown" v-if="patient.last_issued_at">
                           <span><strong>Latest GL:</strong> {{ patient.gl_no }}</span>
                           <span><strong>Issued:</strong> {{ formatDate(patient.last_issued_at) }}</span>
@@ -211,7 +222,8 @@
                         <q-badge v-if="patient.eligible" color="green" class="eligibility-badge-dropdown">
                           <q-icon name="check_circle" size="xs" class="q-mr-xs" />ELIGIBLE
                         </q-badge>
-                        <q-badge v-else-if="patient.same_category_ineligible" color="red" class="eligibility-badge-dropdown">
+                        <q-badge v-else-if="patient.same_category_ineligible" color="red"
+                          class="eligibility-badge-dropdown">
                           <q-icon name="block" size="xs" class="q-mr-xs" />SAME CATEGORY
                         </q-badge>
                         <q-badge v-else color="orange" class="eligibility-badge-dropdown">
@@ -278,7 +290,8 @@
           <div class="field sector-field">
             <label>Sector</label>
             <div class="sector-container">
-              <div v-if="dynamicSectors.length === 0" class="text-grey-6 text-caption q-pa-sm">No sectors available</div>
+              <div v-if="dynamicSectors.length === 0" class="text-grey-6 text-caption q-pa-sm">No sectors available
+              </div>
               <q-checkbox v-for="sector in dynamicSectors" :key="sector.id" :val="sector.id" v-model="selectedSectorIds"
                 :label="sector.sector" dense @update:model-value="checkForPatientEdits" />
             </div>
@@ -288,7 +301,8 @@
         <div class="grid-5">
           <div class="field">
             <label>Province</label>
-            <q-input v-model="provinceValue" :hint="'Cannot be edited!'" :persistent-hint="true" dense outlined disable />
+            <q-input v-model="provinceValue" :hint="'Cannot be edited!'" :persistent-hint="true" dense outlined
+              disable />
           </div>
           <div class="field">
             <label>City</label>
@@ -406,7 +420,8 @@
           </q-card-section>
           <q-card-section>
             <div class="text-subtitle1 q-mb-md">
-              This patient has existing guarantee letters under other categories that are not yet eligible for re-issuance.
+              This patient has existing guarantee letters under other categories that are not yet eligible for
+              re-issuance.
             </div>
             <q-list bordered separator>
               <q-item v-for="item in previousCategoriesData" :key="item.category">
@@ -464,17 +479,23 @@
                   </div>
                   <div class="info-grid">
                     <div class="info-item">
-                      <strong>Name:</strong> {{ selectedBrowserPatient.lastname }}, {{ selectedBrowserPatient.firstname }}
+                      <strong>Name:</strong> {{ selectedBrowserPatient.lastname }}, {{ selectedBrowserPatient.firstname
+                      }}
                       <span v-if="selectedBrowserPatient.middlename"> {{ selectedBrowserPatient.middlename }}</span>
                       <span v-if="selectedBrowserPatient.suffix"> {{ selectedBrowserPatient.suffix }}</span>
                     </div>
                     <div class="info-item"><strong>Patient ID:</strong> {{ selectedBrowserPatient.patient_id }}</div>
-                    <div class="info-item"><strong>Birthdate:</strong> {{ selectedBrowserPatient.birthdate ? formatDate(selectedBrowserPatient.birthdate) : 'N/A' }}</div>
+                    <div class="info-item"><strong>Birthdate:</strong> {{ selectedBrowserPatient.birthdate ?
+                      formatDate(selectedBrowserPatient.birthdate) : 'N/A' }}</div>
                     <div class="info-item"><strong>Sex:</strong> {{ selectedBrowserPatient.sex || 'N/A' }}</div>
-                    <div class="info-item"><strong>Preference:</strong> {{ selectedBrowserPatient.preference || 'N/A' }}</div>
+                    <div class="info-item"><strong>Preference:</strong> {{ selectedBrowserPatient.preference || 'N/A' }}
+                    </div>
                     <div class="info-item"><strong>Sector:</strong> {{ originalSectorValue }}</div>
-                    <div class="info-item info-item-full"><strong>Address:</strong> {{ formatAddress(selectedBrowserPatient) }}</div>
-                    <div class="info-item"><strong>Phone Number:</strong> {{ formatPhoneNumber(selectedBrowserPatient.phone_number) }}</div>
+                    <div class="info-item info-item-full"><strong>Address:</strong> {{
+                      formatAddress(selectedBrowserPatient)
+                    }}</div>
+                    <div class="info-item"><strong>Phone Number:</strong> {{
+                      formatPhoneNumber(selectedBrowserPatient.phone_number) }}</div>
                   </div>
                 </div>
                 <div class="comparison-arrow"><q-icon name="arrow_downward" size="lg" color="orange" /></div>
@@ -488,19 +509,26 @@
                       <span v-if="middleNameValue"> {{ middleNameValue }}</span>
                       <span v-if="suffixValue"> {{ suffixValue }}</span>
                     </div>
-                    <div class="info-item"><strong>Patient ID:</strong> {{ selectedBrowserPatient.patient_id }} (unchanged)</div>
-                    <div class="info-item"><strong>Birthdate:</strong> {{ birthdateValue ? formatDate(convertToMySQLDate(birthdateValue)) : 'N/A' }}</div>
+                    <div class="info-item"><strong>Patient ID:</strong> {{ selectedBrowserPatient.patient_id }}
+                      (unchanged)
+                    </div>
+                    <div class="info-item"><strong>Birthdate:</strong> {{ birthdateValue ?
+                      formatDate(convertToMySQLDate(birthdateValue)) : 'N/A' }}</div>
                     <div class="info-item"><strong>Sex:</strong> {{ sexValue || 'N/A' }}</div>
                     <div class="info-item"><strong>Preference:</strong> {{ preferenceValue || 'N/A' }}</div>
                     <div class="info-item"><strong>Sector:</strong> {{ sectorValue }}</div>
-                    <div class="info-item info-item-full"><strong>Address:</strong> {{ houseAddressValue }}, {{ barangayValue }}, {{ cityValue }}, {{ provinceValue }}</div>
-                    <div class="info-item"><strong>Phone Number:</strong> {{ formatPhoneNumber(phoneNumberValue) }}</div>
+                    <div class="info-item info-item-full"><strong>Address:</strong> {{ houseAddressValue }}, {{
+                      barangayValue
+                    }}, {{ cityValue }}, {{ provinceValue }}</div>
+                    <div class="info-item"><strong>Phone Number:</strong> {{ formatPhoneNumber(phoneNumberValue) }}
+                    </div>
                   </div>
                 </div>
               </div>
               <q-banner class="bg-blue-1 text-blue-9 q-mt-md">
                 <template v-slot:avatar><q-icon name="info" color="blue" /></template>
-                Updating this patient will affect Patient ID {{ selectedBrowserPatient?.patient_id }} for all future records.
+                Updating this patient will affect Patient ID {{ selectedBrowserPatient?.patient_id }} for all future
+                records.
               </q-banner>
             </div>
 
@@ -516,14 +544,18 @@
                     <span v-if="middleNameValue"> {{ middleNameValue }}</span>
                     <span v-if="suffixValue"> {{ suffixValue }}</span>
                   </div>
-                  <div class="info-item" v-if="selectedBrowserPatient"><strong>Patient ID:</strong> {{ selectedBrowserPatient.patient_id }}</div>
-                  <div class="info-item"><strong>Birthdate:</strong> {{ birthdateValue ? formatDate(convertToMySQLDate(birthdateValue)) : 'N/A' }}</div>
+                  <div class="info-item" v-if="selectedBrowserPatient"><strong>Patient ID:</strong> {{
+                    selectedBrowserPatient.patient_id }}</div>
+                  <div class="info-item"><strong>Birthdate:</strong> {{ birthdateValue ?
+                    formatDate(convertToMySQLDate(birthdateValue)) : 'N/A' }}</div>
                   <div class="info-item"><strong>Age:</strong> {{ calculateAgeFromBirthdate(birthdateValue) }}</div>
                   <div class="info-item"><strong>Sex:</strong> {{ sexValue || 'N/A' }}</div>
                   <div class="info-item"><strong>Preference:</strong> {{ preferenceValue || 'N/A' }}</div>
                   <div class="info-item"><strong>Sector:</strong> {{ sectorValue }}</div>
                   <div class="info-item info-item-full">
-                    <strong>Address:</strong> {{ houseAddressValue }}, {{ barangayValue }}, {{ cityValue }}, {{ provinceValue }}
+                    <strong>Address:</strong> {{ houseAddressValue }}, {{ barangayValue }}, {{ cityValue }}, {{
+                      provinceValue
+                    }}
                   </div>
                   <div class="info-item"><strong>Phone Number:</strong> {{ formatPhoneNumber(phoneNumberValue) }}</div>
                 </div>
@@ -538,7 +570,8 @@
               <div class="info-grid">
                 <div class="info-item"><strong>Category:</strong> {{ categoryValue }}</div>
                 <div class="info-item"><strong>Partner:</strong> {{ partnerValue }}</div>
-                <div class="info-item" v-if="categoryValue === 'HOSPITAL'"><strong>Hospital Bill:</strong> ₱{{ formatCurrency(hospitalBillValue) }}</div>
+                <div class="info-item" v-if="categoryValue === 'HOSPITAL'"><strong>Hospital Bill:</strong> ₱{{
+                  formatCurrency(hospitalBillValue) }}</div>
                 <div class="info-item"><strong>Issued Amount:</strong> ₱{{ formatCurrency(issuedAmountValue) }}</div>
               </div>
             </div>
@@ -554,7 +587,8 @@
                   <span v-if="clientMiddleNameValue"> {{ clientMiddleNameValue }}</span>
                   <span v-if="clientSuffixValue"> {{ clientSuffixValue }}</span>
                 </div>
-                <div class="info-item info-item-full"><strong>Relationship to Patient:</strong> {{ relationshipValue }}</div>
+                <div class="info-item info-item-full"><strong>Relationship to Patient:</strong> {{ relationshipValue }}
+                </div>
               </div>
             </div>
             <div v-else class="patient-info-box q-mt-md">
@@ -600,7 +634,8 @@
           <q-card-section>
             <div class="text-h6">Close Form?</div>
           </q-card-section>
-          <q-card-section class="q-pt-none">Are you sure you want to close? All unsaved changes will be lost.</q-card-section>
+          <q-card-section class="q-pt-none">Are you sure you want to close? All unsaved changes will be
+            lost.</q-card-section>
           <q-card-actions align="right" class="q-px-md q-pb-md">
             <q-btn unelevated icon="close" label="NO" class="dialog-goback-btn" v-close-popup />
             <q-btn unelevated icon="check" label="YES" class="dialog-cancel-btn" @click="handleCancel" />
@@ -615,7 +650,8 @@
             <div class="text-h6"><q-icon name="info" size="sm" class="q-mr-sm" />Existing Patients Found</div>
           </q-card-section>
           <q-card-section>
-            <div class="text-subtitle1 q-mb-md">One or more patients with the same name already exist in the system.</div>
+            <div class="text-subtitle1 q-mb-md">One or more patients with the same name already exist in the system.
+            </div>
             <q-banner class="bg-blue-1 text-blue-9 q-mb-md">
               <template v-slot:avatar><q-icon name="help_outline" color="blue" /></template>
               Please choose whether to link this record to an existing patient or create a new patient entry.
@@ -651,7 +687,8 @@
                 <q-icon name="link" size="md" color="blue" />
                 <div class="option-title">Use Existing Patient</div>
                 <div class="option-description">
-                  Link this record to the selected patient above. This will add a new GL record under the same Patient ID.
+                  Link this record to the selected patient above. This will add a new GL record under the same Patient
+                  ID.
                   <span v-if="!selectedExistingPatient" class="text-red"> (Please select a patient first)</span>
                 </div>
               </div>
@@ -659,7 +696,9 @@
                 :class="{ 'option-selected': selectedAction === 'new' }">
                 <q-icon name="person_add" size="md" color="green" />
                 <div class="option-title">Create New Patient</div>
-                <div class="option-description">Create a completely new patient with a new Patient ID. Use this if this is actually a different person.</div>
+                <div class="option-description">Create a completely new patient with a new Patient ID. Use this if this
+                  is
+                  actually a different person.</div>
               </div>
             </div>
           </q-card-section>
@@ -685,7 +724,8 @@
               <div class="option-card" @click="printDetailsOnly">
                 <q-icon name="article" size="md" color="green-7" />
                 <div class="option-title">Details Only</div>
-                <div class="option-description">Print just the patient details slip ({{ categoryValue?.toLowerCase() }}details).</div>
+                <div class="option-description">Print just the patient details slip ({{ categoryValue?.toLowerCase()
+                }}details).</div>
               </div>
               <div class="option-card" @click="printFullForm">
                 <q-icon name="description" size="md" color="blue-7" />
@@ -883,12 +923,12 @@ const formatPhoneNumber = (phone) => {
 
 const filteredSearchResults = computed(() => {
   const searchField = activeSearchField.value
-  let searchValue = searchField === 'lastname' ? lastNameValue.value 
-    : searchField === 'firstname' ? firstNameValue.value 
-    : middleNameValue.value
+  let searchValue = searchField === 'lastname' ? lastNameValue.value
+    : searchField === 'firstname' ? firstNameValue.value
+      : middleNameValue.value
   if (!searchValue || searchValue.trim().length < 2) return []
   const query = searchValue.toLowerCase().trim()
-  
+
   return patientSearchResults.value
     .filter(p => {
       if (searchField === 'lastname') return (p.lastname || '').toLowerCase().startsWith(query)
@@ -1291,9 +1331,9 @@ const submitForm = async (patientId = null, updatePatientInfo = false) => {
 const generatePDF = async (detailsOnly = false) => {
   pdfLoading.value = true
   try {
-    const fullFormMap   = { MEDICINE: '/med.pdf',        LABORATORY: '/lab.pdf',        HOSPITAL: '/hosp.pdf' }
+    const fullFormMap = { MEDICINE: '/med.pdf', LABORATORY: '/lab.pdf', HOSPITAL: '/hosp.pdf' }
     // const detailsMap  = { MEDICINE: '/meddetails.pdf', LABORATORY: '/labdetails.pdf', HOSPITAL: '/hospdetails.pdf' }
-    const detailsMap  = { MEDICINE: '/detailsonly.pdf', LABORATORY: '/detailsonly.pdf', HOSPITAL: '/detailsonly.pdf' }
+    const detailsMap = { MEDICINE: '/detailsonly.pdf', LABORATORY: '/detailsonly.pdf', HOSPITAL: '/detailsonly.pdf' }
     const pdfFile = detailsOnly ? detailsMap[categoryValue.value] : fullFormMap[categoryValue.value]
     const existingPdfBytes = await fetch(pdfFile).then(res => res.arrayBuffer())
     const pdfDoc = await PDFDocument.load(existingPdfBytes)
@@ -1305,12 +1345,13 @@ const generatePDF = async (detailsOnly = false) => {
     const parsedDate = new Date(dateToday.value)
     const dayNum = parsedDate.getDate() + getDaySuffix(parsedDate.getDate())
     const monthName = parsedDate.toLocaleString('default', { month: 'long' })
-    const fullNameValue = lastNameValue.value + ', ' + firstNameValue.value +
-      (middleNameValue.value ? ' ' + middleNameValue.value : '') + (suffixValue.value ? ' ' + suffixValue.value : '')
-    const fullAddressValue = houseAddressValue.value + ', ' + barangayValue.value + ', ' + cityValue.value + ', ' + provinceValue.value
+    const fullNameValue = firstNameValue.value +
+      (middleNameValue.value ? ' ' + middleNameValue.value : '') + ' ' + lastNameValue.value +
+      (suffixValue.value ? ' ' + suffixValue.value : '')
     const clientValue = isChecked.value ? fullNameValue :
-      clientLastNameValue.value + ', ' + clientFirstNameValue.value +
+      clientFirstNameValue.value +
       (clientMiddleNameValue.value ? ' ' + clientMiddleNameValue.value : '') +
+      ' ' + clientLastNameValue.value +
       (clientSuffixValue.value ? ' ' + clientSuffixValue.value : '') +
       ' / ' + (relationshipValue.value ? ' ' + relationshipValue.value : '')
 
@@ -1782,6 +1823,7 @@ label span {
   font-size: 13px;
   font-weight: 500;
 }
+
 @media screen and (max-width: 716px) {
   .form-header {
     padding: 8px 16px;
@@ -1833,15 +1875,15 @@ label span {
     grid-column: 1 / -1;
   }
 
-.actions {
-  flex-direction: row;
-  gap: 8px;
-}
+  .actions {
+    flex-direction: row;
+    gap: 8px;
+  }
 
-.actions .q-btn {
-  flex: 1;
-  width: auto;
-}
+  .actions .q-btn {
+    flex: 1;
+    width: auto;
+  }
 
   .patient-dropdown {
     position: fixed;
@@ -1860,6 +1902,7 @@ label span {
     grid-column: 1;
   }
 }
+
 @media screen and (max-width: 480px) {
   .form-header {
     padding: 8px 16px;
