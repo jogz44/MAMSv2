@@ -33,31 +33,56 @@
 
       <div class="table-container">
         <div class="table-scroll-wrapper">
-          <q-table class="budget-table" :rows="rows" row-key="num" flat bordered dense :pagination="pagination"
-            @update:pagination="updatePagination" :rows-per-page-options="[5, 10, 15, 23]">
+          <q-table
+            class="budget-table"
+            :rows="sortedRows"
+            row-key="barangay"
+            flat bordered dense
+            :rows-per-page-options="[5, 10, 15, 23]"
+            v-model:pagination="pagination"
+          >
             <template v-slot:header>
               <tr class="sticky-header">
                 <th rowspan="2">#</th>
-                <th rowspan="2">Barangay</th>
+                <th rowspan="2" class="sortable-th" @click="setSort('barangay')">
+                  Barangay <q-icon :name="getSortIcon('barangay')" class="sort-icon" />
+                </th>
                 <th colspan="2">Medicine</th>
                 <th colspan="2">Laboratory</th>
                 <th colspan="2">Hospital</th>
-                <th rowspan="2">Total Patients</th>
-                <th rowspan="2">Total Amount</th>
+                <th rowspan="2" class="sortable-th" @click="setSort('totalPatients')">
+                  Total Patients <q-icon :name="getSortIcon('totalPatients')" class="sort-icon" />
+                </th>
+                <th rowspan="2" class="sortable-th" @click="setSort('totalAmount')">
+                  Total Amount <q-icon :name="getSortIcon('totalAmount')" class="sort-icon" />
+                </th>
               </tr>
               <tr class="sticky-header second-row">
-                <th>Patients</th>
-                <th>Amount</th>
-                <th>Patients</th>
-                <th>Amount</th>
-                <th>Patients</th>
-                <th>Amount</th>
+                <th class="sortable-th" @click="setSort('medicinePatients')">
+                  Patients <q-icon :name="getSortIcon('medicinePatients')" class="sort-icon" />
+                </th>
+                <th class="sortable-th" @click="setSort('medicineAmount')">
+                  Amount <q-icon :name="getSortIcon('medicineAmount')" class="sort-icon" />
+                </th>
+                <th class="sortable-th" @click="setSort('laboratoryPatients')">
+                  Patients <q-icon :name="getSortIcon('laboratoryPatients')" class="sort-icon" />
+                </th>
+                <th class="sortable-th" @click="setSort('laboratoryAmount')">
+                  Amount <q-icon :name="getSortIcon('laboratoryAmount')" class="sort-icon" />
+                </th>
+                <th class="sortable-th" @click="setSort('hospitalPatients')">
+                  Patients <q-icon :name="getSortIcon('hospitalPatients')" class="sort-icon" />
+                </th>
+                <th class="sortable-th" @click="setSort('hospitalAmount')">
+                  Amount <q-icon :name="getSortIcon('hospitalAmount')" class="sort-icon" />
+                </th>
               </tr>
             </template>
 
+            <!-- FIX 1 & 2: Restored body slot with correct sequential row numbering -->
             <template v-slot:body="props">
               <tr>
-                <td>{{ props.row.num }}</td>
+                <td>{{ (pagination.page - 1) * pagination.rowsPerPage + props.rowIndex + 1 }}</td>
                 <td>{{ props.row.barangay }}</td>
                 <td align="right">{{ props.row.medicinePatients }}</td>
                 <td align="right">{{ formatPeso(props.row.medicineAmount) }}</td>
@@ -91,24 +116,53 @@ const perSexChart = ref(null)
 const perAgeBracketChart = ref(null)
 const perSectorChart = ref(null)
 const rows = ref([])
+
+// FIX 3: Removed rowsNumber — caused pagination to break in non-server mode
 const pagination = ref({ rowsPerPage: 5, page: 1 })
 
-// Format PHP currency
+// ── Sorting ───────────────────────────────────────────────────────────────────
+const sortKey = ref('totalAmount')
+const sortOrder = ref('desc')
+
+const setSort = (key) => {
+  if (sortKey.value === key) {
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    sortKey.value = key
+    sortOrder.value = 'desc'
+  }
+  pagination.value.page = 1
+}
+
+const getSortIcon = (key) => {
+  if (sortKey.value !== key) return 'unfold_more'
+  return sortOrder.value === 'asc' ? 'arrow_upward' : 'arrow_downward'
+}
+
+const sortedRows = computed(() => {
+  const data = [...rows.value]
+  data.sort((a, b) => {
+    const aVal = a[sortKey.value]
+    const bVal = b[sortKey.value]
+    const cmp = typeof aVal === 'number'
+      ? aVal - bVal
+      : String(aVal).localeCompare(String(bVal))
+    return sortOrder.value === 'asc' ? cmp : -cmp
+  })
+  return data
+})
+
+// ── Formatting ────────────────────────────────────────────────────────────────
 const formatPeso = (amount) =>
   amount == null
     ? '₱0.00'
     : new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', minimumFractionDigits: 2 }).format(amount)
 
-const updatePagination = (newPagination) => {
-  pagination.value = newPagination
-}
-
+// ── Data fetching & charts ────────────────────────────────────────────────────
 onMounted(async () => {
   try {
-    // Fetch barangay table
     const resBarangay = await axios.get('/api/barangay-records')
-    rows.value = resBarangay.data.map((item, index) => ({
-      num: index + 1,
+    rows.value = resBarangay.data.map((item) => ({
       barangay: item.barangay,
       medicinePatients: item.medicinePatients,
       medicineAmount: item.medicineAmount,
@@ -119,16 +173,15 @@ onMounted(async () => {
       totalPatients: item.totalPatients,
       totalAmount: item.totalAmount
     }))
+    // NOTE: rowsNumber intentionally NOT set here — q-table handles pagination
+    // from sortedRows.length automatically in non-server mode
 
-    // Fetch all sectors from the database
     const resSectors = await axios.get('/api/sectors')
-    const allSectors = resSectors.data // Array of { id, sector }
+    const allSectors = resSectors.data
 
-    // Fetch chart data
     const resChart = await axios.get('/api/amount-given')
     const chartData = resChart.data
 
-    // Wait for DOM update
     await nextTick()
 
     const pesoFormatter = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' })
@@ -161,21 +214,14 @@ onMounted(async () => {
     createDoughnut(
       perCategoryChart,
       ['Medicine', 'Laboratory', 'Hospital'],
-      [
-        parseFloat(chartData.medicine) || 0,
-        parseFloat(chartData.laboratory) || 0,
-        parseFloat(chartData.hospital) || 0
-      ],
+      [parseFloat(chartData.medicine) || 0, parseFloat(chartData.laboratory) || 0, parseFloat(chartData.hospital) || 0],
       ['#4CAF50', '#2196F3', '#FF9800']
     )
 
     createDoughnut(
       perSexChart,
       ['Male', 'Female'],
-      [
-        parseFloat(chartData.perMale) || 0,
-        parseFloat(chartData.perFemale) || 0
-      ],
+      [parseFloat(chartData.perMale) || 0, parseFloat(chartData.perFemale) || 0],
       ['#42A5F5', '#EC407A']
     )
 
@@ -194,19 +240,11 @@ onMounted(async () => {
       ['#FF6B6B', '#FFA07A', '#FFD93D', '#6BCF7F', '#4ECDC4', '#45B7D1', '#9B59B6']
     )
 
-    // ✅ NEW: Per Sector Chart - Include ALL sectors even with 0 data
     const sectorPalette = ['#FF6F61', '#6B5B95', '#88B04B', '#F7CAC9', '#45B7D1', '#FFD93D', '#FF9800', '#9B59B6', '#E74C3C', '#3498DB']
-
-    // Map all sectors to their data (0 if no data)
-    const sectorData = allSectors.map(sector => {
-      const dataKey = `sector_${sector.sector}` // Match the key from backend
-      return {
-        label: sector.sector,
-        value: parseFloat(chartData[dataKey]) || 0
-      }
-    })
-
-    // Sort by value (optional - shows highest first)
+    const sectorData = allSectors.map(sector => ({
+      label: sector.sector,
+      value: parseFloat(chartData[`sector_${sector.sector}`]) || 0
+    }))
     sectorData.sort((a, b) => b.value - a.value)
 
     createDoughnut(
@@ -235,6 +273,7 @@ onMounted(async () => {
   overflow: hidden;
   margin-bottom: -2%;
   max-height: 1580px;
+  min-width: 600px;
 }
 
 .amount-title {
@@ -265,7 +304,6 @@ onMounted(async () => {
   text-align: center;
 }
 
-/* Charts Container */
 .charts-container {
   display: flex;
   justify-content: center;
@@ -308,10 +346,9 @@ onMounted(async () => {
   font-size: 20px;
   font-weight: 700;
   color: #2e7d32;
-  margin-bottom: 15px;
+  margin-bottom: 40px;
   letter-spacing: 0.3px;
   min-height: 25px;
-  margin-bottom: 40px;
   margin-top: -2px;
 }
 
@@ -324,7 +361,6 @@ onMounted(async () => {
   min-height: 25px;
 }
 
-/* Chart Sizes - Consistent across all charts */
 .chart-small {
   flex: 1 1 200px;
   height: 190px !important;
@@ -365,22 +401,34 @@ onMounted(async () => {
   max-width: 280px;
 }
 
-/* Table */
 .table-container {
   width: 100%;
   border-radius: 8px;
+  box-sizing: border-box;
+  height: 100px;
 }
 
-/* Add scrollable wrapper with fixed height */
 .table-scroll-wrapper {
-  max-height: 500px;
+  width: 100%;
+  height: 300px;
+  max-height: 60vh;
+  min-height: 260px;
   overflow-y: auto;
   overflow-x: auto;
   position: relative;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
 }
 
-.q-table__container {
-  max-height: 490px;
+.table-scroll-wrapper .q-table__container {
+  height: 100% !important;
+  max-height: none !important;
+}
+
+/* FIX 3: Changed from width: max-content to width: 100% to prevent horizontal scroll */
+.budget-table {
+  width: 100%;
+  table-layout: fixed;
 }
 
 .sticky-header {
@@ -405,11 +453,6 @@ onMounted(async () => {
   white-space: nowrap;
 }
 
-.budget-table {
-  width: 100%;
-  table-layout: fixed;
-}
-
 .budget-table td {
   padding: 8px;
   font-size: 13px;
@@ -418,485 +461,30 @@ onMounted(async () => {
   text-overflow: ellipsis;
 }
 
-/* Extra Small Mobile (320px to 480px) */
-@media (max-width: 480px) {
+.sortable-th {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sortable-th:hover {
+  background: #176e22 !important;
+}
+
+.sort-icon {
+  font-size: 12px;
+  vertical-align: middle;
+  margin-left: 3px;
+  opacity: 0.85;
+}
+
+@media (max-width: 1023px) {
+  .table-container {
+    height: auto;
+  }
+
   .dashboard-card {
-    margin: 5px 0;
-  }
-
-  .amount-title {
-    font-size: 16px;
-    padding: 8px 10px;
-  }
-
-  .card-content {
-    padding: 8px;
-  }
-
-  .charts-container {
-    gap: 15px;
-    margin-top: 15px;
-    margin-bottom: 20px;
-    padding: 0 5px;
-    flex-direction: column;
-  }
-
-  .chart-column {
-    gap: 15px;
-    max-width: 100%;
-    min-width: 0;
-  }
-
-  .chart-wrapper {
-    max-width: 100%;
-    min-width: 0;
-  }
-
-  .chart-wrapper p {
-    font-size: 14px;
-    margin-bottom: 10px;
-  }
-
-  .chart-small canvas,
-  .chart-medium canvas,
-  .chart-large canvas {
-    height: 180px !important;
-    max-width: 100%;
-  }
-
-  .barangay-title {
-    font-size: 16px;
-    margin-top: 20px;
-    margin-bottom: 15px;
-  }
-
-  .table-scroll-wrapper {
-    max-height: 400px;
-  }
-
-  .sticky-header th {
-    padding: 6px 3px;
-    font-size: 9px;
-  }
-
-  .sticky-header.second-row {
-    top: 35px;
-  }
-
-  .budget-table td {
-    padding: 6px 3px;
-    font-size: 9px;
-  }
-}
-
-/* Small Mobile (481px to 599px) */
-@media (min-width: 481px) and (max-width: 599px) {
-  .amount-title {
-    font-size: 17px;
-    padding: 9px 12px;
-  }
-
-  .card-content {
-    padding: 10px;
-  }
-
-  .charts-container {
-    gap: 18px;
-    margin-top: 20px;
-    margin-bottom: 25px;
-    flex-direction: column;
-  }
-
-  .chart-column {
-    gap: 18px;
-    max-width: 100%;
-  }
-
-  .chart-wrapper {
-    max-width: 100%;
-  }
-
-  .chart-wrapper p {
-    font-size: 15px;
-    margin-bottom: 10px;
-  }
-
-  .chart-small canvas,
-  .chart-medium canvas,
-  .chart-large canvas {
-    height: 200px !important;
-  }
-
-  .barangay-title {
-    font-size: 17px;
-    margin-top: 25px;
-    margin-bottom: 15px;
-  }
-
-  .table-scroll-wrapper {
-    max-height: 450px;
-  }
-
-  .sticky-header th {
-    padding: 7px 4px;
-    font-size: 10px;
-  }
-
-  .sticky-header.second-row {
-    top: 37px;
-  }
-
-  .budget-table td {
-    padding: 7px 4px;
-    font-size: 10px;
-  }
-}
-
-/* Tablet Portrait (600px to 767px) */
-@media (min-width: 600px) and (max-width: 767px) {
-  .amount-title {
-    font-size: 18px;
-    padding: 10px 15px;
-  }
-
-  .card-content {
-    padding: 12px;
-  }
-
-  .charts-container {
-    gap: 20px;
-    margin-top: 25px;
-    margin-bottom: 30px;
-  }
-
-  .chart-column {
-    gap: 18px;
-    max-width: 350px;
-  }
-
-  .chart-wrapper p {
-    font-size: 16px;
-    margin-bottom: 12px;
-  }
-
-  .chart-small canvas,
-  .chart-medium canvas,
-  .chart-large canvas {
-    height: 220px !important;
-  }
-
-  .barangay-title {
-    font-size: 18px;
-    margin-top: 30px;
-    margin-bottom: 18px;
-  }
-
-  .table-scroll-wrapper {
-    max-height: 500px;
-  }
-
-  .sticky-header th {
-    padding: 8px 5px;
-    font-size: 11px;
-  }
-
-  .sticky-header.second-row {
-    top: 38px;
-  }
-
-  .budget-table td {
-    padding: 5px 5px;
-    font-size: 11px;
-  }
-}
-
-/* Tablet Landscape (768px to 1023px) */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .amount-title {
-    font-size: 19px;
-    padding: 11px 16px;
-  }
-
-  .card-content {
-    padding: 13px;
-  }
-
-  .charts-container {
-    gap: 25px;
-    margin-top: 28px;
-    margin-bottom: 35px;
-  }
-
-  .chart-column {
-    gap: 20px;
-    max-width: 380px;
-  }
-
-  .chart-wrapper p {
-    font-size: 17px;
-    margin-bottom: 13px;
-  }
-
-  .chart-small canvas,
-  .chart-medium canvas,
-  .chart-large canvas {
-    height: 230px !important;
-  }
-
-  .barangay-title {
-    font-size: 19px;
-    margin-top: 35px;
-    margin-bottom: 18px;
-  }
-
-  .table-scroll-wrapper {
-    max-height: 500px;
-  }
-
-  .sticky-header th {
-    padding: 9px 6px;
-    font-size: 11px;
-  }
-
-  .sticky-header.second-row {
-    top: 39px;
-  }
-
-  .budget-table td {
-    padding: 8px 6px;
-    font-size: 11px;
-  }
-}
-
-/* Small Desktop (1024px to 1279px) */
-@media (min-width: 1024px) and (max-width: 1279px) {
-  .amount-title {
-    font-size: 20px;
-    padding: 11px 18px;
-  }
-
-  .card-content {
-    padding: 14px;
-  }
-
-  .charts-container {
-    gap: 25px;
-    margin-top: 28px;
-    margin-bottom: 38px;
-  }
-
-  .chart-column {
-    gap: 20px;
-    max-width: 400px;
-  }
-
-  .chart-wrapper p {
-    font-size: 18px;
-    margin-bottom: 14px;
-  }
-
-  .chart-small canvas,
-  .chart-medium canvas,
-  .chart-large canvas {
-    height: 240px !important;
-  }
-
-  .barangay-title {
-    font-size: 20px;
-    margin-top: 38px;
-    margin-bottom: 19px;
-  }
-
-  .table-scroll-wrapper {
-    max-height: 500px;
-  }
-
-  .sticky-header th {
-    padding: 9px 7px;
-    font-size: 12px;
-  }
-
-  .sticky-header.second-row {
-    top: 39px;
-  }
-
-  .budget-table td {
-    padding: 8px 7px;
-    font-size: 12px;
-  }
-}
-
-/* Medium Desktop (1280px to 1599px) */
-@media (min-width: 1280px) and (max-width: 1599px) {
-  .amount-title {
-    font-size: 21px;
-    padding: 12px 19px;
-  }
-
-  .card-content {
-    padding: 15px;
-  }
-
-  .charts-container {
-    gap: 30px;
-    margin-top: 30px;
-    margin-bottom: 40px;
-  }
-
-  .chart-column {
-    gap: 20px;
-    max-width: 420px;
-  }
-
-  .chart-wrapper p {
-    font-size: 19px;
-    margin-bottom: 14px;
-  }
-
-  .chart-small canvas,
-  .chart-medium canvas,
-  .chart-large canvas {
-    height: 250px !important;
-  }
-
-  .barangay-title {
-    font-size: 21px;
-    margin-top: 40px;
-    margin-bottom: 20px;
-  }
-
-  .table-scroll-wrapper {
-    max-height: 500px;
-  }
-
-  .sticky-header th {
-    padding: 10px 7px;
-    font-size: 12px;
-  }
-
-  .sticky-header.second-row {
-    top: 40px;
-  }
-
-  .budget-table td {
-    padding: 8px 7px;
-    font-size: 12px;
-  }
-}
-
-/* Large Desktop (1600px to 1919px) */
-@media (min-width: 1600px) and (max-width: 1919px) {
-  .amount-title {
-    font-size: 22px;
-    padding: 12px 20px;
-  }
-
-  .card-content {
-    padding: 15px;
-  }
-
-  .charts-container {
-    gap: 30px;
-    margin-top: 30px;
-    margin-bottom: 40px;
-  }
-
-  .chart-column {
-    gap: 20px;
-    max-width: 450px;
-  }
-
-  .chart-wrapper p {
-    font-size: 20px;
-    margin-bottom: 15px;
-  }
-
-  .chart-small canvas,
-  .chart-medium canvas,
-  .chart-large canvas {
-    height: 250px !important;
-  }
-
-  .barangay-title {
-    font-size: 22px;
-    margin-top: 40px;
-    margin-bottom: 20px;
-  }
-
-  .table-scroll-wrapper {
-    max-height: 500px;
-  }
-
-  .sticky-header th {
-    padding: 10px 8px;
-    font-size: 13px;
-  }
-
-  .sticky-header.second-row {
-    top: 40px;
-  }
-
-  .budget-table td {
-    padding: 8px;
-    font-size: 13px;
-  }
-}
-
-/* Extra Large Desktop (1920px and up) */
-@media (min-width: 1920px) {
-  .amount-title {
-    font-size: 24px;
-    padding: 15px 20px;
-  }
-
-  .card-content {
-    padding: 20px;
-  }
-
-  .charts-container {
-    gap: 35px;
-    margin-top: 35px;
-    margin-bottom: 45px;
-  }
-
-  .chart-column {
-    gap: 25px;
-    max-width: 500px;
-  }
-
-  .chart-wrapper p {
-    font-size: 22px;
-    margin-bottom: 18px;
-  }
-
-  .chart-small canvas,
-  .chart-medium canvas,
-  .chart-large canvas {
-    height: 280px !important;
-  }
-
-  .barangay-title {
-    font-size: 24px;
-    margin-top: 45px;
-    margin-bottom: 22px;
-  }
-
-  .table-scroll-wrapper {
-    max-height: 600px;
-  }
-
-  .sticky-header th {
-    padding: 12px 10px;
-    font-size: 14px;
-  }
-
-  .sticky-header.second-row {
-    top: 44px;
-  }
-
-  .budget-table td {
-    padding: 10px;
-    font-size: 14px;
+    overflow: visible;
+    max-height: none;
   }
 }
 </style>

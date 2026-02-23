@@ -1,14 +1,32 @@
 <template>
   <div class="budget-card">
-    <q-table title="Supplemental Budget" flat bordered :rows="rows" :columns="columns" row-key="id" class="budget-table"
-      :rows-per-page-options="[5, 10, 15, 20, 0]">
+    <q-table
+      title="Supplemental Budget"
+      flat
+      bordered
+      :rows="rows"
+      :columns="columns"
+      row-key="id"
+      class="budget-table"
+      :rows-per-page-options="[5, 10, 15, 20, 0]"
+    >
       <template #top-right>
         <div class="header-buttons">
           <!-- TRANSFER BUDGET BUTTON - Now opens popup -->
-          <q-btn icon="swap_horiz" label="TRANSFER BUDGET" class="transfer-btn" @click="openTransferDialog" />
+          <q-btn
+            icon="swap_horiz"
+            :label="trBudgetLabel"
+            class="transfer-btn"
+            @click="openTransferDialog"
+          />
 
           <!-- ADD BUDGET BUTTON -->
-          <q-btn icon="add" label="ADD SUPPLEMENTAL BUDGET" class="add-btn" @click="openAddBudgetDialog" />
+          <q-btn
+            icon="add"
+            :label="addBudgetLabel"
+            class="add-btn"
+            @click="openAddBudgetDialog"
+          />
         </div>
       </template>
 
@@ -31,7 +49,7 @@
 
     <!-- TRANSFER BUDGET DIALOG -->
     <q-dialog v-model="showTransferBudgetDialog" persistent>
-      <q-card style="min-width: 500px">
+      <q-card class="transfer-budget-dialog">
         <q-card-section class="dialog-header-transfer">
           <h4>TRANSFER SUPPLEMENTAL BUDGET</h4>
         </q-card-section>
@@ -41,53 +59,101 @@
           <div class="budget-block">
             <h3>FROM</h3>
             <label>SELECT SOURCE: <span>*</span></label>
-            <q-select v-model="transferData.from" dense outlined :options="filteredFromCategories"
-              placeholder="SELECT SOURCE" class="amount-input" @update:model-value="onSourceChange" />
+            <q-select
+              v-model="transferData.from"
+              dense
+              outlined
+              :options="filteredFromCategories"
+              placeholder="SELECT SOURCE"
+              class="amount-input"
+              @update:model-value="onSourceChange"
+            />
           </div>
 
           <!-- TO -->
           <div class="budget-block">
             <h3>TO</h3>
             <label>SELECT DESTINATION: <span>*</span></label>
-            <q-select v-model="transferData.to" dense outlined :options="filteredToCategories"
-              placeholder="SELECT DESTINATION" class="amount-input" @update:model-value="onDestinationChange" />
+            <q-select
+              v-model="transferData.to"
+              dense
+              outlined
+              :options="filteredToCategories"
+              placeholder="SELECT DESTINATION"
+              class="amount-input"
+              @update:model-value="onDestinationChange"
+            />
           </div>
 
           <!-- AMOUNT -->
 
           <label>TRANSFER AMOUNT: <span>*</span></label>
           <div class="budget-block">
-
             <!-- Remaining Budget Display -->
             <div v-if="budgetBreakdown" class="budget-breakdown">
               <div class="breakdown-row total">
                 <span>Available Balance:</span>
-                <span :class="budgetBreakdown.availableBalance >= 0 ? 'positive' : 'negative'">
+                <span
+                  :class="
+                    budgetBreakdown.availableBalance >= 0
+                      ? 'positive'
+                      : 'negative'
+                  "
+                >
                   ₱{{ formatCurrency(budgetBreakdown.availableBalance) }}
                 </span>
               </div>
-              <div v-if="amountValue && parseFloat(amountValue) > 0" class="breakdown-row remaining">
+              <div
+                v-if="amountValue && parseFloat(amountValue) > 0"
+                class="breakdown-row remaining"
+              >
                 <span>Remaining After Transfer:</span>
-                <span :class="remainingAfterTransfer >= 0 ? 'positive' : 'negative'">
+                <span
+                  :class="remainingAfterTransfer >= 0 ? 'positive' : 'negative'"
+                >
                   ₱{{ formatCurrency(remainingAfterTransfer) }}
                 </span>
               </div>
             </div>
-            <q-input v-model="amountDisplay" dense outlined type="text" placeholder="0.00" class="amount-input"
-              @update:model-value="onAmountInput" @blur="finalizeAmount" />
+            <q-input
+              v-model="amountDisplay"
+              dense
+              outlined
+              type="text"
+              placeholder="0.00"
+              class="amount-input"
+              @update:model-value="onAmountInput"
+              @blur="finalizeAmount"
+            />
           </div>
 
           <!-- VALIDATION MESSAGE -->
-          <div v-if="validationMessage" class="validation-message" :class="validationClass">
+          <div
+            v-if="validationMessage"
+            class="validation-message"
+            :class="validationClass"
+          >
             <q-icon :name="validationIcon" size="20px" class="q-mr-sm" />
             {{ validationMessage }}
           </div>
         </q-card-section>
 
         <q-card-actions align="right" class="q-px-md q-pb-md">
-          <q-btn unelevated icon="close" label="CANCEL" class="dialog-goback-btn" @click="closeTransferDialog" />
-          <q-btn unelevated icon="swap_horiz" label="TRANSFER" class="dialog-cancel-btn" @click="handleTransferClick"
-            :disable="!isValid" />
+          <q-btn
+            unelevated
+            icon="close"
+            label="CANCEL"
+            class="dialog-goback-btn"
+            @click="closeTransferDialog"
+          />
+          <q-btn
+            unelevated
+            icon="swap_horiz"
+            label="TRANSFER"
+            class="dialog-cancel-btn"
+            @click="handleTransferClick"
+            :disable="!isValid"
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -100,23 +166,41 @@
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <p>Are you sure you want to transfer <strong>₱{{ formatCurrency(amountValue) }}</strong> from
-            <strong>{{ transferData.from }}</strong> to <strong>{{ transferData.to }}</strong>?
+          <p>
+            Are you sure you want to transfer
+            <strong>₱{{ formatCurrency(amountValue) }}</strong> from
+            <strong>{{ transferData.from }}</strong> to
+            <strong>{{ transferData.to }}</strong
+            >?
           </p>
-          <p class="text-caption text-grey-7">This action will create a supplemental budget entry.</p>
+          <p class="text-caption text-grey-7">
+            This action will create a supplemental budget entry.
+          </p>
         </q-card-section>
 
         <q-card-actions align="right" class="q-px-md q-pb-md">
-          <q-btn unelevated icon="close" label="NO" class="dialog-goback-btn" v-close-popup />
-          <q-btn unelevated icon="swap_horiz" label="YES, TRANSFER" class="dialog-cancel-btn" @click="confirmTransfer"
-            :loading="transferLoading" />
+          <q-btn
+            unelevated
+            icon="close"
+            label="NO"
+            class="dialog-goback-btn"
+            v-close-popup
+          />
+          <q-btn
+            unelevated
+            icon="swap_horiz"
+            label="YES, TRANSFER"
+            class="dialog-cancel-btn"
+            @click="confirmTransfer"
+            :loading="transferLoading"
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
 
     <!-- ADD SUPPLEMENTAL BUDGET DIALOG -->
     <q-dialog v-model="showAddBudgetDialog" persistent>
-      <q-card style="min-width: 500px">
+      <q-card class="add-budget-dialog">
         <q-card-section class="dialog-header-transfer">
           <h4>ADD SUPPLEMENTAL BUDGET</h4>
         </q-card-section>
@@ -124,35 +208,78 @@
         <q-card-section class="transfer-content">
           <div class="budget-block">
             <h3>YEAR</h3>
-            <q-input v-model="yearValue" dense outlined type="number" placeholder="YEAR" disable />
+            <q-input
+              v-model="yearValue"
+              dense
+              outlined
+              type="number"
+              placeholder="YEAR"
+              disable
+            />
           </div>
 
           <div class="budget-block">
             <h3>MEDICINE</h3>
             <label>SUPPLEMENTAL BUDGET: <span>*</span></label>
-            <q-input v-model="medicineDisplay" dense outlined type="text" placeholder="0.00" class="amount-input"
-              @update:model-value="onMedicineInput" @blur="finalizeMedicine" />
+            <q-input
+              v-model="medicineDisplay"
+              dense
+              outlined
+              type="text"
+              placeholder="0.00"
+              class="amount-input"
+              @update:model-value="onMedicineInput"
+              @blur="finalizeMedicine"
+            />
           </div>
 
           <div class="budget-block">
             <h3>LABORATORY</h3>
             <label>SUPPLEMENTAL BUDGET: <span>*</span></label>
-            <q-input v-model="laboratoryDisplay" dense outlined type="text" placeholder="0.00" class="amount-input"
-              @update:model-value="onLaboratoryInput" @blur="finalizeLaboratory" />
+            <q-input
+              v-model="laboratoryDisplay"
+              dense
+              outlined
+              type="text"
+              placeholder="0.00"
+              class="amount-input"
+              @update:model-value="onLaboratoryInput"
+              @blur="finalizeLaboratory"
+            />
           </div>
 
           <div class="budget-block">
             <h3>HOSPITAL</h3>
             <label>SUPPLEMENTAL BUDGET: <span>*</span></label>
-            <q-input v-model="hospitalDisplay" dense outlined type="text" placeholder="0.00" class="amount-input"
-              @update:model-value="onHospitalInput" @blur="finalizeHospital" />
+            <q-input
+              v-model="hospitalDisplay"
+              dense
+              outlined
+              type="text"
+              placeholder="0.00"
+              class="amount-input"
+              @update:model-value="onHospitalInput"
+              @blur="finalizeHospital"
+            />
           </div>
         </q-card-section>
 
         <q-card-actions align="right" class="q-px-md q-pb-md">
-          <q-btn unelevated icon="close" label="CANCEL" class="dialog-goback-btn" @click="closeAddBudgetDialog" />
-          <q-btn unelevated icon="save" label="SAVE" class="dialog-cancel-btn" @click="handleAddBudgetSave"
-            :disable="!isAddFormValid" />
+          <q-btn
+            unelevated
+            icon="close"
+            label="CANCEL"
+            class="dialog-goback-btn"
+            @click="closeAddBudgetDialog"
+          />
+          <q-btn
+            unelevated
+            icon="save"
+            label="SAVE"
+            class="dialog-cancel-btn"
+            @click="handleAddBudgetSave"
+            :disable="!isAddFormValid"
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -169,9 +296,21 @@
         </q-card-section>
 
         <q-card-actions align="right" class="q-px-md q-pb-md">
-          <q-btn unelevated icon="close" label="NO" class="dialog-goback-btn" v-close-popup />
-          <q-btn unelevated icon="check" label="YES" class="dialog-cancel-btn" @click="confirmAddBudget"
-            :loading="addBudgetLoading" />
+          <q-btn
+            unelevated
+            icon="close"
+            label="NO"
+            class="dialog-goback-btn"
+            v-close-popup
+          />
+          <q-btn
+            unelevated
+            icon="check"
+            label="YES"
+            class="dialog-cancel-btn"
+            @click="confirmAddBudget"
+            :loading="addBudgetLoading"
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -179,119 +318,162 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useQuasar } from 'quasar'
-import { api } from 'src/boot/axios'
+import { ref, onMounted, computed } from "vue";
+import { useQuasar } from "quasar";
+import { api } from "src/boot/axios";
 
-const userData = JSON.parse(localStorage.getItem('user') || '{}')
+const userData = JSON.parse(localStorage.getItem("user") || "{}");
 
-const axios = api
+const axios = api;
 
-const $q = useQuasar()
-const rows = ref([])
+const $q = useQuasar();
+const rows = ref([]);
 
 // Transfer Budget Dialog States
-const showTransferBudgetDialog = ref(false)
-const showTransferConfirmDialog = ref(false)
-const transferLoading = ref(false)
-const validationMessage = ref('')
-const isValid = ref(false)
-const budgetBreakdown = ref(null)
+const showTransferBudgetDialog = ref(false);
+const showTransferConfirmDialog = ref(false);
+const transferLoading = ref(false);
+const validationMessage = ref("");
+const isValid = ref(false);
+const budgetBreakdown = ref(null);
 
 const transferData = ref({
   year: new Date().getFullYear(),
   from: null,
-  to: null
-})
+  to: null,
+});
 
 // Amount handling
-const amountValue = ref(null)
-const amountDisplay = ref('')
+const amountValue = ref(null);
+const amountDisplay = ref("");
 
 // Add Budget Dialog States
-const showAddBudgetDialog = ref(false)
-const showAddConfirmDialog = ref(false)
-const addBudgetLoading = ref(false)
-const yearValue = ref(new Date().getFullYear())
-const dateValue = ref(new Date().toISOString().slice(0, 10))
+const showAddBudgetDialog = ref(false);
+const showAddConfirmDialog = ref(false);
+const addBudgetLoading = ref(false);
+const yearValue = ref(new Date().getFullYear());
+const dateValue = ref(new Date().toISOString().slice(0, 10));
 
-const medicineSupplementaryBudget = ref(null)
-const laboratorySupplementaryBudget = ref(null)
-const hospitalSupplementaryBudget = ref(null)
+const medicineSupplementaryBudget = ref(null);
+const laboratorySupplementaryBudget = ref(null);
+const hospitalSupplementaryBudget = ref(null);
 
-const medicineDisplay = ref('')
-const laboratoryDisplay = ref('')
-const hospitalDisplay = ref('')
+const medicineDisplay = ref("");
+const laboratoryDisplay = ref("");
+const hospitalDisplay = ref("");
 
-const categories = ['MEDICINE', 'LABORATORY', 'HOSPITAL']
+const categories = ["MEDICINE", "LABORATORY", "HOSPITAL"];
+
+const addBudgetLabel = computed(() => {
+  return $q.screen.gt.sm ? "ADD SUPPLEMENTAL BUDGET" : "";
+});
+
+const trBudgetLabel = computed(() => {
+  return $q.screen.gt.sm ? "TRANSFER BUDGET" : "";
+});
 
 // Filtered FROM options, excluding the TO selection
 const filteredFromCategories = computed(() => {
-  return categories.filter(cat => cat !== transferData.value.to)
-})
+  return categories.filter((cat) => cat !== transferData.value.to);
+});
 
 // Filtered TO options, excluding the FROM selection
 const filteredToCategories = computed(() => {
-  return categories.filter(cat => cat !== transferData.value.from)
-})
+  return categories.filter((cat) => cat !== transferData.value.from);
+});
 
 // Calculate remaining balance after transfer
 const remainingAfterTransfer = computed(() => {
-  if (!budgetBreakdown.value || !amountValue.value) return 0
-  const amount = parseFloat(amountValue.value) || 0
-  return budgetBreakdown.value.availableBalance - amount
-})
+  if (!budgetBreakdown.value || !amountValue.value) return 0;
+  const amount = parseFloat(amountValue.value) || 0;
+  return budgetBreakdown.value.availableBalance - amount;
+});
 
 // Validation class for styling
 const validationClass = computed(() => {
-  return isValid.value ? 'success' : 'error'
-})
+  return isValid.value ? "success" : "error";
+});
 
 // Validation icon
 const validationIcon = computed(() => {
-  return isValid.value ? 'check_circle' : 'error'
-})
+  return isValid.value ? "check_circle" : "error";
+});
 
 // Add form validation
 const isAddFormValid = computed(() => {
-  return medicineSupplementaryBudget.value !== null &&
+  return (
+    medicineSupplementaryBudget.value !== null &&
     laboratorySupplementaryBudget.value !== null &&
     hospitalSupplementaryBudget.value !== null &&
-    medicineDisplay.value !== '' &&
-    laboratoryDisplay.value !== '' &&
-    hospitalDisplay.value !== ''
-})
+    medicineDisplay.value !== "" &&
+    laboratoryDisplay.value !== "" &&
+    hospitalDisplay.value !== ""
+  );
+});
 
 const columns = [
-  { name: 'id', label: 'ID', field: 'id', align: 'center', sortable: true },
-  { name: 'year', label: 'Year', field: 'year', align: 'center', sortable: true },
-  { name: 'addedOn', label: 'Added on', field: 'date_added', align: 'center', sortable: true },
-  { name: 'medicine', label: 'Supplemental Medicine Bonus', field: 'medicine_supplementary_bonus', align: 'center', sortable: true },
-  { name: 'lab', label: 'Supplemental Laboratory Bonus', field: 'laboratory_supplementary_bonus', align: 'center', sortable: true },
-  { name: 'hospital', label: 'Supplemental Hospital Bonus', field: 'hospital_supplementary_bonus', align: 'center', sortable: true }
-]
+  { name: "id", label: "ID", field: "id", align: "center", sortable: true },
+  {
+    name: "year",
+    label: "Year",
+    field: "year",
+    align: "center",
+    sortable: true,
+  },
+  {
+    name: "addedOn",
+    label: "Added on",
+    field: "date_added",
+    align: "center",
+    sortable: true,
+  },
+  {
+    name: "medicine",
+    label: "Supplemental Medicine Bonus",
+    field: "medicine_supplementary_bonus",
+    align: "center",
+    sortable: true,
+  },
+  {
+    name: "lab",
+    label: "Supplemental Laboratory Bonus",
+    field: "laboratory_supplementary_bonus",
+    align: "center",
+    sortable: true,
+  },
+  {
+    name: "hospital",
+    label: "Supplemental Hospital Bonus",
+    field: "hospital_supplementary_bonus",
+    align: "center",
+    sortable: true,
+  },
+];
 
 // Format currency helper
 const formatCurrency = (value) => {
-  if (value === null || value === undefined) return '0.00'
-  const num = parseFloat(value)
-  if (isNaN(num)) return '0.00'
-  return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
+  if (value === null || value === undefined) return "0.00";
+  const num = parseFloat(value);
+  if (isNaN(num)) return "0.00";
+  return num.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
 
 // Fetch supplementary budget
 const getSupplementaryBudget = async () => {
   try {
-    const res = await axios.get('/api/supplementary-bonus')
-    rows.value = res.data
+    const res = await axios.get("/api/supplementary-bonus");
+    rows.value = res.data;
   } catch (err) {
-    console.log(err)
+    console.log(err);
   }
-}
+};
 
 onMounted(() => {
-  getSupplementaryBudget()
-})
+  getSupplementaryBudget();
+});
 
 // Transfer Budget Functions
 const openTransferDialog = () => {
@@ -299,356 +481,379 @@ const openTransferDialog = () => {
   transferData.value = {
     year: new Date().getFullYear(),
     from: null,
-    to: null
-  }
-  amountValue.value = null
-  amountDisplay.value = ''
-  validationMessage.value = ''
-  isValid.value = false
-  budgetBreakdown.value = null
+    to: null,
+  };
+  amountValue.value = null;
+  amountDisplay.value = "";
+  validationMessage.value = "";
+  isValid.value = false;
+  budgetBreakdown.value = null;
 
-  showTransferBudgetDialog.value = true
-}
+  showTransferBudgetDialog.value = true;
+};
 
 const closeTransferDialog = () => {
-  showTransferBudgetDialog.value = false
-}
+  showTransferBudgetDialog.value = false;
+};
 
 // Amount Input Handler
 const onAmountInput = (value) => {
-  let cleaned = value.replace(/,/g, '')
-  cleaned = cleaned.replace(/[^\d.]/g, '')
+  let cleaned = value.replace(/,/g, "");
+  cleaned = cleaned.replace(/[^\d.]/g, "");
 
-  const parts = cleaned.split('.')
+  const parts = cleaned.split(".");
   if (parts.length > 2) {
-    cleaned = parts[0] + '.' + parts.slice(1).join('')
+    cleaned = parts[0] + "." + parts.slice(1).join("");
   }
 
-  let integer = parts[0] || ''
-  let decimal = parts[1] ?? null
+  let integer = parts[0] || "";
+  let decimal = parts[1] ?? null;
 
-  integer = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  integer = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-  amountDisplay.value = decimal !== null ? `${integer}.${decimal.slice(0, 2)}` : integer
-  amountValue.value = parseFloat(cleaned)
+  amountDisplay.value =
+    decimal !== null ? `${integer}.${decimal.slice(0, 2)}` : integer;
+  amountValue.value = parseFloat(cleaned);
 
   // Trigger validation after input
-  validateTransfer()
-}
+  validateTransfer();
+};
 
 const finalizeAmount = () => {
-  if (!amountDisplay.value) return
-  const num = parseFloat(amountDisplay.value.replace(/,/g, ''))
-  if (isNaN(num)) return
-  amountDisplay.value = num.toLocaleString('en-US', {
+  if (!amountDisplay.value) return;
+  const num = parseFloat(amountDisplay.value.replace(/,/g, ""));
+  if (isNaN(num)) return;
+  amountDisplay.value = num.toLocaleString("en-US", {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  })
-  amountValue.value = num
-}
+    maximumFractionDigits: 2,
+  });
+  amountValue.value = num;
+};
 
 // Fetch available balance when source is selected
 const onSourceChange = async () => {
   // Reset validation only
-  validationMessage.value = ''
-  isValid.value = false
-  budgetBreakdown.value = null
+  validationMessage.value = "";
+  isValid.value = false;
+  budgetBreakdown.value = null;
 
-  if (!transferData.value.from) return
+  if (!transferData.value.from) return;
 
   try {
-    const response = await axios.post('/api/validate-transfer', {
+    const response = await axios.post("/api/validate-transfer", {
       year: transferData.value.year,
       category: transferData.value.from,
-      amount: 0
-    })
+      amount: 0,
+    });
 
     if (response.data.breakdown) {
-      const breakdown = response.data.breakdown
-      const availableBalance = (parseFloat(breakdown.annual) || 0) +
+      const breakdown = response.data.breakdown;
+      const availableBalance =
+        (parseFloat(breakdown.annual) || 0) +
         (parseFloat(breakdown.supplemental) || 0) -
-        (parseFloat(breakdown.given) || 0)
+        (parseFloat(breakdown.given) || 0);
 
       budgetBreakdown.value = {
-        availableBalance: availableBalance
-      }
+        availableBalance: availableBalance,
+      };
       if (amountValue.value) {
-        await validateTransfer()
+        await validateTransfer();
       }
     }
   } catch (err) {
-    console.error('Error fetching budget:', err)
+    console.error("Error fetching budget:", err);
   }
-}
+};
 
 // Handle destination change - validate without resetting amount
 const onDestinationChange = () => {
   if (amountValue.value) {
-    validateTransfer()
+    validateTransfer();
   }
-}
+};
 
 // Validate transfer
 const validateTransfer = async () => {
   // Reset validation
-  validationMessage.value = ''
-  isValid.value = false
+  validationMessage.value = "";
+  isValid.value = false;
 
   // Check if all fields are filled
-  if (!transferData.value.from || !transferData.value.to || !amountValue.value) {
-    validationMessage.value = 'Please complete all required fields'
-    return
+  if (
+    !transferData.value.from ||
+    !transferData.value.to ||
+    !amountValue.value
+  ) {
+    validationMessage.value = "Please complete all required fields";
+    return;
   }
 
-  const amount = parseFloat(amountValue.value)
+  const amount = parseFloat(amountValue.value);
   if (amount <= 0) {
-    validationMessage.value = 'Transfer amount must be greater than zero'
-    return
+    validationMessage.value = "Transfer amount must be greater than zero";
+    return;
   }
 
   try {
     // Fetch budget data for validation
-    const response = await axios.post('/api/validate-transfer', {
+    const response = await axios.post("/api/validate-transfer", {
       year: transferData.value.year,
       category: transferData.value.from,
-      amount: amount
-    })
+      amount: amount,
+    });
 
-    const data = response.data
+    const data = response.data;
 
     if (data.success) {
-      isValid.value = true
-      validationMessage.value = 'Transfer is valid. Available balance is sufficient.'
+      isValid.value = true;
+      validationMessage.value =
+        "Transfer is valid. Available balance is sufficient.";
     } else {
-      isValid.value = false
-      validationMessage.value = data.message
+      isValid.value = false;
+      validationMessage.value = data.message;
     }
   } catch (err) {
-    console.error('Validation error:', err)
-    validationMessage.value = 'Error validating transfer. Please try again.'
-    isValid.value = false
+    console.error("Validation error:", err);
+    validationMessage.value = "Error validating transfer. Please try again.";
+    isValid.value = false;
   }
-}
+};
 
 const handleTransferClick = () => {
   if (!isValid.value) {
     $q.notify({
-      type: 'negative',
-      message: 'Cannot transfer. Budget validation failed.',
-      position: 'top'
-    })
-    return
+      type: "negative",
+      message: "Cannot transfer. Budget validation failed.",
+      position: "top",
+    });
+    return;
   }
-  showTransferConfirmDialog.value = true
-}
+  showTransferConfirmDialog.value = true;
+};
 
 // Confirm transfer
 const confirmTransfer = async () => {
-  transferLoading.value = true
+  transferLoading.value = true;
 
   try {
-    const amount = parseFloat(amountValue.value)
+    const amount = parseFloat(amountValue.value);
 
     // Create supplemental budget entry for transfer
-    const fromAmount = transferData.value.from === 'MEDICINE' ? -amount :
-      transferData.value.from === 'LABORATORY' ? 0 : 0
-    const toAmount = transferData.value.to === 'MEDICINE' ? amount : 0
+    const fromAmount =
+      transferData.value.from === "MEDICINE"
+        ? -amount
+        : transferData.value.from === "LABORATORY"
+          ? 0
+          : 0;
+    const toAmount = transferData.value.to === "MEDICINE" ? amount : 0;
 
-    const labFrom = transferData.value.from === 'LABORATORY' ? -amount : 0
-    const labTo = transferData.value.to === 'LABORATORY' ? amount : 0
+    const labFrom = transferData.value.from === "LABORATORY" ? -amount : 0;
+    const labTo = transferData.value.to === "LABORATORY" ? amount : 0;
 
-    const hospFrom = transferData.value.from === 'HOSPITAL' ? -amount : 0
-    const hospTo = transferData.value.to === 'HOSPITAL' ? amount : 0
+    const hospFrom = transferData.value.from === "HOSPITAL" ? -amount : 0;
+    const hospTo = transferData.value.to === "HOSPITAL" ? amount : 0;
 
-    await axios.post('/api/add-supplementary-bonus', {
+    await axios.post("/api/add-supplementary-bonus", {
       year: transferData.value.year,
-      date_added: new Date().toISOString().split('T')[0],
+      date_added: new Date().toISOString().split("T")[0],
       medicine_supplementary_bonus: fromAmount + toAmount,
       laboratory_supplementary_bonus: labFrom + labTo,
       hospital_supplementary_bonus: hospFrom + hospTo,
-      performed_by: userData.USERNAME
-    })
+      performed_by: userData.USERNAME,
+    });
 
     $q.notify({
-      type: 'positive',
+      type: "positive",
       message: `Successfully transferred ₱${formatCurrency(amount)} from ${transferData.value.from} to ${transferData.value.to}`,
-      position: 'top'
-    })
+      position: "top",
+    });
 
-    showTransferConfirmDialog.value = false
-    showTransferBudgetDialog.value = false
+    showTransferConfirmDialog.value = false;
+    showTransferBudgetDialog.value = false;
 
     // Refresh supplementary budget table
-    await getSupplementaryBudget()
+    await getSupplementaryBudget();
   } catch (err) {
-    console.error('Transfer error:', err)
+    console.error("Transfer error:", err);
     $q.notify({
-      type: 'negative',
-      message: 'Error transferring budget. Please try again.',
-      position: 'top'
-    })
+      type: "negative",
+      message: "Error transferring budget. Please try again.",
+      position: "top",
+    });
   } finally {
-    transferLoading.value = false
+    transferLoading.value = false;
   }
-}
+};
 
 // Add Budget Functions
 const openAddBudgetDialog = () => {
   // Reset form
-  yearValue.value = new Date().getFullYear()
-  dateValue.value = new Date().toISOString().slice(0, 10)
-  medicineSupplementaryBudget.value = null
-  laboratorySupplementaryBudget.value = null
-  hospitalSupplementaryBudget.value = null
-  medicineDisplay.value = ''
-  laboratoryDisplay.value = ''
-  hospitalDisplay.value = ''
+  yearValue.value = new Date().getFullYear();
+  dateValue.value = new Date().toISOString().slice(0, 10);
+  medicineSupplementaryBudget.value = null;
+  laboratorySupplementaryBudget.value = null;
+  hospitalSupplementaryBudget.value = null;
+  medicineDisplay.value = "";
+  laboratoryDisplay.value = "";
+  hospitalDisplay.value = "";
 
-  showAddBudgetDialog.value = true
-}
+  showAddBudgetDialog.value = true;
+};
 
 const closeAddBudgetDialog = () => {
-  showAddBudgetDialog.value = false
-}
+  showAddBudgetDialog.value = false;
+};
 
 // Medicine Input Handler
 const onMedicineInput = (value) => {
-  let cleaned = value.replace(/,/g, '')
-  cleaned = cleaned.replace(/[^\d.]/g, '')
+  let cleaned = value.replace(/,/g, "");
+  cleaned = cleaned.replace(/[^\d.]/g, "");
 
-  const parts = cleaned.split('.')
+  const parts = cleaned.split(".");
   if (parts.length > 2) {
-    cleaned = parts[0] + '.' + parts.slice(1).join('')
+    cleaned = parts[0] + "." + parts.slice(1).join("");
   }
 
-  let integer = parts[0] || ''
-  let decimal = parts[1] ?? null
+  let integer = parts[0] || "";
+  let decimal = parts[1] ?? null;
 
-  integer = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  integer = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-  medicineDisplay.value = decimal !== null ? `${integer}.${decimal.slice(0, 2)}` : integer
-  medicineSupplementaryBudget.value = parseFloat(cleaned)
-}
+  medicineDisplay.value =
+    decimal !== null ? `${integer}.${decimal.slice(0, 2)}` : integer;
+  medicineSupplementaryBudget.value = parseFloat(cleaned);
+};
 
 const finalizeMedicine = () => {
-  if (!medicineDisplay.value) return
-  const num = parseFloat(medicineDisplay.value.replace(/,/g, ''))
-  if (isNaN(num)) return
-  medicineDisplay.value = num.toLocaleString('en-US', {
+  if (!medicineDisplay.value) return;
+  const num = parseFloat(medicineDisplay.value.replace(/,/g, ""));
+  if (isNaN(num)) return;
+  medicineDisplay.value = num.toLocaleString("en-US", {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  })
-  medicineSupplementaryBudget.value = num
-}
+    maximumFractionDigits: 2,
+  });
+  medicineSupplementaryBudget.value = num;
+};
 
 // Laboratory Input Handler
 const onLaboratoryInput = (value) => {
-  let cleaned = value.replace(/,/g, '')
-  cleaned = cleaned.replace(/[^\d.]/g, '')
+  let cleaned = value.replace(/,/g, "");
+  cleaned = cleaned.replace(/[^\d.]/g, "");
 
-  const parts = cleaned.split('.')
+  const parts = cleaned.split(".");
   if (parts.length > 2) {
-    cleaned = parts[0] + '.' + parts.slice(1).join('')
+    cleaned = parts[0] + "." + parts.slice(1).join("");
   }
 
-  let integer = parts[0] || ''
-  let decimal = parts[1] ?? null
+  let integer = parts[0] || "";
+  let decimal = parts[1] ?? null;
 
-  integer = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  integer = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-  laboratoryDisplay.value = decimal !== null ? `${integer}.${decimal.slice(0, 2)}` : integer
-  laboratorySupplementaryBudget.value = parseFloat(cleaned)
-}
+  laboratoryDisplay.value =
+    decimal !== null ? `${integer}.${decimal.slice(0, 2)}` : integer;
+  laboratorySupplementaryBudget.value = parseFloat(cleaned);
+};
 
 const finalizeLaboratory = () => {
-  if (!laboratoryDisplay.value) return
-  const num = parseFloat(laboratoryDisplay.value.replace(/,/g, ''))
-  if (isNaN(num)) return
-  laboratoryDisplay.value = num.toLocaleString('en-US', {
+  if (!laboratoryDisplay.value) return;
+  const num = parseFloat(laboratoryDisplay.value.replace(/,/g, ""));
+  if (isNaN(num)) return;
+  laboratoryDisplay.value = num.toLocaleString("en-US", {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  })
-  laboratorySupplementaryBudget.value = num
-}
+    maximumFractionDigits: 2,
+  });
+  laboratorySupplementaryBudget.value = num;
+};
 
 // Hospital Input Handler
 const onHospitalInput = (value) => {
-  let cleaned = value.replace(/,/g, '')
-  cleaned = cleaned.replace(/[^\d.]/g, '')
+  let cleaned = value.replace(/,/g, "");
+  cleaned = cleaned.replace(/[^\d.]/g, "");
 
-  const parts = cleaned.split('.')
+  const parts = cleaned.split(".");
   if (parts.length > 2) {
-    cleaned = parts[0] + '.' + parts.slice(1).join('')
+    cleaned = parts[0] + "." + parts.slice(1).join("");
   }
 
-  let integer = parts[0] || ''
-  let decimal = parts[1] ?? null
+  let integer = parts[0] || "";
+  let decimal = parts[1] ?? null;
 
-  integer = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  integer = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-  hospitalDisplay.value = decimal !== null ? `${integer}.${decimal.slice(0, 2)}` : integer
-  hospitalSupplementaryBudget.value = parseFloat(cleaned)
-}
+  hospitalDisplay.value =
+    decimal !== null ? `${integer}.${decimal.slice(0, 2)}` : integer;
+  hospitalSupplementaryBudget.value = parseFloat(cleaned);
+};
 
 const finalizeHospital = () => {
-  if (!hospitalDisplay.value) return
-  const num = parseFloat(hospitalDisplay.value.replace(/,/g, ''))
-  if (isNaN(num)) return
-  hospitalDisplay.value = num.toLocaleString('en-US', {
+  if (!hospitalDisplay.value) return;
+  const num = parseFloat(hospitalDisplay.value.replace(/,/g, ""));
+  if (isNaN(num)) return;
+  hospitalDisplay.value = num.toLocaleString("en-US", {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  })
-  hospitalSupplementaryBudget.value = num
-}
+    maximumFractionDigits: 2,
+  });
+  hospitalSupplementaryBudget.value = num;
+};
 
 const handleAddBudgetSave = () => {
   if (!isAddFormValid.value) {
     $q.notify({
-      type: 'negative',
-      message: 'Please fill in all required fields',
-      position: 'top'
-    })
-    return
+      type: "negative",
+      message: "Please fill in all required fields",
+      position: "top",
+    });
+    return;
   }
-  showAddConfirmDialog.value = true
-}
+  showAddConfirmDialog.value = true;
+};
 
 const confirmAddBudget = async () => {
-  addBudgetLoading.value = true
+  addBudgetLoading.value = true;
 
   try {
-    const formData = new FormData()
-    formData.append('year', yearValue.value)
-    formData.append('date_added', dateValue.value)
-    formData.append('medicine_supplementary_bonus', medicineSupplementaryBudget.value)
-    formData.append('laboratory_supplementary_bonus', laboratorySupplementaryBudget.value)
-    formData.append('hospital_supplementary_bonus', hospitalSupplementaryBudget.value)
-    formData.append('performed_by', userData.USERNAME)
+    const formData = new FormData();
+    formData.append("year", yearValue.value);
+    formData.append("date_added", dateValue.value);
+    formData.append(
+      "medicine_supplementary_bonus",
+      medicineSupplementaryBudget.value,
+    );
+    formData.append(
+      "laboratory_supplementary_bonus",
+      laboratorySupplementaryBudget.value,
+    );
+    formData.append(
+      "hospital_supplementary_bonus",
+      hospitalSupplementaryBudget.value,
+    );
+    formData.append("performed_by", userData.USERNAME);
 
-    await axios.post('/api/add-supplementary-bonus', formData)
+    await axios.post("/api/add-supplementary-bonus", formData);
 
     $q.notify({
-      type: 'positive',
-      message: 'Supplementary bonus added successfully',
-      position: 'top'
-    })
+      type: "positive",
+      message: "Supplementary bonus added successfully",
+      position: "top",
+    });
 
-    showAddConfirmDialog.value = false
-    showAddBudgetDialog.value = false
+    showAddConfirmDialog.value = false;
+    showAddBudgetDialog.value = false;
 
     // Refresh supplementary budget table
-    await getSupplementaryBudget()
+    await getSupplementaryBudget();
   } catch (err) {
-    console.error('Error adding supplementary bonus:', err)
+    console.error("Error adding supplementary bonus:", err);
     $q.notify({
-      type: 'negative',
-      message: 'Failed to add supplementary bonus',
-      position: 'top'
-    })
+      type: "negative",
+      message: "Failed to add supplementary bonus",
+      position: "top",
+    });
   } finally {
-    addBudgetLoading.value = false
+    addBudgetLoading.value = false;
   }
-}
+};
 </script>
 
 <style scoped>
@@ -844,5 +1049,62 @@ const confirmAddBudget = async () => {
 .dialog-cancel-btn .q-icon,
 .dialog-goback-btn .q-icon {
   margin-right: 6px;
+}
+
+.transfer-budget-dialog {
+  min-width: 500px;
+}
+
+.add-budget-dialog {
+  min-width: 500px;
+}
+
+@media (min-width: 360px) and (max-width: 599px) {
+  .budget-table :deep(.q-table__title) {
+    font-size: 25px;
+  }
+
+  .transfer-btn {
+    width: 25px;
+    height: 25px;
+    font-size: 10px;
+    justify-content: center;
+    justify-self: center;
+    margin-left: 10px;
+  }
+
+  .transfer-budget-dialog {
+    min-width: 0px;
+  }
+
+  .add-btn {
+    width: 25px;
+    height: 25px;
+    font-size: 10px;
+    justify-content: center;
+    justify-self: center;
+  }
+
+  .add-budget-dialog {
+    min-width: 0px;
+  }
+
+  .dialog-header-transfer h4 {
+    font-size: 18px;
+  }
+
+  .budget-block h3 {
+    font-size: 17px;
+  }
+
+  .validation-message {
+    font-size: 14px;
+  }
+
+  .dialog-cancel-btn,
+  .dialog-goback-btn {
+    padding: 6px 16px;
+    font-size: 14px;
+  }
 }
 </style>

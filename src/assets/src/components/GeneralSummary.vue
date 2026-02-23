@@ -1534,4 +1534,160 @@ const getPatientNumber = (patientId) => {
 .text-grey-6 {
   color: rgba(0, 0, 0, 0.54);
 }
+@media screen and (max-width: 1200px) {
+  .filters-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    gap: 8px;
+    align-items: end;
+  }
+
+  .filters-group {
+    display: contents;
+  }
+
+  .filter-date {
+    grid-column: 1 / -1;
+  }
+
+  .filter-item {
+    min-width: 0;
+  }
+
+  .csv-button-wrapper {
+    min-width: 0;
+    margin-left: 0;
+  }
+
+  .csv-button {
+    width: 100%;
+    min-width: 0;
+  }
+}
+@media screen and (max-width: 766px) {
+  .filters-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 8px;
+    align-items: end;
+  }
+
+  .filters-group {
+    display: contents;
+  }
+
+  .filter-date {
+    grid-column: 1 / -1;
+  }
+
+  .filter-item {
+    min-width: 0;
+  }
+
+  .csv-button-wrapper {
+    min-width: 0;
+    margin-left: 0;
+  }
+
+  .csv-button {
+    width: 100%;
+    min-width: 0;
+  }
+}
+@media screen and (max-width: 480px) {
+  /* FILTERS */
+  .filters-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 8px;
+    align-items: end;
+  }
+
+  .filters-group {
+    display: contents;
+  }
+
+  .filter-date {
+    grid-column: 1 / -1;
+  }
+
+  .filter-item {
+    min-width: 0;
+  }
+
+  .csv-button-wrapper {
+    min-width: 0;
+    margin-left: 130px;
+  }
+
+  .csv-button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* TABLE CONTAINER — tall enough to show 5 full records */
+  .table-container {
+    height: 600px;      /* 48px month header + 48px col header + (48px × 5 rows) × 2 sections */
+    min-height: 600px;
+    max-height: 600px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .scrollable-wrapper {
+    flex-direction: column;
+    overflow: auto;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .left-section {
+    width: 100% !important;
+    border-right: none;
+    border-bottom: 3px solid #1f8f2e;
+    overflow: auto;
+    height: 400px;      /* exactly: 48px + 48px header + 5 × 48px rows = 265px */
+    min-height: 0;
+    flex-shrink: 0;
+  }
+
+  .section-divider {
+    display: none;
+  }
+
+  .right-section {
+    width: 100% !important;
+    overflow: auto;
+    height: 400px;      /* same as left */
+    min-height: 0;
+    flex-shrink: 0;
+  }
+
+  .horizontal-scroll {
+    overflow: auto;
+    height: 100%;
+    min-height: 0;
+  }
+
+  /* TABLE FONT */
+  .data-table {
+    font-size: 11px;
+  }
+
+  .data-table thead tr:last-child th {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+
+  .data-table td {
+    padding: 8px 10px;
+    height: 48px;
+    font-size: 11px;
+  }
+}
 </style>

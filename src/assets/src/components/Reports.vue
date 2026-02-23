@@ -105,4 +105,30 @@ background-color: #1f8f2e;
 .budget-summary-view .head {
  background-color: #1f8f2e;
 }
+@media screen and (max-width: 480px) {
+  .head {
+    font-size: 20px;
+    padding: 5px 8px;
+    margin-bottom: -60px;
+  }
+
+  .title {
+    width: auto;
+    font-size: 18px;
+  }
+
+  .tabs {
+    padding: 6px 4px;
+    gap: 4px;
+  }
+
+  .tab-btn {
+    font-size: 10px;
+    padding: 4px 6px;
+  }
+
+  .tab-btn :deep(.q-btn__content) {
+    font-size: 10px;
+  }
+}
 </style>

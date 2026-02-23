@@ -30,7 +30,7 @@
       </div>
       <div class="footer">
   <span class="copyright">© 2026 MAMs</span>
-  <span class="version">V 1.2.2</span>
+  <span class="version">V 1.3.2</span>
 </div>
     </q-form>
   </div>

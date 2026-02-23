@@ -777,4 +777,103 @@ onUnmounted(() => {
 .q-mt-lg {
   margin-top: 24px;
 }
+@media screen and (max-width: 647px) {
+  .page-bg {
+    padding: 16px;
+  }
+
+  .parent-title {
+    font-size: 22px;
+  }
+
+  .parent-container {
+    padding: 16px;
+  }
+
+  .fieldset-title {
+    font-size: 22px;
+  }
+
+  .fieldset-header {
+    margin: -16px -16px 16px -16px;
+  }
+
+  .form-container {
+    padding: 16px;
+  }
+
+  .row.q-col-gutter-md {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .col-4 {
+    width: 33.33% !important;
+    max-width: 33.33% !important;
+    flex: 1 1 0 !important;
+    padding: 0 !important;
+    margin-bottom: 5px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .action-buttons .q-btn {
+    width: 100%;
+  }
+}
+@media screen and (max-width: 531px) {
+  .page-bg {
+    padding: 16px;
+  }
+
+  .parent-title {
+    font-size: 22px;
+  }
+
+  .parent-container {
+    padding: 16px;
+  }
+
+  .fieldset-title {
+    font-size: 22px;
+  }
+
+  .fieldset-header {
+    margin: -16px -16px 16px -16px;
+  }
+
+  .form-container {
+    padding: 16px;
+  }
+
+  .row.q-col-gutter-md {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 8px;
+  }
+
+  .col-4 {
+    width: 70% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+    padding: 0 !important;
+    margin-bottom: 5px;
+    margin-left: 10%;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .action-buttons .q-btn {
+    width: 100%;
+  }
+}
 </style>
