@@ -76,41 +76,20 @@
         <div class="label-tag">✦ From The Team</div>
         <h2 class="section-heading">Their Words</h2>
 
-        <div class="masonry-grid">
-          <!-- LEFT COLUMN: indexes 0,2,4,6,8 -->
-          <div class="masonry-col">
-            <div
-              v-for="(member, index) in leftColumn"
-              :key="'left-' + index"
-              class="member-dedication-card"
-            >
-              <div class="member-dedi-header">
-                <img :src="member.photo" :alt="member.name" class="member-dedi-photo" @error="onImgError($event)" />
-                <div class="member-dedi-meta">
-                  <div class="member-dedi-name">{{ member.name }}</div>
-                  <div class="member-dedi-role">{{ member.role }}</div>
-                </div>
+        <div class="dedication-grid">
+          <div
+            v-for="(member, index) in members"
+            :key="'dedi-' + index"
+            class="member-dedication-card"
+          >
+            <div class="member-dedi-header">
+              <img :src="member.photo" :alt="member.name" class="member-dedi-photo" @error="onImgError($event)" />
+              <div class="member-dedi-meta">
+                <div class="member-dedi-name">{{ member.name }}</div>
+                <div class="member-dedi-role">{{ member.role }}</div>
               </div>
-              <p class="member-dedi-text">{{ member.dedication }}</p>
             </div>
-          </div>
-
-          <!-- RIGHT COLUMN: indexes 1,3,5,7,9 -->
-          <div class="masonry-col">
-            <div
-              v-for="(member, index) in rightColumn"
-              :key="'right-' + index"
-              class="member-dedication-card"
-            >
-              <div class="member-dedi-header">
-                <img :src="member.photo" :alt="member.name" class="member-dedi-photo" @error="onImgError($event)" />
-                <div class="member-dedi-meta">
-                  <div class="member-dedi-name">{{ member.name }}</div>
-                  <div class="member-dedi-role">{{ member.role }}</div>
-                </div>
-              </div>
-              <p class="member-dedi-text">{{ member.dedication }}</p>
-            </div>
+            <p class="member-dedi-text">{{ member.dedication }}</p>
           </div>
         </div>
 
@@ -124,11 +103,13 @@
         <h2 class="section-heading light">Thank You</h2>
         <div class="thankyou-body">
           <p class="thankyou-text">
-            We sincerely thank Sir Briones for his patience, guidance, and unwavering support throughout our immersion journey, teaching us not only how to develop MAMS effectively but also important lessons about perseverance, professionalism, and creating user-friendly systems. We are also grateful to Sir Jugz, who patiently assisted us through every change, never complained, and helped us learn new programming languages along the way. Our thanks also go to Ma’am Justy, Ma’am Alex, Sir Danielle, and all the workers in the Command Center for their kindness, support, and encouragement, which motivated us to keep striving every day. Finally, we are thankful for the opportunity to contribute to a system that helps the Aksyon Agad Team serve the community more efficiently.
+            We sincerely thank Sir Briones for his patience, guidance, and unwavering support throughout our immersion journey, teaching us not only how to develop MAMS effectively but also important lessons about perseverance, professionalism, and creating user-friendly systems. We are also grateful to Sir Jugz, who patiently assisted us through every change, never complained, and helped us learn new programming languages along the way. Our thanks also go to Ma'am Justy, Ma'am Alex, Sir Danielle, and all the workers in the Command Center for their kindness, support, and encouragement, which motivated us to keep striving every day. Finally, we are thankful for the opportunity to contribute to a system that helps the Aksyon Agad Team serve the community more efficiently.
 
           </p>
           <div class="thankyou-divider" />
-  <div class="thankyou-signature">— FROM THE TNTS COMPUTER PROGRAMMING IMMERSIONISTS</div>
+  <div class="thankyou-signature">— FROM THE TNTS COMPUTER PROGRAMMING IMMERSIONISTS
+    <p>-2026-</p>
+  </div>
         </div>
       </div>
     </div>
@@ -137,7 +118,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 
 const members = ref([
   {
@@ -179,9 +160,7 @@ const members = ref([
   {
     name: 'FREDDIE ANGELLA BULADACO',
     role: 'PRINT FEATURE',
-    dedication: `4:13 PM
-Angela
-My experience at the City Government of Tagum was truly the highlight of my school year. It was more than just an opportunity it was a time of growth, learning, and self-discovery. I developed discipline, teamwork, and confidence, and learned to approach every task with purpose. One lesson that will always stay with me is to put myself in the shoes of the users, which changed the way I think and work. I am deeply grateful for this experience, which has left a lasting mark on both my personal and professional journey.`,
+    dedication: `My experience at the City Government of Tagum was truly the highlight of my school year. It was more than just an opportunity it was a time of growth, learning, and self-discovery. I developed discipline, teamwork, and confidence, and learned to approach every task with purpose. One lesson that will always stay with me is to put myself in the shoes of the users, which changed the way I think and work. I am deeply grateful for this experience, which has left a lasting mark on both my personal and professional journey.`,
     photo: new URL('../assets/angela.jpg', import.meta.url).href
   },
   {
@@ -204,10 +183,6 @@ Management Office under the City Government of Tagum, I am truly grateful for th
     photo: new URL('../assets/llena.jpg', import.meta.url).href
   },
 ])
-
-// Even indexes → left column, odd indexes → right column
-const leftColumn  = computed(() => members.value.filter((_, i) => i % 2 === 0))
-const rightColumn = computed(() => members.value.filter((_, i) => i % 2 !== 0))
 
 const onImgError = (e) => {
   e.target.src = 'https://via.placeholder.com/300x300?text=No+Photo'
@@ -316,6 +291,7 @@ const onImgError = (e) => {
   line-height: 1;
   margin-top: 1px;
 }
+
 /* ========================
    INTRO SECTION
 ======================== */
@@ -337,7 +313,7 @@ const onImgError = (e) => {
   max-width: 720px;
   margin: 0 auto 20px;
   text-align: justify;
-  text-align-last: center;   /* centers the last line of each paragraph */
+  text-align-last: center;
 }
 
 .intro-text strong {
@@ -363,6 +339,7 @@ const onImgError = (e) => {
   padding: 6px 14px;
   border-radius: 20px;
 }
+
 /* ========================
    SECTIONS
 ======================== */
@@ -481,22 +458,20 @@ const onImgError = (e) => {
 
 /* ========================
    MEMBER DEDICATIONS
+   — Uniform 2-column grid
+     All cards same width; text scrolls
+     inside a fixed-height scroll area
 ======================== */
 .member-dedication-section {
   background: #ffffff;
 }
 
-.masonry-grid {
+/* 2-column grid, all cells same height */
+.dedication-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-  align-items: start;
-}
-
-.masonry-col {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  align-items: stretch;   /* every cell stretches to match tallest in its row */
 }
 
 .member-dedication-card {
@@ -505,6 +480,9 @@ const onImgError = (e) => {
   padding: 20px;
   border: 1px solid rgba(31, 143, 46, 0.15);
   box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  /* Cards in the same row will share the same height automatically */
 }
 
 .member-dedi-header {
@@ -514,6 +492,8 @@ const onImgError = (e) => {
   margin-bottom: 14px;
   padding-bottom: 14px;
   border-bottom: 1px solid rgba(31, 143, 46, 0.15);
+  /* Header never shrinks */
+  flex-shrink: 0;
 }
 
 .member-dedi-photo {
@@ -548,6 +528,8 @@ const onImgError = (e) => {
   text-align: justify;
   font-weight: 300;
   margin: 0;
+  /* Let the text grow and fill available card space */
+  flex: 1;
 }
 
 /* ========================
@@ -561,7 +543,7 @@ const onImgError = (e) => {
 .thankyou-body {
   max-width: 680px;
   margin: 0 auto;
-  text-align: center;        /* center the whole block */
+  text-align: center;
 }
 
 .thankyou-text {
@@ -571,8 +553,9 @@ const onImgError = (e) => {
   font-weight: 300;
   font-style: normal;
   margin: 0 0 24px;
-  text-align: left;          /* paragraphs left-aligned within centered block */
+  text-align: left;
   letter-spacing: 0.2px;
+  text-align: justify;
 }
 
 .thankyou-signature {
@@ -581,6 +564,7 @@ const onImgError = (e) => {
   color: #7ddf7d;
   font-weight: 700;
 }
+
 .thankyou-divider {
   width: 60px;
   height: 2px;
@@ -593,9 +577,7 @@ const onImgError = (e) => {
 /* ========================
    RESPONSIVE
 ======================== */
-
 @media screen and (max-width: 900px) {
-  /* HERO */
   .hero {
     padding: 40px 16px 30px;
     display: flex;
@@ -629,31 +611,24 @@ const onImgError = (e) => {
     display: block;
   }
 
-  /* PHOTO GRID */
   .photo-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
   }
 
   .photo-name {
     font-size: 11px;
   }
 
-  /* DEDICATION CARDS */
-  .masonry-grid {
+  /* Stack dedication cards on smaller screens */
+  .dedication-grid {
     grid-template-columns: 1fr;
   }
 
-  .member-dedication-card {
-    width: 100%;
-    box-sizing: border-box;
-  }
-
   .member-dedi-text {
-    text-align: left;        /* justify can look bad on narrow mobile screens */
+    text-align: left;
   }
 
-  /* SECTIONS */
   .section {
     padding: 32px 12px;
   }
@@ -668,18 +643,17 @@ const onImgError = (e) => {
     display: block;
   }
 
-  /* INTRO TAGS */
   .intro-tags {
     flex-direction: column;
     align-items: center;
   }
 
-  /* THANK YOU */
   .thankyou-text {
     text-align: left;
     font-size: 13px;
   }
-.trade-group {
+
+  .trade-group {
     right: -14px;
   }
 
@@ -690,19 +664,9 @@ const onImgError = (e) => {
   .tm-mark {
     font-size: 7px;
   }
-
-  .photo-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-  }
-
-  .masonry-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media screen and (max-width: 600px) {
-  /* HERO */
   .hero {
     padding: 40px 16px 30px;
     display: flex;
@@ -736,7 +700,6 @@ const onImgError = (e) => {
     display: block;
   }
 
-  /* PHOTO GRID */
   .photo-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
@@ -746,21 +709,14 @@ const onImgError = (e) => {
     font-size: 11px;
   }
 
-  /* DEDICATION CARDS */
-  .masonry-grid {
+  .dedication-grid {
     grid-template-columns: 1fr;
   }
 
-  .member-dedication-card {
-    width: 100%;
-    box-sizing: border-box;
-  }
-
   .member-dedi-text {
-    text-align: left;        /* justify can look bad on narrow mobile screens */
+    text-align: left;
   }
 
-  /* SECTIONS */
   .section {
     padding: 32px 12px;
   }
@@ -775,18 +731,17 @@ const onImgError = (e) => {
     display: block;
   }
 
-  /* INTRO TAGS */
   .intro-tags {
     flex-direction: column;
     align-items: center;
   }
 
-  /* THANK YOU */
   .thankyou-text {
     text-align: left;
     font-size: 13px;
   }
-.trade-group {
+
+  .trade-group {
     right: -14px;
   }
 
@@ -800,7 +755,6 @@ const onImgError = (e) => {
 }
 
 @media screen and (max-width: 480px) {
-  /* HERO */
   .hero {
     padding: 40px 16px 30px;
     display: flex;
@@ -834,7 +788,6 @@ const onImgError = (e) => {
     display: block;
   }
 
-  /* PHOTO GRID */
   .photo-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
@@ -844,21 +797,14 @@ const onImgError = (e) => {
     font-size: 11px;
   }
 
-  /* DEDICATION CARDS */
-  .masonry-grid {
+  .dedication-grid {
     grid-template-columns: 1fr;
   }
 
-  .member-dedication-card {
-    width: 100%;
-    box-sizing: border-box;
-  }
-
   .member-dedi-text {
-    text-align: left;        /* justify can look bad on narrow mobile screens */
+    text-align: left;
   }
 
-  /* SECTIONS */
   .section {
     padding: 32px 12px;
   }
@@ -873,18 +819,17 @@ const onImgError = (e) => {
     display: block;
   }
 
-  /* INTRO TAGS */
   .intro-tags {
     flex-direction: column;
     align-items: center;
   }
 
-  /* THANK YOU */
   .thankyou-text {
     text-align: left;
     font-size: 13px;
   }
-.trade-group {
+
+  .trade-group {
     right: -14px;
   }
 
