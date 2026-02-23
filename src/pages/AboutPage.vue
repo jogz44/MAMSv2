@@ -24,7 +24,8 @@
     <h2 class="section-heading">THE PROGRAMMERS</h2>
     <p class="intro-text">
       We are a group of Grade 12 Computer Programming students from <strong>Tagum National Trade School</strong>,
-      currently completing our immersion at the <strong>City Government of Tagum — City Information Communication and Technology Management Office DEPARTMENT</strong>.
+      currently completing our immersion at the <strong>City Government of Tagum — Information and Communications Technology and Computer
+Management Office DEPARTMENT</strong>.
       Over the course of one month, we were tasked to design, develop, and deploy <strong>MAMS
       (Medical Assistance Monitoring System)</strong> — a platform built to help the Aksyon Agad Team
       manage and monitor medical assistance requests more efficiently and effectively.
