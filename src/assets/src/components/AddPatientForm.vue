@@ -881,13 +881,14 @@ const formatPhoneNumber = (phone) => {
   return phone.length === 11 ? `${phone.substring(0, 4)} ${phone.substring(4, 7)} ${phone.substring(7)}` : phone
 }
 
-// ── SEARCH COMPUTED ──
-// Adds same_category_ineligible flag: patient is ineligible AND their last GL was under the current category
 const filteredSearchResults = computed(() => {
   const searchField = activeSearchField.value
-  let searchValue = searchField === 'lastname' ? lastNameValue.value : searchField === 'firstname' ? firstNameValue.value : middleNameValue.value
+  let searchValue = searchField === 'lastname' ? lastNameValue.value 
+    : searchField === 'firstname' ? firstNameValue.value 
+    : middleNameValue.value
   if (!searchValue || searchValue.trim().length < 2) return []
   const query = searchValue.toLowerCase().trim()
+  
   return patientSearchResults.value
     .filter(p => {
       if (searchField === 'lastname') return (p.lastname || '').toLowerCase().startsWith(query)
@@ -895,16 +896,24 @@ const filteredSearchResults = computed(() => {
       if (searchField === 'middlename') return (p.middlename || '').toLowerCase().startsWith(query)
       return false
     })
-    .map(p => ({
-      ...p,
-      // Hard-blocked if ineligible AND the last GL was under the same category being issued
-      same_category_ineligible: !p.eligible && p.last_category === categoryValue.value
-    }))
+    .map(p => {
+      // Check eligibility specifically for the currently selected category
+      const catElig = p.category_eligibility?.[categoryValue.value]
+      const same_category_ineligible = catElig ? !catElig.eligible : false
+
+      return {
+        ...p,
+        same_category_ineligible,
+        // Override eligibility display info with category-specific data if available
+        eligible: same_category_ineligible ? false : p.eligible,
+        eligibility_date: same_category_ineligible ? catElig.eligibility_date : p.eligibility_date,
+        days_remaining: same_category_ineligible ? catElig.days_remaining : p.days_remaining,
+        gl_no: same_category_ineligible ? catElig.gl_no : p.gl_no,
+      }
+    })
     .sort((a, b) => {
-      // Eligible first
       if (a.eligible && !b.eligible) return -1
       if (!a.eligible && b.eligible) return 1
-      // Among ineligibles: other-category (selectable/orange) before same-category (blocked/red)
       if (!a.same_category_ineligible && b.same_category_ineligible) return -1
       if (a.same_category_ineligible && !b.same_category_ineligible) return 1
       return a.lastname.localeCompare(b.lastname)
