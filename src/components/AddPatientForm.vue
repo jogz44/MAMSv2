@@ -53,13 +53,13 @@
                         </div>
                         <div class="detail-row-dropdown">
                           <span><strong>Birthdate:</strong> {{ patient.birthdate ? formatDate(patient.birthdate) : 'N/A'
-                          }}</span>
+                            }}</span>
                           <span><strong>Age:</strong> {{ patient.birthdate ? calculateAgeFromDate(patient.birthdate) :
                             'N/A'
-                          }}</span>
+                            }}</span>
                         </div>
                         <div class="detail-row-dropdown"><span><strong>Address:</strong> {{ formatAddress(patient)
-                        }}</span></div>
+                            }}</span></div>
                         <div class="detail-row-dropdown"><span><strong>Phone Number:</strong> {{
                           formatPhoneNumber(patient.phone_number) }}</span></div>
                         <div class="detail-row-dropdown" v-if="patient.last_issued_at">
@@ -128,13 +128,13 @@
                         </div>
                         <div class="detail-row-dropdown">
                           <span><strong>Birthdate:</strong> {{ patient.birthdate ? formatDate(patient.birthdate) : 'N/A'
-                          }}</span>
+                            }}</span>
                           <span><strong>Age:</strong> {{ patient.birthdate ? calculateAgeFromDate(patient.birthdate) :
                             'N/A'
-                          }}</span>
+                            }}</span>
                         </div>
                         <div class="detail-row-dropdown"><span><strong>Address:</strong> {{ formatAddress(patient)
-                        }}</span></div>
+                            }}</span></div>
                         <div class="detail-row-dropdown"><span><strong>Phone Number:</strong> {{
                           formatPhoneNumber(patient.phone_number) }}</span></div>
                         <div class="detail-row-dropdown" v-if="patient.last_issued_at">
@@ -202,13 +202,13 @@
                         </div>
                         <div class="detail-row-dropdown">
                           <span><strong>Birthdate:</strong> {{ patient.birthdate ? formatDate(patient.birthdate) : 'N/A'
-                          }}</span>
+                            }}</span>
                           <span><strong>Age:</strong> {{ patient.birthdate ? calculateAgeFromDate(patient.birthdate) :
                             'N/A'
-                          }}</span>
+                            }}</span>
                         </div>
                         <div class="detail-row-dropdown"><span><strong>Address:</strong> {{ formatAddress(patient)
-                        }}</span></div>
+                            }}</span></div>
                         <div class="detail-row-dropdown"><span><strong>Phone Number:</strong> {{
                           formatPhoneNumber(patient.phone_number) }}</span></div>
                         <div class="detail-row-dropdown" v-if="patient.last_issued_at">
@@ -491,7 +491,7 @@
                     <div class="info-item"><strong>Sector:</strong> {{ originalSectorValue }}</div>
                     <div class="info-item info-item-full"><strong>Address:</strong> {{
                       formatAddress(selectedBrowserPatient)
-                    }}</div>
+                      }}</div>
                     <div class="info-item"><strong>Phone Number:</strong> {{
                       formatPhoneNumber(selectedBrowserPatient.phone_number) }}</div>
                   </div>
@@ -517,7 +517,7 @@
                     <div class="info-item"><strong>Sector:</strong> {{ sectorValue }}</div>
                     <div class="info-item info-item-full"><strong>Address:</strong> {{ houseAddressValue }}, {{
                       barangayValue
-                    }}, {{ cityValue }}, {{ provinceValue }}</div>
+                      }}, {{ cityValue }}, {{ provinceValue }}</div>
                     <div class="info-item"><strong>Phone Number:</strong> {{ formatPhoneNumber(phoneNumberValue) }}
                     </div>
                   </div>
@@ -723,7 +723,7 @@
                 <q-icon name="article" size="md" color="green-7" />
                 <div class="option-title">Details Only</div>
                 <div class="option-description">Print just the patient details slip ({{ categoryValue?.toLowerCase()
-                }}details).</div>
+                  }}details).</div>
               </div>
               <div class="option-card" @click="printFullForm">
                 <q-icon name="description" size="md" color="blue-7" />
@@ -816,7 +816,15 @@ const houseAddressValue = ref(null)
 const phoneNumberValue = ref(null)
 const partnerValue = ref(null)
 const hospitalBillValue = ref(null)
-const issuedByValue = ref(JSON.parse(localStorage.getItem('user')).USERNAME)
+
+let raw = sessionStorage.getItem('user') || '{}'
+
+if (raw.startsWith('__q_objt|')) {
+  raw = raw.replace('__q_objt|', '')
+}
+
+
+const issuedByValue = ref(JSON.parse(raw).USERNAME)
 const glNum = ref(null)
 const clientLastNameValue = ref(null)
 const clientFirstNameValue = ref(null)
@@ -1302,8 +1310,9 @@ const submitForm = async (patientId = null, updatePatientInfo = false) => {
 const generatePDF = async (detailsOnly = false) => {
   pdfLoading.value = true
   try {
-    const fullFormMap = { MEDICINE: '/med.pdf', LABORATORY: '/lab.pdf', HOSPITAL: '/hosp.pdf' }
-    const detailsMap = { MEDICINE: '/detailsonly.pdf', LABORATORY: '/detailsonly.pdf', HOSPITAL: '/detailsonly.pdf' }
+    const fullFormMap = { MEDICINE: '/mams/med.pdf', LABORATORY: '/mams/lab.pdf', HOSPITAL: '/mams/hosp.pdf' }
+   // const detailsMap  = { MEDICINE: '/meddetails.pdf', LABORATORY: '/labdetails.pdf', HOSPITAL: '/hospdetails.pdf' }
+    const detailsMap = { MEDICINE: '/mams/detailsonly.pdf', LABORATORY: '/mams/detailsonly.pdf', HOSPITAL: '/mams/detailsonly.pdf' }
     const pdfFile = detailsOnly ? detailsMap[categoryValue.value] : fullFormMap[categoryValue.value]
     const existingPdfBytes = await fetch(pdfFile).then(res => res.arrayBuffer())
     const pdfDoc = await PDFDocument.load(existingPdfBytes)

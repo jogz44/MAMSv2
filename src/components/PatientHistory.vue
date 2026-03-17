@@ -293,7 +293,7 @@
             </template>
             <div>
               <div class="text-weight-bold text-red">Projected Balance: ₱{{ formatCurrency(budgetData.projectedBalance)
-                }}
+              }}
               </div>
             </div>
           </q-banner>
@@ -441,7 +441,7 @@
                 <span v-if="selectedRecord?.rawData?.client_lastname">
                   {{ selectedRecord.rawData.client_lastname }}, {{ selectedRecord.rawData.client_firstname }}
                   <span v-if="selectedRecord.rawData.client_middlename"> {{ selectedRecord.rawData.client_middlename
-                    }}</span>
+                  }}</span>
                   <span v-if="selectedRecord.rawData.client_suffix"> {{ selectedRecord.rawData.client_suffix }}</span>
                 </span>
                 <span v-else>N/A</span>
@@ -476,7 +476,7 @@
               </div>
               <div class="info-item" v-if="editData.category === 'HOSPITAL'">
                 <strong>Hospital Bill:</strong> {{ editData.hospitalBill ? '₱' + formatCurrency(editData.hospitalBill) :
-                'N/A' }}
+                  'N/A' }}
               </div>
               <div class="info-item" :class="{ 'info-item-full': editData.category !== 'HOSPITAL' }">
                 <strong>Issued Amount:</strong> ₱{{ formatCurrency(editData.issuedAmount) }}
@@ -541,9 +541,13 @@ import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
 import { toWords } from 'number-to-words'
 import { useQuasar } from 'quasar'
 
+import { useGeneratePDF } from 'src/composables/useGeneratePDF'
+
 const router = useRouter()
 const showDeleteDialog = ref(false)
 const deleteLoading = ref(false)
+
+const { generatePDF } = useGeneratePDF()
 
 dayjs.extend(isSameOrAfter)
 
@@ -551,7 +555,7 @@ const route = useRoute()
 const $q = useQuasar()
 const identifier = computed(() => route.params.glNum)
 
-const userData = JSON.parse(localStorage.getItem('user') || '{}')
+const userData = JSON.parse(sessionStorage.getItem('user') || '{}')
 const isAdmin = computed(() => userData?.ROLE === 'ADMIN')
 
 const formatDisplayDate = (date) => {
@@ -910,12 +914,12 @@ const enterEditMode = () => {
 // ── PRINT CHOICE HANDLERS ──
 const printDetailsOnly = async () => {
   showPrintChoiceDialog.value = false
-  await generatePDF(true)
+  await handleGeneratePDF(true)
 }
 
 const printFullForm = async () => {
   showPrintChoiceDialog.value = false
-  await generatePDF(false)
+  await handleGeneratePDF(false)
 }
 
 const cancelEdit = () => {
@@ -1051,82 +1055,126 @@ const confirmSave = async () => {
   }
 }
 
-const generatePDF = async (detailsOnly = false) => {
-  if (!selectedRecord.value) return
+// const generatePDF = async (detailsOnly = false) => {
+//   if (!selectedRecord.value) return
+//   pdfLoading.value = true
+
+//   try {
+//     const data = selectedRecord.value.rawData
+
+//     const fullFormMap = { MEDICINE: '/mams/med.pdf', LABORATORY: '/mams/lab.pdf', HOSPITAL: '/mams/hosp.pdf' }
+//     // const detailsMap  = { MEDICINE: '/meddetails.pdf', LABORATORY: '/labdetails.pdf', HOSPITAL: '/hospdetails.pdf' }
+//     const detailsMap = { MEDICINE: '/mams/detailsonly.pdf', LABORATORY: '/mams/detailsonly.pdf', HOSPITAL: '/mams/detailsonly.pdf' }
+//     const pdfPath = detailsOnly ? detailsMap[data.category] : fullFormMap[data.category]
+
+//     const existingPdfBytes = await fetch(pdfPath).then((res) => res.arrayBuffer())
+//     const pdfDoc = await PDFDocument.load(existingPdfBytes)
+//     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
+
+//     const amountWords = toWords(parseInt(data.issued_amount)).toUpperCase() + ' PESOS'
+//     const page = pdfDoc.getPages()[0]
+//     page.setSize(page.getWidth(), 1200)
+//     page.translateContent(0, 605)
+
+//     const parsedDate = new Date(data.date_issued)
+//     const dayNum = parsedDate.getDate() + getDaySuffix(parsedDate.getDate())
+//     const monthName = parsedDate.toLocaleString('default', { month: 'long' })
+
+//     const fullNameValue = data.patient_firstname +
+//       (data.patient_middlename ? " " + data.patient_middlename : "") +
+//       " " + data.patient_lastname +
+//       (data.patient_suffix ? " " + data.patient_suffix : "")
+
+//     let clientValue = fullNameValue
+//     if (data.client_lastname) {
+//       clientValue = data.client_firstname +
+//         (data.client_middlename ? " " + data.client_middlename : "") +
+//         " " + data.client_lastname +
+//         (data.client_suffix ? " " + data.client_suffix : "") +
+//         " / " + (data.relationship ? " " + data.relationship : "")
+//     }
+//     const fullAddressValue = data.house_address + ", " + data.barangay + ", " + data.city + ", " + data.province
+//     const age = calculateAge(data.birthdate)
+
+//     page.drawText(data.gl_no + ' / ' + data.partner, { x: 600, y: 489, size: 14, color: rgb(0, 0, 0), font: boldFont })
+//     page.drawText(fullNameValue.toUpperCase(), { x: 160, y: 375, size: 13, color: rgb(0, 0, 0), font: boldFont })
+
+//     if (age !== null) {
+//       page.drawText(String(age), { x: 545, y: 375, size: 13, color: rgb(0, 0, 0), font: boldFont })
+//     }
+
+//     page.drawText(data.sex.toUpperCase(), { x: 630, y: 375, size: 13, color: rgb(0, 0, 0), font: boldFont })
+//     page.drawText(fullAddressValue.toUpperCase(), { x: 120, y: 350, size: 13, color: rgb(0, 0, 0), font: boldFont })
+//     page.drawText(clientValue.toUpperCase(), { x: 70, y: 300, size: 13, color: rgb(0, 0, 0), font: boldFont })
+
+//     if (data.category == 'MEDICINE') {
+//       page.drawText(amountWords, { x: 310, y: 270, size: 13, color: rgb(0, 0, 0), font: boldFont })
+//     } else {
+//       page.drawText(amountWords, { x: 360, y: 270, size: 13, color: rgb(0, 0, 0), font: boldFont })
+//     }
+
+//     page.drawText(formatCurrency(data.issued_amount), { x: 340, y: 242, size: 14, color: rgb(0, 0, 0), font: boldFont })
+//     page.drawText(dayNum, { x: 170, y: 191, size: 13, color: rgb(0, 0, 0), font: boldFont })
+//     page.drawText(monthName.toUpperCase(), { x: 315, y: 191, size: 13, color: rgb(0, 0, 0), font: boldFont })
+//     page.drawText(data.issued_by.toUpperCase(), { x: 340, y: 65, size: 13, color: rgb(0, 0, 0), font: boldFont })
+
+//     const pdfBytes = await pdfDoc.save()
+//     const blob = new Blob([pdfBytes], { type: 'application/pdf' })
+//     const url = URL.createObjectURL(blob)
+//     window.open(url)
+
+//     $q.notify({ type: 'positive', message: 'PDF generated successfully', position: 'top' })
+//   } catch (error) {
+//     console.error('PDF generation error:', error)
+//     $q.notify({ type: 'negative', message: 'Failed to generate PDF', position: 'top' })
+//   } finally {
+//     pdfLoading.value = false
+//   }
+// }
+
+
+
+async function handleGeneratePDF(detailsOnly = false) {
   pdfLoading.value = true
+  const data = selectedRecord.value.rawData
 
   try {
-    const data = selectedRecord.value.rawData
-
-    const fullFormMap = { MEDICINE: '/med.pdf', LABORATORY: '/lab.pdf', HOSPITAL: '/hosp.pdf' }
-    // const detailsMap  = { MEDICINE: '/meddetails.pdf', LABORATORY: '/labdetails.pdf', HOSPITAL: '/hospdetails.pdf' }
-    const detailsMap = { MEDICINE: '/detailsonly.pdf', LABORATORY: '/detailsonly.pdf', HOSPITAL: '/detailsonly.pdf' }
-    const pdfPath = detailsOnly ? detailsMap[data.category] : fullFormMap[data.category]
-
-    const existingPdfBytes = await fetch(pdfPath).then((res) => res.arrayBuffer())
-    const pdfDoc = await PDFDocument.load(existingPdfBytes)
-    const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
-
-    const amountWords = toWords(parseInt(data.issued_amount)).toUpperCase() + ' PESOS'
-    const page = pdfDoc.getPages()[0]
-    page.setSize(page.getWidth(), 1200)
-    page.translateContent(0, 605)
-
-    const parsedDate = new Date(data.date_issued)
-    const dayNum = parsedDate.getDate() + getDaySuffix(parsedDate.getDate())
-    const monthName = parsedDate.toLocaleString('default', { month: 'long' })
-
-    const fullNameValue = data.patient_firstname +
-      (data.patient_middlename ? " " + data.patient_middlename : "") +
-      " " + data.patient_lastname +
-      (data.patient_suffix ? " " + data.patient_suffix : "")
-
-    let clientValue = fullNameValue
-    if (data.client_lastname) {
-      clientValue = data.client_firstname +
-        (data.client_middlename ? " " + data.client_middlename : "") +
-        " " + data.client_lastname +
-        (data.client_suffix ? " " + data.client_suffix : "") +
-        " / " + (data.relationship ? " " + data.relationship : "")
-    }
-    const fullAddressValue = data.house_address + ", " + data.barangay + ", " + data.city + ", " + data.province
-    const age = calculateAge(data.birthdate)
-
-    page.drawText(data.gl_no + ' / ' + data.partner, { x: 600, y: 489, size: 14, color: rgb(0, 0, 0), font: boldFont })
-    page.drawText(fullNameValue.toUpperCase(), { x: 160, y: 375, size: 13, color: rgb(0, 0, 0), font: boldFont })
-
-    if (age !== null) {
-      page.drawText(String(age), { x: 545, y: 375, size: 13, color: rgb(0, 0, 0), font: boldFont })
-    }
-
-    page.drawText(data.sex.toUpperCase(), { x: 630, y: 375, size: 13, color: rgb(0, 0, 0), font: boldFont })
-    page.drawText(fullAddressValue.toUpperCase(), { x: 120, y: 350, size: 13, color: rgb(0, 0, 0), font: boldFont })
-    page.drawText(clientValue.toUpperCase(), { x: 70, y: 300, size: 13, color: rgb(0, 0, 0), font: boldFont })
-
-    if (data.category == 'MEDICINE') {
-      page.drawText(amountWords, { x: 310, y: 270, size: 13, color: rgb(0, 0, 0), font: boldFont })
-    } else {
-      page.drawText(amountWords, { x: 360, y: 270, size: 13, color: rgb(0, 0, 0), font: boldFont })
-    }
-
-    page.drawText(formatCurrency(data.issued_amount), { x: 340, y: 242, size: 14, color: rgb(0, 0, 0), font: boldFont })
-    page.drawText(dayNum, { x: 170, y: 191, size: 13, color: rgb(0, 0, 0), font: boldFont })
-    page.drawText(monthName.toUpperCase(), { x: 315, y: 191, size: 13, color: rgb(0, 0, 0), font: boldFont })
-    page.drawText(data.issued_by.toUpperCase(), { x: 340, y: 65, size: 13, color: rgb(0, 0, 0), font: boldFont })
-
-    const pdfBytes = await pdfDoc.save()
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' })
-    const url = URL.createObjectURL(blob)
-    window.open(url)
+    await generatePDF({
+      category: data.category,
+      glNum: data.gl_no,
+      partner: data.partner,
+      firstName: data.patient_firstname,
+      middleName: data.patient_middlename,
+      lastName: data.patient_lastname,
+      suffix: data.patient_suffix,
+      age: calculateAge(data.birthdate),
+      sex: data.sex,
+      houseAddress: data.house_address,
+      barangay: data.barangay,
+      city: data.city,
+      province: data.province,
+      isSelf: editData.value.isChecked,
+      clientFirst: data.client_firstname,
+      clientMiddle: data.client_middlename,
+      clientLast: data.client_lastname,
+      clientSuffix: data.client_suffix,
+      relationship: data.relationship,
+      issuedAmount: data.issued_amount,
+      date: data.date_issued,
+      issuedBy: data.issued_by
+    }, detailsOnly)
 
     $q.notify({ type: 'positive', message: 'PDF generated successfully', position: 'top' })
   } catch (error) {
     console.error('PDF generation error:', error)
-    $q.notify({ type: 'negative', message: 'Failed to generate PDF', position: 'top' })
+    $q.notify({ type: 'negative', message: `Failed to generate PDF: ${error.message}`, position: 'top' })
   } finally {
     pdfLoading.value = false
   }
 }
+
+
+
 
 function getDaySuffix(day) {
   if (day > 3 && day < 21) return 'th'

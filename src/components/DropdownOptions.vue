@@ -228,7 +228,7 @@ import { api } from 'src/boot/axios'
 
 const axios = api
 const $q = useQuasar()
-const userData = JSON.parse(localStorage.getItem('user') || '{}')
+const userData = JSON.parse(sessionStorage.getItem('user') || '{}')
 
 // ===================== DATA =====================
 
@@ -702,6 +702,7 @@ onMounted(() => {
 .q-mb-md {
   margin-bottom: 16px;
 }
+
 @media screen and (max-width: 1156px) {
   .tables-row {
     grid-template-columns: minmax(280px, 1fr) minmax(280px, 1fr);
@@ -714,6 +715,7 @@ onMounted(() => {
     margin: 0 auto;
   }
 }
+
 @media screen and (max-width: 820px) {
   .tables-row {
     grid-template-columns: 1fr;
@@ -736,6 +738,7 @@ onMounted(() => {
     padding: 4px 10px;
   }
 }
+
 @media screen and (max-width: 480px) {
   .page-bg {
     padding: 16px;

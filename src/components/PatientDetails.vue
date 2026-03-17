@@ -206,9 +206,9 @@
               </div>
               <div class="info-item info-item-full">
                 <strong>Sectors:</strong>
-                {{ (originalPatientData.sector_ids || []).length
-                  ? allSectors.filter(s => (originalPatientData.sector_ids || []).includes(s.id)).map(s => s.sector).join(', ')
-                  : 'None' }}
+                {{(originalPatientData.sector_ids || []).length
+                  ? allSectors.filter(s => (originalPatientData.sector_ids || []).includes(s.id)).map(s =>
+                    s.sector).join(','): 'None' }}
               </div>
             </div>
           </div>
@@ -236,16 +236,17 @@
                 <strong>Preference:</strong> {{ preferenceValue || 'N/A' }}
               </div>
               <div class="info-item info-item-full">
-                <strong>Address:</strong> {{ houseAddressValue }}, {{ barangayValue }}, {{ cityValue }}, {{ provinceValue }}
+                <strong>Address:</strong> {{ houseAddressValue }}, {{ barangayValue }}, {{ cityValue }}, {{
+                provinceValue }}
               </div>
               <div class="info-item">
                 <strong>Phone:</strong> {{ formatPhoneNumber(phoneNumberValue) }}
               </div>
               <div class="info-item info-item-full">
                 <strong>Sectors:</strong>
-                {{ selectedSectorIds.length
+                {{selectedSectorIds.length
                   ? allSectors.filter(s => selectedSectorIds.includes(s.id)).map(s => s.sector).join(', ')
-                  : 'None' }}
+                  : 'None'}}
               </div>
             </div>
           </div>
@@ -720,7 +721,7 @@ const updatePatientInfo = async () => {
   formData.append('partner', partnerValue.value)
   formData.append('hospital_bill', hospitalBillValue.value || 0)
   formData.append('issued_amount', issuedAmountValue.value)
-  const user = JSON.parse(localStorage.getItem('user'))
+  const user = JSON.parse(sessionStorage.getItem('user'))
   formData.append('issued_by', user.USERNAME)
   formData.append('client_lastname', clientLastNameValue.value || '')
   formData.append('client_firstname', clientFirstNameValue.value || '')
@@ -733,7 +734,7 @@ const updatePatientInfo = async () => {
 }
 
 const updateTransactionDetails = async () => {
-  const user = JSON.parse(localStorage.getItem('user'))
+  const user = JSON.parse(sessionStorage.getItem('user'))
   const formData = new FormData()
   formData.append('identifier', glNum.value)
   formData.append('update_transaction_only', '1')

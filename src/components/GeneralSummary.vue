@@ -494,20 +494,20 @@ watch(categoryValue, (newVal, oldVal) => {
 })
 
 const saveFiltersToStorage = () => {
-  localStorage.setItem(STORAGE_KEYS.DATE_RANGE, JSON.stringify(dateRange.value))
-  localStorage.setItem(STORAGE_KEYS.CATEGORY, JSON.stringify(categoryValue.value))
-  localStorage.setItem(STORAGE_KEYS.PARTNER, JSON.stringify(partnerValue.value))
-  localStorage.setItem(STORAGE_KEYS.BARANGAY, JSON.stringify(barangayValue.value))
-  localStorage.setItem(STORAGE_KEYS.SECTOR, JSON.stringify(sectorValue.value))
+  sessionStorage.setItem(STORAGE_KEYS.DATE_RANGE, JSON.stringify(dateRange.value))
+  sessionStorage.setItem(STORAGE_KEYS.CATEGORY, JSON.stringify(categoryValue.value))
+  sessionStorage.setItem(STORAGE_KEYS.PARTNER, JSON.stringify(partnerValue.value))
+  sessionStorage.setItem(STORAGE_KEYS.BARANGAY, JSON.stringify(barangayValue.value))
+  sessionStorage.setItem(STORAGE_KEYS.SECTOR, JSON.stringify(sectorValue.value))
 }
 
 const loadFiltersFromStorage = () => {
   try {
-    const savedDateRange = localStorage.getItem(STORAGE_KEYS.DATE_RANGE)
-    const savedCategory = localStorage.getItem(STORAGE_KEYS.CATEGORY)
-    const savedPartner = localStorage.getItem(STORAGE_KEYS.PARTNER)
-    const savedBarangay = localStorage.getItem(STORAGE_KEYS.BARANGAY)
-    const savedSector = localStorage.getItem(STORAGE_KEYS.SECTOR)
+    const savedDateRange = sessionStorage.getItem(STORAGE_KEYS.DATE_RANGE)
+    const savedCategory = sessionStorage.getItem(STORAGE_KEYS.CATEGORY)
+    const savedPartner = sessionStorage.getItem(STORAGE_KEYS.PARTNER)
+    const savedBarangay = sessionStorage.getItem(STORAGE_KEYS.BARANGAY)
+    const savedSector = sessionStorage.getItem(STORAGE_KEYS.SECTOR)
 
     if (savedDateRange) dateRange.value = JSON.parse(savedDateRange)
     if (savedCategory) categoryValue.value = JSON.parse(savedCategory)
@@ -1534,6 +1534,7 @@ const getPatientNumber = (patientId) => {
 .text-grey-6 {
   color: rgba(0, 0, 0, 0.54);
 }
+
 @media screen and (max-width: 1200px) {
   .filters-container {
     display: grid;
@@ -1564,6 +1565,7 @@ const getPatientNumber = (patientId) => {
     min-width: 0;
   }
 }
+
 @media screen and (max-width: 766px) {
   .filters-container {
     display: grid;
@@ -1594,7 +1596,9 @@ const getPatientNumber = (patientId) => {
     min-width: 0;
   }
 }
+
 @media screen and (max-width: 480px) {
+
   /* FILTERS */
   .filters-container {
     display: grid;
@@ -1627,7 +1631,8 @@ const getPatientNumber = (patientId) => {
 
   /* TABLE CONTAINER — tall enough to show 5 full records */
   .table-container {
-    height: 600px;      /* 48px month header + 48px col header + (48px × 5 rows) × 2 sections */
+    height: 600px;
+    /* 48px month header + 48px col header + (48px × 5 rows) × 2 sections */
     min-height: 600px;
     max-height: 600px;
     overflow: hidden;
@@ -1651,7 +1656,8 @@ const getPatientNumber = (patientId) => {
     border-right: none;
     border-bottom: 3px solid #1f8f2e;
     overflow: auto;
-    height: 400px;      /* exactly: 48px + 48px header + 5 × 48px rows = 265px */
+    height: 400px;
+    /* exactly: 48px + 48px header + 5 × 48px rows = 265px */
     min-height: 0;
     flex-shrink: 0;
   }
@@ -1663,7 +1669,8 @@ const getPatientNumber = (patientId) => {
   .right-section {
     width: 100% !important;
     overflow: auto;
-    height: 400px;      /* same as left */
+    height: 400px;
+    /* same as left */
     min-height: 0;
     flex-shrink: 0;
   }

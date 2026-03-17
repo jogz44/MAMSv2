@@ -6,8 +6,9 @@
 
         <!-- SEARCH -->
         <div class="col-10">
-          <q-input v-model="search" placeholder="Search by name, barangay, sector, category, UUID, GL no., or date (YYYY-MM-DD)"
-            outlined dense clearable>
+          <q-input v-model="search"
+            placeholder="Search by name, barangay, sector, category, UUID, GL no., or date (YYYY-MM-DD)" outlined dense
+            clearable>
             <template #prepend>
               <q-icon name="search" />
             </template>
@@ -75,7 +76,7 @@ onMounted(async () => {
   await fetchSectors()
 
   // Restore saved search filter
-  const savedSearch = localStorage.getItem(STORAGE_KEY)
+  const savedSearch = sessionStorage.getItem(STORAGE_KEY)
   if (savedSearch && savedSearch !== 'null' && savedSearch !== '') {
     search.value = savedSearch
   }
@@ -84,7 +85,7 @@ onMounted(async () => {
     try {
       const res = await axios.get('/api/patients')
       rows.value = mapPatientsToRows(res.data)
-      
+
       // If there's a saved search, trigger the search
       if (savedSearch && savedSearch !== 'null' && savedSearch !== '') {
         const searchRes = await axios.get(
@@ -104,9 +105,9 @@ onMounted(async () => {
 // Save search filter before component unmounts
 onBeforeUnmount(() => {
   if (search.value && search.value !== '') {
-    localStorage.setItem(STORAGE_KEY, search.value)
+    sessionStorage.setItem(STORAGE_KEY, search.value)
   } else {
-    localStorage.removeItem(STORAGE_KEY)
+    sessionStorage.removeItem(STORAGE_KEY)
   }
 })
 
@@ -144,13 +145,13 @@ const mapPatientsToRows = (patients) => {
 }
 
 watch(search, async (val) => {
-  // Save to localStorage whenever search changes (only if not empty)
+  // Save to sessionStorage whenever search changes (only if not empty)
   if (val && val !== '') {
-    localStorage.setItem(STORAGE_KEY, val)
+    sessionStorage.setItem(STORAGE_KEY, val)
   } else {
-    localStorage.removeItem(STORAGE_KEY)
+    sessionStorage.removeItem(STORAGE_KEY)
   }
-  
+
   const res = await axios.get(
     '/api/patients/search',
     { params: { q: val || '' } }
@@ -219,6 +220,7 @@ watch(search, async (val) => {
   align-items: center;
   justify-content: center;
 }
+
 @media screen and (max-width: 1218px) {
   .toolbar-wrapper :deep(.row) {
     flex-direction: row;
@@ -275,6 +277,7 @@ watch(search, async (val) => {
     padding: 6px 8px;
   }
 }
+
 @media screen and (max-width: 480px) {
   .toolbar-wrapper :deep(.row) {
     flex-direction: row;

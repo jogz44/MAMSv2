@@ -5,7 +5,7 @@
 import YearlyBudgetField from 'src/components/YearlyBudgetField.vue';
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-const data = JSON.parse(localStorage.getItem('user'))
+const data = JSON.parse(sessionStorage.getItem('user'))
 const role = data.ROLE
 const router = useRouter()
 

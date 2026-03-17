@@ -114,7 +114,7 @@ const originalDays = ref(0)
 const showCancelDialog = ref(false)
 const showSaveDialog = ref(false)
 const saveLoading = ref(false)
-const userData = JSON.parse(localStorage.getItem('user') || '{}')
+const userData = JSON.parse(sessionStorage.getItem('user') || '{}')
 
 const handleCancel = () => {
   showCancelDialog.value = false
@@ -349,6 +349,7 @@ onMounted(async () => {
 .dialog-goback-btn .q-icon {
   margin-right: 6px;
 }
+
 @media screen and (max-width: 480px) {
   .page-bg {
     padding: 16px;

@@ -6,11 +6,7 @@
         <img class="logo2" src="../assets/logo12.png" alt="Logo2" />
       </div>
 
-      <LoginForm
-        @submit="handleLogin"
-        :loading="loading"
-        :errors="errors"
-      />
+      <LoginForm @submit="handleLogin" :loading="loading" :errors="errors" />
     </div>
   </div>
 </template>
@@ -20,7 +16,9 @@ import { ref } from "vue";
 import { api } from "boot/axios";
 import { useQuasar } from "quasar";
 import LoginForm from "components/LoginForm.vue";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const $q = useQuasar();
 const loading = ref(false);
 const errors = ref({});
@@ -34,7 +32,7 @@ const handleLogin = async (credentials) => {
 
     const response = await api.post('/api/login', credentials);
 
-    localStorage.setItem('user', JSON.stringify(response.data.user));
+    sessionStorage.setItem('user', JSON.stringify(response.data.user));
 
     $q.notify({
       type: 'positive',
@@ -47,7 +45,8 @@ const handleLogin = async (credentials) => {
     await new Promise(resolve => setTimeout(resolve, 500));
 
     // Force full page reload - this ensures session cookie is properly set
-    window.location.href = '/';
+    // window.location.href = '/';
+    router.push('/');
   } catch (error) {
     if (error.response?.data?.errors) {
       errors.value = error.response.data.errors;
@@ -116,6 +115,7 @@ const handleLogin = async (credentials) => {
   width: 510px;
   height: auto;
 }
+
 @media screen and (max-width: 1048px) {
   .page-wrapper {
     height: auto;
@@ -148,6 +148,7 @@ const handleLogin = async (credentials) => {
     margin-left: 0;
   }
 }
+
 @media screen and (max-width: 768px) {
   .page-wrapper {
     height: auto;
@@ -181,6 +182,7 @@ const handleLogin = async (credentials) => {
     margin-left: 0;
   }
 }
+
 @media screen and (max-width: 480px) {
   .page-wrapper {
     height: auto;

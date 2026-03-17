@@ -18,7 +18,7 @@ import DropdownOptions from 'src/components/DropdownOptions.vue'
 
 const router = useRouter()
 
-const data = JSON.parse(localStorage.getItem('user') || '{}')
+const data = JSON.parse(sessionStorage.getItem('user') || '{}')
 const role = data?.ROLE || ''
 
 onMounted(() => {

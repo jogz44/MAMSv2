@@ -2,7 +2,7 @@
   "name": "frontend",
   "version": "0.0.1",
   "description": "Frontend for MAMs",
-  "productName": "Quasar frontend",
+  "productName": "MAMS",
   "author": "Karl <ninjastarzz2243@gmail.com>",
   "type": "module",
   "private": true,
@@ -13,6 +13,7 @@
     "postinstall": "quasar prepare"
   },
   "dependencies": {
+    "@pdf-lib/fontkit": "^1.1.1",
     "@quasar/extras": "^1.16.4",
     "axios": "^1.13.2",
     "chart.js": "^4.5.1",

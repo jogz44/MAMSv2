@@ -84,7 +84,14 @@ import { api } from "src/boot/axios";
 
 const axios = api
 
-const data = JSON.parse(localStorage.getItem('user') || '{}')
+// const data = JSON.parse(sessionStorage.getItem('user') || '{}')
+let raw = sessionStorage.getItem('user') || '{}'
+
+if (raw.startsWith('__q_objt|')) {
+  raw = raw.replace('__q_objt|', '')
+}
+
+const data = JSON.parse(raw)
 const role = data?.ROLE || ''
 
 const drawer = ref(false);
@@ -98,19 +105,19 @@ const drawerWidth = computed(() => {
 })
 
 const user = computed(() => {
-  const userData = localStorage.getItem('user');
+  const userData = sessionStorage.getItem('user');
   return userData ? JSON.parse(userData) : null;
 });
 
 const logout = async () => {
   try {
-    const userData = JSON.parse(localStorage.getItem('user') || '{}')
+    const userData = JSON.parse(sessionStorage.getItem('user') || '{}')
     await axios.post('/api/logout', { username: userData?.USERNAME ?? 'Unknown' })
   } catch (err) {
     console.error('Logout request failed:', err)
   }
 
-  localStorage.removeItem('user')
+  sessionStorage.removeItem('user')
 
   $q.notify({
     type: 'positive',
@@ -131,7 +138,8 @@ const logout = async () => {
 
 .toolbar-title-responsive {
   padding: 0;
-  min-width: 0; /* prevents overflow pushing other elements */
+  min-width: 0;
+  /* prevents overflow pushing other elements */
 }
 
 /* ── Logo wrapper ── */

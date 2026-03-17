@@ -22,14 +22,14 @@ export default route(function (/* { store, ssrContext } */) {
       return next()
     }
 
-    // Check localStorage for auth state
-    const hasUser = localStorage.getItem('user') !== null
-    
+    // Check sessionStorage for auth state
+    const hasUser = sessionStorage.getItem('user') !== null
+
     if (requiresAuth && !hasUser) {
       // Protected route but no user - redirect to login
       return next('/login')
     }
-    
+
     if (requiresGuest && hasUser) {
       // Guest route (login) but user exists - redirect to dashboard
       return next('/')

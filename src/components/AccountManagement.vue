@@ -507,8 +507,8 @@ const logout = async (callBackend = true) => {
     }
   }
 
-  localStorage.removeItem('token')
-  localStorage.removeItem('user')
+  sessionStorage.removeItem('token')
+  sessionStorage.removeItem('user')
   sessionStorage.clear()
 
   $q.notify({
@@ -535,7 +535,7 @@ const fetchAccounts = async () => {
 }
 
 const getCurrentUser = () => {
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const user = JSON.parse(sessionStorage.getItem('user') || '{}')
   currentUserId.value = user.id || user.ID || null
   currentUserData.value = user
 }
@@ -777,6 +777,7 @@ onUnmounted(() => {
 .q-mt-lg {
   margin-top: 24px;
 }
+
 @media screen and (max-width: 647px) {
   .page-bg {
     padding: 16px;
@@ -827,6 +828,7 @@ onUnmounted(() => {
     width: 100%;
   }
 }
+
 @media screen and (max-width: 531px) {
   .page-bg {
     padding: 16px;
