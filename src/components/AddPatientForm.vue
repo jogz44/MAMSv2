@@ -750,17 +750,17 @@ const axios = api
 import { ref, computed, onMounted } from 'vue'
 import { date, useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
-import { toWords } from 'number-to-words'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
+import { useGeneratePDF } from 'src/composables/useGeneratePDF'
 
 dayjs.extend(relativeTime)
 dayjs.extend(customParseFormat)
 
 const router = useRouter()
 const $q = useQuasar()
+const { generatePDF: generateRecordPDF } = useGeneratePDF()
 
 // ── OPTIONS ──
 const categoryOptions = ['MEDICINE', 'LABORATORY', 'HOSPITAL']
@@ -1179,12 +1179,12 @@ const confirmFinalSave = async () => {
 // Step 4: Print choice (only shown when pendingAction === 'print')
 const printDetailsOnly = async () => {
   showPrintChoiceDialog.value = false
-  await generatePDF(true)
+  await handleGeneratePDF(true)
   router.push('/patient-records')
 }
 const printFullForm = async () => {
   showPrintChoiceDialog.value = false
-  await generatePDF(false)
+  await handleGeneratePDF(false)
   router.push('/patient-records')
 }
 
@@ -1307,55 +1307,34 @@ const submitForm = async (patientId = null, updatePatientInfo = false) => {
   }
 }
 
-const generatePDF = async (detailsOnly = false) => {
+const handleGeneratePDF = async (detailsOnly = false) => {
   pdfLoading.value = true
   try {
-    const fullFormMap = { MEDICINE: '/mams/med.pdf', LABORATORY: '/mams/lab.pdf', HOSPITAL: '/mams/hosp.pdf' }
-   // const detailsMap  = { MEDICINE: '/meddetails.pdf', LABORATORY: '/labdetails.pdf', HOSPITAL: '/hospdetails.pdf' }
-    const detailsMap = { MEDICINE: '/mams/detailsonly.pdf', LABORATORY: '/mams/detailsonly.pdf', HOSPITAL: '/mams/detailsonly.pdf' }
-    const pdfFile = detailsOnly ? detailsMap[categoryValue.value] : fullFormMap[categoryValue.value]
-    const existingPdfBytes = await fetch(pdfFile).then(res => res.arrayBuffer())
-    const pdfDoc = await PDFDocument.load(existingPdfBytes)
-    const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
-    const amountWords = toWords(parseInt(issuedAmountValue.value)).toUpperCase() + ' PESOS'
-    const page = pdfDoc.getPages()[0]
-    page.setSize(page.getWidth(), 1200)
-    page.translateContent(0, 605)
-    const parsedDate = new Date(dateToday.value)
-    const dayNum = parsedDate.getDate() + getDaySuffix(parsedDate.getDate())
-    const monthName = parsedDate.toLocaleString('default', { month: 'long' })
-    const fullAddressValue = [
-      houseAddressValue.value,
-      barangayValue.value,
-      cityValue.value,
-      provinceValue.value
-    ].filter(Boolean).join(', ')
+    await generateRecordPDF({
+      category: categoryValue.value,
+      glNum: glNum.value,
+      partner: partnerValue.value,
+      firstName: firstNameValue.value,
+      middleName: middleNameValue.value,
+      lastName: lastNameValue.value,
+      suffix: suffixValue.value,
+      age: ageValue.value,
+      sex: sexValue.value,
+      houseAddress: houseAddressValue.value,
+      barangay: barangayValue.value,
+      city: cityValue.value,
+      province: provinceValue.value,
+      isSelf: isChecked.value,
+      clientFirst: clientFirstNameValue.value,
+      clientMiddle: clientMiddleNameValue.value,
+      clientLast: clientLastNameValue.value,
+      clientSuffix: clientSuffixValue.value,
+      relationship: relationshipValue.value,
+      issuedAmount: issuedAmountValue.value,
+      date: dateToday.value,
+      issuedBy: issuedByValue.value
+    }, detailsOnly)
 
-    const fullNameValue = firstNameValue.value +
-      (middleNameValue.value ? ' ' + middleNameValue.value : '') + ' ' + lastNameValue.value +
-      (suffixValue.value ? ' ' + suffixValue.value : '')
-    const clientValue = isChecked.value ? fullNameValue :
-      clientFirstNameValue.value +
-      (clientMiddleNameValue.value ? ' ' + clientMiddleNameValue.value : '') +
-      ' ' + clientLastNameValue.value +
-      (clientSuffixValue.value ? ' ' + clientSuffixValue.value : '') +
-      ' / ' + (relationshipValue.value ? ' ' + relationshipValue.value : '')
-
-    const draw = (text, x, y, size = 13) => page.drawText(String(text ?? ''), { x, y, size, color: rgb(0, 0, 0), font: boldFont })
-    draw(glNum.value + ' / ' + partnerValue.value, 600, 489, 14)
-    draw(fullNameValue.toUpperCase(), 160, 375)
-    if (ageValue.value !== null) draw(String(ageValue.value), 545, 375)
-    draw(sexValue.value.toUpperCase(), 630, 375)
-    draw(fullAddressValue.toUpperCase(), 120, 350)
-    draw(clientValue.toUpperCase(), 70, 300)
-    draw(amountWords, categoryValue.value === 'MEDICINE' ? 310 : 360, 270)
-    draw(formatCurrency(issuedAmountValue.value), 340, 242, 14)
-    draw(dayNum, 170, 191)
-    draw(monthName.toUpperCase(), 315, 191)
-    draw(issuedByValue.value.toUpperCase(), 340, 65)
-
-    const blob = new Blob([await pdfDoc.save()], { type: 'application/pdf' })
-    window.open(URL.createObjectURL(blob))
     $q.notify({ type: 'positive', message: 'PDF generated successfully', position: 'top' })
   } catch (error) {
     console.error('PDF generation error:', error)
@@ -1363,11 +1342,6 @@ const generatePDF = async (detailsOnly = false) => {
   } finally {
     pdfLoading.value = false
   }
-}
-
-function getDaySuffix(day) {
-  if (day > 3 && day < 21) return 'th'
-  switch (day % 10) { case 1: return 'st'; case 2: return 'nd'; case 3: return 'rd'; default: return 'th' }
 }
 </script>
 
