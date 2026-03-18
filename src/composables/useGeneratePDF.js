@@ -71,7 +71,7 @@ async function renderForm(fields, category) {
   const page = pdfDoc.addPage([PAGE_W, PAGE_H])
 
   // Y positions from top — tweak TOP to shift everything
-  const TOP  = PAGE_H - 120   // top of first text line
+  const TOP  = PAGE_H - 138   // top of first text line
   const R1   = TOP            // "This will serve..."  line 1
   const R2   = R1  - LH      // "guarantee ___"  line 2
   const R3   = R2  - LH - 4  // "from ___"       line 3
@@ -82,7 +82,7 @@ async function renderForm(fields, category) {
   const R8   = R7  - LH - 14 // "Signed this..."  line 8
 
 
-page.drawText(fields.glAndPartner, { x: 460, y: 860, size: SZ_BOLD, font: bold, color: BLACK  })
+page.drawText(fields.glAndPartner, { x: 460, y: 848, size: SZ_BOLD, font: bold, color: BLACK  })
 page.drawText(fields.issuedBy, {  x: 265, y: R8-72, size: 7, font: bold, color: BLACK  })
 
   // ── LINE 1: "This will serve as notification that the City Mayor's Office will honor and" ──
