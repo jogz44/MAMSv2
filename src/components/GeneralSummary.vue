@@ -920,7 +920,7 @@ const downloadCSV = () => {
   const monthHeaders = ['', '', '', '', '', '', '', '']
   visibleMonths.value.forEach(monthYear => {
     const colspan = getMonthColspan()
-    monthHeaders.push(monthYear)
+    monthHeaders.push(`\t${monthYear}`)
     for (let i = 1; i < colspan; i++) {
       monthHeaders.push('')
     }
