@@ -1,12 +1,18 @@
 <template>
-  <div class="page-wrapper">
-    <div class="card">
-      <div class="intro">
-        <img class="logo" src="../assets/logo.png" alt="Logo" />
-        <img class="logo2" src="../assets/logo12.png" alt="Logo2" />
+  <div class="login-page">
+    <div class="login-shell">
+      <div class="visual-panel">
+        <img class="visual-image" :src="cityHallImage" alt="City Hall of Agum" />
+        <div class="visual-overlay">
+          <img class="visual-logo" :src="logoImage" alt="MAMS Logo" />
+        </div>
       </div>
-
-      <LoginForm @submit="handleLogin" :loading="loading" :errors="errors" />
+      <LoginForm
+        @submit="handleLogin"
+        @dev-team-click="handleDevTeamClick"
+        :loading="loading"
+        :errors="errors"
+      />
     </div>
   </div>
 </template>
@@ -17,6 +23,8 @@ import { api } from "boot/axios";
 import { useQuasar } from "quasar";
 import LoginForm from "components/LoginForm.vue";
 import { useRouter } from "vue-router";
+import cityHallImage from "src/assets/CityHallofagum.jpg";
+import logoImage from "src/assets/logo12.png";
 
 const router = useRouter();
 const $q = useQuasar();
@@ -63,157 +71,102 @@ const handleLogin = async (credentials) => {
     loading.value = false;
   }
 };
+
+const handleDevTeamClick = () => {
+  $q.notify({
+    type: 'info',
+    message: 'Dev Team details coming soon.',
+    position: 'top',
+    timeout: 1200
+  });
+};
 </script>
 
 <style scoped>
-.page-wrapper {
-  position: relative;
+.login-page {
+  min-height: 85vh;
+  width: 100%;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 80vh;
+  padding: 12px 18px;
+  box-sizing: border-box;
+  background: #ffffff;
 }
 
-.card {
-  position: relative;
-  width: 1000px;
-  height: 500px;
+.login-shell {
+  width: min(860px, 100%);
+  min-height: 430px;
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  background: #ffffff;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid #e1e7ee;
+  box-shadow: 0 12px 24px rgba(21, 45, 75, 0.08);
 }
 
-.intro {
+.visual-panel {
+  position: relative;
+  flex: 0 0 48%;
+  min-height: 430px;
+}
+
+.visual-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
   height: 100%;
-  width: 500px;
-  background: linear-gradient(to bottom right, #23b967 30%, #37b148 70%);
-  border-radius: 8px;
+  object-fit: cover;
+}
+
+.visual-overlay {
+  position: absolute;
+  inset: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
+  background: linear-gradient(180deg, rgba(4, 33, 76, 0.14) 0%, rgba(0, 0, 0, 0.10) 100%);
 }
 
-.logo {
-  align-items: center;
-  justify-content: center;
-  margin-top: 200px;
-  margin-bottom: -150px;
-  display: block;
-  width: 180px;
-  height: auto;
-  margin-left: 1px;
+.visual-logo {
+  width: min(68%, 320px);
+  object-fit: contain;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.34));
 }
 
-.logo2 {
-  margin-left: -30px;
-  display: block;
-  width: 510px;
-  height: auto;
-}
-
-@media screen and (max-width: 1048px) {
-  .page-wrapper {
-    height: auto;
-    min-height: 80vh;
-    justify-content: center;
-    padding: 20px;
+@media (max-width: 1100px) {
+  .login-shell {
+    min-height: 410px;
   }
 
-  .card {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-  }
-
-  .intro {
-    width: 100%;
-    height: auto;
-    padding: 30px 20px;
-    border-radius: 8px 8px 0 0;
-  }
-
-  .logo {
-    width: 150px;
-    margin-top: 15%;
-    margin-bottom: -13%;
-  }
-
-  .logo2 {
-    width: 340px;
-    margin-left: 0;
+  .visual-panel {
+    min-height: 410px;
   }
 }
 
-@media screen and (max-width: 768px) {
-  .page-wrapper {
-    height: auto;
-    min-height: 80vh;
-    justify-content: center;
-    padding: 20px;
+@media (max-width: 900px) {
+  .login-page {
+    padding: 18px;
   }
 
-  .card {
+  .login-shell {
     flex-direction: column;
+    min-height: initial;
+  }
+
+  .visual-panel {
     width: 100%;
-    height: auto;
-    border-radius: 8px;
+    min-height: 290px;
   }
 
-  .intro {
-    width: 100%;
-    height: auto;
-    padding: 30px 20px;
-    border-radius: 8px 8px 0 0;
-  }
-
-  .logo {
-    width: 150px;
-    margin-top: 15%;
-    margin-bottom: -13%;
-  }
-
-  .logo2 {
-    width: 340px;
-    margin-left: 0;
+  .visual-logo {
+    width: min(72%, 360px);
   }
 }
 
-@media screen and (max-width: 480px) {
-  .page-wrapper {
-    height: auto;
-    min-height: 100vh;
-    justify-content: center;
-    padding: 16px;
-  }
-
-  .card {
-    flex-direction: column;
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-  }
-
-  .intro {
-    width: 100%;
-    height: auto;
-    padding: 20px 16px;
-    border-radius: 8px 8px 0 0;
-  }
-
-  .logo {
-    width: 100px;
-    margin-top: 40px;
-    margin-bottom: -50px;
-  }
-
-  .logo2 {
-    width: 200px;
-    margin-left: 0;
+@media (max-width: 480px) {
+  .login-page {
+    padding: 14px;
   }
 }
 </style>
