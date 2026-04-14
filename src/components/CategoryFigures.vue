@@ -42,6 +42,14 @@
           </div>
           <div class="divider"></div>
 
+          <div class="card-row">
+            <div class="label">INVOICE AMOUNT</div>
+            <div class="value highlight-value">
+              {{ formatPeso(item.invoiceAmount) }}
+            </div>
+          </div>
+          <div class="divider"></div>
+
           <div class="remaining" :class="{ negative: item.remaining < 0 }">
             <div class="label remaining-label">REMAINING BALANCE</div>
             <div class="value remaining-value">
@@ -96,9 +104,9 @@ const axios = api
 import { Chart } from 'chart.js/auto'
 
 const categories = ref([
-  { name: 'MEDICINE', icon: 'medication', totalBudget: 0, totalPatients: 0, totalReleased: 0, remaining: 0 },
-  { name: 'LABORATORY', icon: 'science', totalBudget: 0, totalPatients: 0, totalReleased: 0, remaining: 0 },
-  { name: 'HOSPITAL', icon: 'local_hospital', totalBudget: 0, totalPatients: 0, totalReleased: 0, remaining: 0 }
+  { name: 'MEDICINE', icon: 'medication', totalBudget: 0, totalPatients: 0, totalReleased: 0, invoiceAmount: 0, remaining: 0 },
+  { name: 'LABORATORY', icon: 'science', totalBudget: 0, totalPatients: 0, totalReleased: 0, invoiceAmount: 0, remaining: 0 },
+  { name: 'HOSPITAL', icon: 'local_hospital', totalBudget: 0, totalPatients: 0, totalReleased: 0, invoiceAmount: 0, remaining: 0 }
 ])
 
 const totalPatients = ref(0)

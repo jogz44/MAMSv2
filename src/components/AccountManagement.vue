@@ -65,6 +65,43 @@
         </div>
       </div>
 
+      <!-- PHARMACIST ACCOUNTS -->
+      <div class="form-container q-mt-lg">
+        <q-form ref="pharmacistAccountForm">
+          <div class="fieldset-header">
+            <div class="fieldset-title">Pharmacist Accounts</div>
+          </div>
+
+          <div class="row q-col-gutter-md q-mb-lg">
+            <div class="col-6">
+              <label class="form-label">Name / Username <span class="required">*</span></label>
+              <q-input v-model="pharmacistName" type="text" dense outlined class="flat-input"
+                placeholder="Enter username" :rules="[val => !!val || 'This field is required']" />
+            </div>
+
+            <div class="col-6">
+              <label class="form-label">Password <span class="required">*</span></label>
+              <q-input v-model="pharmacistPassword" type="password" dense outlined class="flat-input"
+                placeholder="Enter password" :rules="[val => !!val || 'This field is required']" />
+            </div>
+          </div>
+
+          <div class="row q-mb-lg">
+            <div class="col-12">
+              <label class="form-label">Role</label>
+              <q-input model-value="PHARMACIST" dense outlined class="flat-input" readonly />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-12" style="text-align: right;">
+              <q-btn label="CREATE PHARMACIST ACCOUNT" icon="save" class="action-btn save-btn" dense
+                @click="showPharmacistCreateDialog" />
+            </div>
+          </div>
+        </q-form>
+      </div>
+
       <!-- CREATE ACCOUNT CONFIRMATION DIALOG -->
       <q-dialog v-model="createDialogVisible">
         <q-card style="min-width: 350px">
@@ -96,6 +133,41 @@
             <q-btn unelevated icon="close" label="NO" class="dialog-goback-btn" v-close-popup />
             <q-btn unelevated icon="check" label="YES" class="dialog-cancel-btn" @click="createAccount"
               :loading="createLoading" />
+            </q-card-actions>
+        </q-card>
+      </q-dialog>
+
+      <!-- PHARMACIST CREATE ACCOUNT CONFIRMATION DIALOG -->
+      <q-dialog v-model="pharmacistCreateDialogVisible">
+        <q-card style="min-width: 350px">
+          <q-card-section class="bg-blue-6 text-white">
+            <div class="text-h6">
+              <q-icon name="info" size="sm" class="q-mr-sm" />
+              Create Pharmacist Account?
+            </div>
+          </q-card-section>
+
+          <q-card-section class="q-pt-md">
+            <div class="text-subtitle1 q-mb-md">
+              Are you sure you want to create a pharmacist account with these details?
+            </div>
+
+            <div class="account-info-box">
+              <div class="info-item">
+                <strong>Username:</strong> {{ pharmacistName }}
+              </div>
+              <div class="info-item">
+                <strong>Role:</strong> PHARMACIST
+              </div>
+            </div>
+          </q-card-section>
+
+          <q-separator />
+
+          <q-card-actions align="right" class="q-px-md q-pb-md q-pt-md">
+            <q-btn unelevated icon="close" label="NO" class="dialog-goback-btn" v-close-popup />
+            <q-btn unelevated icon="check" label="YES" class="dialog-cancel-btn" @click="createPharmacistAccount"
+              :loading="pharmacistCreateLoading" />
           </q-card-actions>
         </q-card>
       </q-dialog>
@@ -238,17 +310,22 @@ const $q = useQuasar()
 const router = useRouter()
 
 const accountForm = ref(null)
+const pharmacistAccountForm = ref(null)
 const editForm = ref(null)
 
 const name = ref('')
 const password = ref('')
 const role = ref(null)
 const roles = ['ADMIN', 'EMPLOYEE']
+const pharmacistName = ref('')
+const pharmacistPassword = ref('')
 
 const createDialogVisible = ref(false)
+const pharmacistCreateDialogVisible = ref(false)
 const editDialogVisible = ref(false)
 const deleteDialogVisible = ref(false)
 const createLoading = ref(false)
+const pharmacistCreateLoading = ref(false)
 const editLoading = ref(false)
 const deleteLoading = ref(false)
 const accountToDelete = ref(null)
@@ -334,6 +411,21 @@ const showCreateDialog = async () => {
   }
 
   createDialogVisible.value = true
+}
+
+const showPharmacistCreateDialog = async () => {
+  const isValid = await pharmacistAccountForm.value.validate()
+
+  if (!isValid) {
+    $q.notify({
+      type: 'negative',
+      message: 'Please fill in all required fields',
+      position: 'top'
+    })
+    return
+  }
+
+  pharmacistCreateDialogVisible.value = true
 }
 
 const showEditDialog = (account) => {
@@ -454,6 +546,40 @@ const createAccount = async () => {
     })
   } finally {
     createLoading.value = false
+  }
+}
+
+const createPharmacistAccount = async () => {
+  pharmacistCreateLoading.value = true
+
+  try {
+    await axios.post('/api/new-account', {
+      username: pharmacistName.value,
+      password: pharmacistPassword.value,
+      role: 'PHARMACIST',
+      performed_by: currentUserData.value.USERNAME
+    })
+
+    $q.notify({
+      type: 'positive',
+      message: 'Pharmacist Account Created Successfully',
+      position: 'top'
+    })
+
+    pharmacistName.value = ''
+    pharmacistPassword.value = ''
+    pharmacistCreateDialogVisible.value = false
+
+    await fetchAccounts()
+  } catch (error) {
+    console.error('Error creating pharmacist account:', error)
+    $q.notify({
+      type: 'negative',
+      message: 'Error creating pharmacist account',
+      position: 'top'
+    })
+  } finally {
+    pharmacistCreateLoading.value = false
   }
 }
 
