@@ -18,19 +18,19 @@
             <div class="col-4">
               <label class="form-label">Name / Username <span class="required">*</span></label>
               <q-input v-model="name" type="text" dense outlined class="flat-input" placeholder="Enter username"
-                :rules="[val => !!val || 'This field is required']" />
+                :rules="[val => !!val || 'This field is required']" lazy-rules="ondemand" />
             </div>
 
             <div class="col-4">
               <label class="form-label">Password <span class="required">*</span></label>
               <q-input v-model="password" type="password" dense outlined class="flat-input" placeholder="Enter password"
-                :rules="[val => !!val || 'This field is required']" />
+                :rules="[val => !!val || 'This field is required']" lazy-rules="ondemand" />
             </div>
 
             <div class="col-4">
               <label class="form-label">Role <span class="required">*</span></label>
               <q-select v-model="role" :options="roles" dense outlined class="flat-input" placeholder="Select role"
-                :rules="[val => !!val || 'This field is required']" />
+                :rules="[val => !!val || 'This field is required']" lazy-rules="ondemand" />
             </div>
           </div>
 
@@ -49,7 +49,7 @@
         </div>
 
         <div class="table-wrapper">
-          <q-table :rows="accountRows" :columns="accountColumns" row-key="id" :rows-per-page-options="[0]"
+          <q-table :rows="accountRows" :columns="accountColumns" row-key="row_key" :rows-per-page-options="[0]"
             hide-pagination flat>
             <template #body-cell-action="props">
               <q-td :props="props">
@@ -73,23 +73,55 @@
           </div>
 
           <div class="row q-col-gutter-md q-mb-lg">
-            <div class="col-6">
+            <div class="col-12 col-md-4">
               <label class="form-label">Name / Username <span class="required">*</span></label>
               <q-input v-model="pharmacistName" type="text" dense outlined class="flat-input"
-                placeholder="Enter username" :rules="[val => !!val || 'This field is required']" />
+                placeholder="Enter username" :rules="[val => !!val || 'This field is required']" lazy-rules="ondemand" />
             </div>
 
-            <div class="col-6">
+            <div class="col-12 col-md-4">
               <label class="form-label">Password <span class="required">*</span></label>
               <q-input v-model="pharmacistPassword" type="password" dense outlined class="flat-input"
-                placeholder="Enter password" :rules="[val => !!val || 'This field is required']" />
+                placeholder="Enter password" :rules="[val => !!val || 'This field is required']" lazy-rules="ondemand" />
             </div>
           </div>
 
-          <div class="row q-mb-lg">
-            <div class="col-12">
-              <label class="form-label">Role</label>
-              <q-input model-value="PHARMACIST" dense outlined class="flat-input" readonly />
+          <div class="row q-col-gutter-md q-mb-lg">
+            <div class="col-12 col-md-4">
+              <label class="form-label">Category <span class="required">*</span></label>
+              <q-select
+                v-model="pharmacistCategory"
+                :options="pharmacistCategories"
+                dense
+                outlined
+                class="flat-input"
+                placeholder="Select category"
+                :rules="[val => !!val || 'This field is required']"
+                lazy-rules="ondemand"
+              />
+            </div>
+
+            <div class="col-12 col-md-4">
+              <label class="form-label">Partners <span class="required">*</span></label>
+              <div class="partner-checkbox-list">
+                <div v-if="selectedCategoryPartners.length">
+                  <q-checkbox
+                    v-for="partner in selectedCategoryPartners"
+                    :key="partner"
+                    v-model="pharmacistPartners"
+                    :val="partner"
+                    :label="partner"
+                    class="partner-checkbox"
+                    dense
+                  />
+                </div>
+                <div v-else class="partner-placeholder">
+                  Select a category to view partner list
+                </div>
+              </div>
+              <div v-if="pharmacistPartnerError" class="partner-error">
+                {{ pharmacistPartnerError }}
+              </div>
             </div>
           </div>
 
@@ -100,6 +132,22 @@
             </div>
           </div>
         </q-form>
+
+        <div class="table-wrapper q-mt-lg">
+          <q-table :rows="pharmacistAccountRows" :columns="accountColumns" row-key="row_key" :rows-per-page-options="[0]"
+            hide-pagination flat>
+            <template #body-cell-action="props">
+              <q-td :props="props">
+                <div class="action-buttons">
+                  <q-btn icon="edit" label="EDIT" color="orange" size="sm" unelevated
+                    @click="showEditDialog(props.row)" />
+                  <q-btn icon="delete" label="DELETE" color="red" size="sm" unelevated
+                    @click="showDeleteDialog(props.row)" />
+                </div>
+              </q-td>
+            </template>
+          </q-table>
+        </div>
       </div>
 
       <!-- CREATE ACCOUNT CONFIRMATION DIALOG -->
@@ -157,7 +205,10 @@
                 <strong>Username:</strong> {{ pharmacistName }}
               </div>
               <div class="info-item">
-                <strong>Role:</strong> PHARMACIST
+                <strong>Category:</strong> {{ pharmacistCategory }}
+              </div>
+              <div class="info-item">
+                <strong>Partners:</strong> {{ pharmacistPartners.length ? pharmacistPartners.join(', ') : 'None' }}
               </div>
             </div>
           </q-card-section>
@@ -193,8 +244,8 @@
               </div>
 
               <div class="edit-field">
-                <label>Role <span class="required">*</span></label>
-                <q-select v-model="editData.role" :options="roles" outlined dense
+                <label>Role / Category <span class="required">*</span></label>
+                <q-select v-model="editData.role" :options="editRoleOptions" outlined dense
                   :rules="[val => !!val || 'This field is required']" />
               </div>
 
@@ -267,7 +318,7 @@
                 <strong>Username:</strong> {{ accountToDelete.USERNAME }}
               </div>
               <div class="info-item">
-                <strong>Role:</strong> {{ accountToDelete.ROLE }}
+                <strong>Role / Category:</strong> {{ accountToDelete.ROLE }}
               </div>
             </div>
 
@@ -300,7 +351,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { api } from 'src/boot/axios'
@@ -319,6 +370,15 @@ const role = ref(null)
 const roles = ['ADMIN', 'EMPLOYEE']
 const pharmacistName = ref('')
 const pharmacistPassword = ref('')
+const pharmacistCategory = ref(null)
+const pharmacistPartners = ref([])
+const pharmacistPartnerError = ref('')
+const pharmacistCategories = ['MEDICINE', 'LABORATORY', 'HOSPITAL']
+const categoryPartners = {
+  MEDICINE: ['PHARMACITI', 'PRIOMED', 'QURESS'],
+  LABORATORY: ['CITY MED', 'LEXAS', 'MEDILIFE', 'PERPETUAL LAB'],
+  HOSPITAL: ['CHRIST THE KING', 'MEDICAL MISSION', 'TAGUM GLOBAL', 'TMC']
+}
 
 const createDialogVisible = ref(false)
 const pharmacistCreateDialogVisible = ref(false)
@@ -337,6 +397,7 @@ const currentUserData = ref({})
 
 const editData = ref({
   id: null,
+  dbSource: 'dummymamsdb',
   username: '',
   role: null,
   password: '',
@@ -344,19 +405,41 @@ const editData = ref({
 })
 
 const accountRows = ref([])
+const pharmacistAccountRows = ref([])
 const accountColumns = [
   { name: 'id', label: 'ID', field: 'ID', align: 'center', sortable: true },
   { name: 'username', label: 'Username', field: 'USERNAME', align: 'center', sortable: true },
-  { name: 'role', label: 'Role', field: 'ROLE', align: 'center', sortable: true },
+  { name: 'role', label: 'Role / Category', field: 'ROLE', align: 'center', sortable: true },
   { name: 'action', label: 'Action', field: 'action', align: 'center' }
 ]
 
+const editRoleOptions = computed(() => ['PHARMACIST', ...roles, ...pharmacistCategories])
+const selectedCategoryPartners = computed(() => {
+  return categoryPartners[pharmacistCategory.value] || []
+})
+
+watch(pharmacistCategory, () => {
+  pharmacistPartners.value = []
+  pharmacistPartnerError.value = ''
+}, { immediate: true })
+
+watch(pharmacistPartners, (val) => {
+  if (val.length > 0) {
+    pharmacistPartnerError.value = ''
+  }
+})
+
 const isEditingOwnAccount = computed(() => {
-  return currentUserId.value && editData.value.id === currentUserId.value
+  return currentUserId.value
+    && editData.value.id === currentUserId.value
+    && (editData.value.dbSource || 'dummymamsdb') === 'dummymamsdb'
 })
 
 const isDeletingOwnAccount = computed(() => {
-  return currentUserId.value && accountToDelete.value && accountToDelete.value.ID === currentUserId.value
+  return currentUserId.value
+    && accountToDelete.value
+    && accountToDelete.value.ID === currentUserId.value
+    && (accountToDelete.value.DB_SOURCE || 'dummymamsdb') === 'dummymamsdb'
 })
 
 const passwordRules = computed(() => {
@@ -380,8 +463,10 @@ const startSessionCheck = () => {
   sessionCheckInterval = setInterval(async () => {
     try {
       const res = await axios.get('/api/accounts')
-      const accounts = res.data[0]
-      const stillExists = accounts.some(a => a.ID === currentUserId.value)
+      const accounts = Array.isArray(res.data[0]) ? res.data[0] : []
+      const stillExists = accounts.some(
+        a => a.ID === currentUserId.value && (a.DB_SOURCE || 'dummymamsdb') === 'dummymamsdb'
+      )
       if (!stillExists) {
         clearInterval(sessionCheckInterval)
         $q.notify({
@@ -425,12 +510,24 @@ const showPharmacistCreateDialog = async () => {
     return
   }
 
+  if (!pharmacistPartners.value.length) {
+    pharmacistPartnerError.value = 'Please select at least one partner'
+    $q.notify({
+      type: 'negative',
+      message: 'Please select at least one partner',
+      position: 'top'
+    })
+    return
+  }
+
+  pharmacistPartnerError.value = ''
   pharmacistCreateDialogVisible.value = true
 }
 
 const showEditDialog = (account) => {
   editData.value = {
     id: account.ID,
+    dbSource: account.DB_SOURCE || 'dummymamsdb',
     username: account.USERNAME,
     role: account.ROLE,
     password: '',
@@ -445,6 +542,7 @@ const closeEditDialog = () => {
   editDialogVisible.value = false
   editData.value = {
     id: null,
+    dbSource: 'dummymamsdb',
     username: '',
     role: null,
     password: '',
@@ -472,6 +570,7 @@ const confirmEdit = async () => {
   try {
     const payload = {
       id: editData.value.id,
+      db_source: editData.value.dbSource || 'dummymamsdb',
       username: editData.value.username,
       role: editData.value.role,
       performed_by: currentUserData.value.USERNAME
@@ -522,6 +621,7 @@ const createAccount = async () => {
       username: name.value,
       password: password.value,
       role: role.value,
+      db_source: 'dummymamsdb',
       performed_by: currentUserData.value.USERNAME
     })
 
@@ -534,6 +634,8 @@ const createAccount = async () => {
     name.value = ''
     password.value = ''
     role.value = null
+    await nextTick()
+    accountForm.value?.resetValidation()
     createDialogVisible.value = false
 
     await fetchAccounts()
@@ -556,7 +658,9 @@ const createPharmacistAccount = async () => {
     await axios.post('/api/new-account', {
       username: pharmacistName.value,
       password: pharmacistPassword.value,
-      role: 'PHARMACIST',
+      role: pharmacistCategory.value,
+      partners: pharmacistPartners.value,
+      db_source: 'pharmasysdb',
       performed_by: currentUserData.value.USERNAME
     })
 
@@ -568,14 +672,20 @@ const createPharmacistAccount = async () => {
 
     pharmacistName.value = ''
     pharmacistPassword.value = ''
+    pharmacistCategory.value = null
+    pharmacistPartners.value = []
+    pharmacistPartnerError.value = ''
+    await nextTick()
+    pharmacistAccountForm.value?.resetValidation()
     pharmacistCreateDialogVisible.value = false
 
     await fetchAccounts()
   } catch (error) {
     console.error('Error creating pharmacist account:', error)
+    const backendMessage = error?.response?.data?.message
     $q.notify({
       type: 'negative',
-      message: 'Error creating pharmacist account',
+      message: backendMessage || 'Error creating pharmacist account',
       position: 'top'
     })
   } finally {
@@ -592,6 +702,7 @@ const deleteAccount = async () => {
   try {
     await axios.post('/api/delete-account', {
       id: accountToDelete.value.ID,
+      db_source: accountToDelete.value.DB_SOURCE || 'dummymamsdb',
       performed_by: currentUserData.value.USERNAME
     })
 
@@ -649,7 +760,18 @@ const logout = async (callBackend = true) => {
 const fetchAccounts = async () => {
   try {
     const res = await axios.get('/api/accounts')
-    accountRows.value = res.data[0]
+    const accounts = Array.isArray(res.data[0]) ? res.data[0] : []
+    const normalizedRows = accounts.map((row) => {
+      const source = row.DB_SOURCE || 'dummymamsdb'
+      return {
+        ...row,
+        DB_SOURCE: source,
+        row_key: `${source}-${row.ID}`
+      }
+    })
+
+    accountRows.value = normalizedRows.filter(row => row.DB_SOURCE === 'dummymamsdb')
+    pharmacistAccountRows.value = normalizedRows.filter(row => row.DB_SOURCE === 'pharmasysdb')
   } catch (error) {
     console.error('Failed to fetch accounts:', error)
     $q.notify({
@@ -667,6 +789,9 @@ const getCurrentUser = () => {
 }
 
 onMounted(() => {
+  pharmacistCategory.value = null
+  pharmacistPartners.value = []
+  pharmacistPartnerError.value = ''
   getCurrentUser()
   fetchAccounts()
   startSessionCheck()
@@ -787,6 +912,37 @@ onUnmounted(() => {
 .flat-input :deep(.q-field--focused .q-field__control) {
   border-color: #9e9e9e !important;
   box-shadow: none !important;
+}
+
+.partner-checkbox-list {
+  min-height: 38px;
+  padding-top: 2px;
+}
+
+.partner-checkbox {
+  display: flex !important;
+  align-items: center;
+  margin: 4px 0;
+}
+
+.partner-checkbox :deep(.q-checkbox__inner) {
+  margin-right: 8px;
+}
+
+.partner-checkbox :deep(.q-checkbox__label) {
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.partner-placeholder {
+  color: #707070;
+  font-size: 13px;
+}
+
+.partner-error {
+  color: #c10015;
+  font-size: 12px;
+  margin-top: 6px;
 }
 
 /* BUTTON COLORS */
