@@ -1,11 +1,12 @@
 import { defineBoot } from '#q-app/wrappers'
 import axios from 'axios'
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/'
+
 const api = axios.create({
-  // baseURL: 'https://tagumcity.gov.ph/mams_backend/public/',
-  baseURL: 'http://localhost:8000/',
-  withCredentials: false,
-  withXSRFToken: false, // Add this
+  baseURL: apiBaseUrl,
+  withCredentials: true,
+  withXSRFToken: true,
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
