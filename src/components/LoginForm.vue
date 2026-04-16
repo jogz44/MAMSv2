@@ -9,6 +9,8 @@
         <label>USERNAME</label>
         <q-input
           v-model="username"
+          name="username"
+          autocomplete="username"
           borderless
           placeholder="Username"
           class="line-input"
@@ -27,6 +29,8 @@
         <q-input
           v-model="password"
           :type="showPassword ? 'text' : 'password'"
+          name="password"
+          autocomplete="current-password"
           borderless
           placeholder="Password"
           class="line-input"
