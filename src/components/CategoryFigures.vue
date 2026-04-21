@@ -97,8 +97,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { api } from 'src/boot/axios'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { api, CATEGORY_BALANCES_REFRESH_EVENT } from 'src/boot/axios'
+import { useCategoryBalances } from 'src/composables/useCategoryBalances'
 
 const axios = api
 import { Chart } from 'chart.js/auto'
@@ -112,6 +113,11 @@ const categories = ref([
 const totalPatients = ref(0)
 const totalAmount = ref(0)
 const monthlyCateredPatients = ref(null)
+const CATEGORY_REFRESH_INTERVAL_MS = 30000
+let chartInstance = null
+let categoryRefreshTimer = null
+
+const { applyCategoryData } = useCategoryBalances(categories)
 
 const formatPeso = (amount) => {
   if (amount == null) return '₱0.00'
@@ -122,43 +128,97 @@ const formatPeso = (amount) => {
   }).format(amount)
 }
 
-onMounted(async () => {
+const refreshCategoryCards = async () => {
+  const categoryRes = await axios.get('/api/category-cards')
+  applyCategoryData(0, categoryRes.data.medicineData)
+  applyCategoryData(1, categoryRes.data.laboratoryData)
+  applyCategoryData(2, categoryRes.data.hospitalData)
+}
+
+const refreshTotals = async () => {
+  const totalsRes = await axios.get('/api/total-patients-and-amount')
+  totalPatients.value = totalsRes.data.totalPatients
+  totalAmount.value = totalsRes.data.totalAmount
+}
+
+const renderMonthlyChart = async () => {
+  const monthlyRes = await axios.get('/api/monthly-patients')
+  const months = Array.from({ length: 12 }, (_, i) => i + 1)
+  const dataMedicine = months.map(m => monthlyRes.data.monthlyCounts.Medicine[m] ?? 0)
+  const dataLaboratory = months.map(m => monthlyRes.data.monthlyCounts.Laboratory[m] ?? 0)
+  const dataHospital = months.map(m => monthlyRes.data.monthlyCounts.Hospital[m] ?? 0)
+
+  chartInstance = new Chart(monthlyCateredPatients.value, {
+    type: 'line',
+    data: {
+      labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+      datasets: [
+        { label: 'Medicine', data: dataMedicine, borderColor: '#0318fc', borderWidth: 2 },
+        { label: 'Laboratory', data: dataLaboratory, borderColor: '#fbff00', borderWidth: 2 },
+        { label: 'Hospital', data: dataHospital, borderColor: '#ff0000', borderWidth: 2 }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false
+    }
+  })
+}
+
+const safeRefreshCategoryCards = async () => {
   try {
-    const categoryRes = await axios.get('/api/category-cards')
-    categories.value[0] = { ...categories.value[0], ...categoryRes.data.medicineData }
-    categories.value[1] = { ...categories.value[1], ...categoryRes.data.laboratoryData }
-    categories.value[2] = { ...categories.value[2], ...categoryRes.data.hospitalData }
-
-    const totalsRes = await axios.get('/api/total-patients-and-amount')
-    totalPatients.value = totalsRes.data.totalPatients
-    totalAmount.value = totalsRes.data.totalAmount
-
-    const monthlyRes = await axios.get('/api/monthly-patients')
-
-    const months = Array.from({ length: 12 }, (_, i) => i + 1)
-
-    const dataMedicine = months.map(m => monthlyRes.data.monthlyCounts.Medicine[m] ?? 0)
-    const dataLaboratory = months.map(m => monthlyRes.data.monthlyCounts.Laboratory[m] ?? 0)
-    const dataHospital = months.map(m => monthlyRes.data.monthlyCounts.Hospital[m] ?? 0)
-
-    new Chart(monthlyCateredPatients.value, {
-      type: 'line',
-      data: {
-        labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-        datasets: [
-          { label: 'Medicine', data: dataMedicine, borderColor: '#0318fc', borderWidth: 2 },
-          { label: 'Laboratory', data: dataLaboratory, borderColor: '#fbff00', borderWidth: 2 },
-          { label: 'Hospital', data: dataHospital, borderColor: '#ff0000', borderWidth: 2 }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false
-      }
-    })
-
+    await refreshCategoryCards()
   } catch (err) {
     console.error(err)
+  }
+}
+
+const handleBalancesRefreshEvent = () => {
+  safeRefreshCategoryCards()
+}
+
+const handleWindowFocus = () => {
+  safeRefreshCategoryCards()
+}
+
+const handleVisibilityChange = () => {
+  if (!document.hidden) {
+    safeRefreshCategoryCards()
+  }
+}
+
+onMounted(async () => {
+  try {
+    await Promise.all([
+      refreshCategoryCards(),
+      refreshTotals(),
+      renderMonthlyChart()
+    ])
+  } catch (err) {
+    console.error(err)
+  }
+
+  window.addEventListener(CATEGORY_BALANCES_REFRESH_EVENT, handleBalancesRefreshEvent)
+  window.addEventListener('focus', handleWindowFocus)
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+
+  categoryRefreshTimer = window.setInterval(() => {
+    safeRefreshCategoryCards()
+  }, CATEGORY_REFRESH_INTERVAL_MS)
+})
+
+onUnmounted(() => {
+  window.removeEventListener(CATEGORY_BALANCES_REFRESH_EVENT, handleBalancesRefreshEvent)
+  window.removeEventListener('focus', handleWindowFocus)
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
+
+  if (categoryRefreshTimer) {
+    window.clearInterval(categoryRefreshTimer)
+  }
+
+  if (chartInstance) {
+    chartInstance.destroy()
+    chartInstance = null
   }
 })
 </script>
